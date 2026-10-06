@@ -129,6 +129,25 @@ it('keeps positions counting a row with the wrong cell count, so later rows keep
         ->and($file->row(1))->toBeNull();
 });
 
+it('finds the table only under a header with exactly the five names, in lower case and each once', function (string $header) {
+    $file = PipelineFile::parse("{$header}\n|---|---|---|---|---|\n| Northwind | Developer | applied | call | |\n");
+
+    expect($file->table)->toBeNull()
+        ->and($file->isEditable())->toBeFalse();
+})->with([
+    'capitalised' => ['| Company | role | stage | next action | date |'],
+    'a name twice' => ['| company | company | stage | next action | date |'],
+    'a sixth column' => ['| company | role | stage | next action | date | notes |'],
+    'a name missing' => ['| company | role | stage | next action |'],
+]);
+
+it('needs one separator cell per column', function (string $separator) {
+    $file = PipelineFile::parse("| company | role | stage | next action | date |\n{$separator}\n| Northwind | Developer | applied | call | |\n");
+
+    expect(lineErrors($file->errors))->toContain([1, 'no separator line under the table header'])
+        ->and($file->isEditable())->toBeFalse();
+})->with(['|---|---|---|---|', '|---|---|---|---|---|---|', '|---|---|stage|---|---|', '| | | | | |']);
+
 it('reports an empty file as having no table', function () {
     $file = PipelineFile::parse('');
 

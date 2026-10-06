@@ -4,8 +4,8 @@ namespace App\Markdown;
 
 /**
  * The rules a typed value must pass before it goes into a TASKS.md or a pipeline.md, so that anything
- * valid here also passes check-tasks.py, or Markboard's own pipeline checks. The Form Requests call these; they are plain PHP so they are
- * unit-tested without booting the app.
+ * valid here also passes check-tasks.py, or Markboard's own pipeline checks. The Form Requests call
+ * these; they are plain PHP so they are unit-tested without booting the app.
  *
  * Callers trim with trim() first. Each rule returns the problem as a validation message
  * (with Laravel's :attribute placeholder), or null when the value is fine.

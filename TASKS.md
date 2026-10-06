@@ -17,12 +17,12 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
 
 ## In progress
-- [ ] T3 Pipeline table parser and writer with Pest tests (started 2026-10-06)
-  proof: the pipeline fixtures named under Testing in docs/spec.md round-trip to identical bytes; editing a row touches only that row, in the header's column order; adding a row works on the empty-table fixture; each format-error fixture is read-only
 
 ## Waiting on
 
 ## Done
+- [x] T3 Pipeline table parser and writer with Pest tests (started 2026-10-06, done 2026-10-06, evidence docs/verify/T3.md, from In progress)
+  proof: the pipeline fixtures named under Testing in docs/spec.md round-trip to identical bytes; editing a row touches only that row, in the header's column order; adding a row works on the empty-table fixture; each format-error fixture is read-only
 - [x] T2 TASKS.md parser and writer in app/Markdown with Pest round-trip tests (started 2026-10-06, done 2026-10-06, evidence docs/verify/T2.md, from In progress)
   proof: the Unit and Parity tests listed under Testing in docs/spec.md pass, covering every fixture named there; every operation's result passes check-tasks.py; every validation rule has a test
 - [x] T10 CI green: Inertia page path pinned to resources/js/Pages (done 2026-10-06, from Up next)
