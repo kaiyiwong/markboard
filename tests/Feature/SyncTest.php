@@ -254,6 +254,12 @@ describe('later syncs', function () {
 
         $failing = false;
 
+        // Back to the version the rows describe: nothing to re-index, and the old failure is cleared.
+        editHubFile($pipeline, '| offer | prepare', '| interviewing | prepare');
+        expect(syncHub())->toBe(0)
+            ->and(SourceFile::firstWhere('path', $pipeline)->sync_error)->toBeNull();
+
+        editHubFile($pipeline, '| interviewing | prepare', '| offer | prepare');
         expect(syncHub())->toBe(1)
             ->and(SourceFile::firstWhere('path', $pipeline))->sync_error->toBeNull()
             ->and(PipelineRow::where('position', 1)->sole()->stage)->toBe(Stage::Offer);

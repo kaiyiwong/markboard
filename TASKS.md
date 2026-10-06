@@ -16,12 +16,12 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
 
 ## In progress
-- [ ] T4 Sync into MySQL: migrations, models, the sync middleware and service, markboard:sync and its schedule (started 2026-10-07)
-  proof: feature tests show a changed file re-synced by hash, an unchanged one skipped, the 2-second rule, registry and priorities parsed with malformed rows listed, and --fresh rebuilding the index while keeping file_versions and conflicts; schedule:list shows markboard:sync every minute
 
 ## Waiting on
 
 ## Done
+- [x] T4 Sync into MySQL: migrations, models, the sync middleware and service, markboard:sync and its schedule (started 2026-10-07, done 2026-10-07, evidence docs/verify/T4.md, from In progress)
+  proof: feature tests show a changed file re-synced by hash, an unchanged one skipped, the 2-second rule, registry and priorities parsed with malformed rows listed, and --fresh rebuilding the index while keeping file_versions and conflicts; schedule:list shows markboard:sync every minute
 - [x] T3 Pipeline table parser and writer with Pest tests (started 2026-10-06, done 2026-10-06, evidence docs/verify/T3.md, from In progress)
   proof: the pipeline fixtures named under Testing in docs/spec.md round-trip to identical bytes; editing a row touches only that row, in the header's column order; adding a row works on the empty-table fixture; each format-error fixture is read-only
 - [x] T2 TASKS.md parser and writer in app/Markdown with Pest round-trip tests (started 2026-10-06, done 2026-10-06, evidence docs/verify/T2.md, from In progress)

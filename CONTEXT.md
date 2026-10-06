@@ -42,4 +42,4 @@ markboard/
 
 ## Current status
 
-Stack set up on 2026-10-06: Laravel 13, Inertia 3, Vue 3 and TypeScript, Pest, Larastan, Pint, Boost, Sail with MySQL and GitHub Actions CI. Spec done (T1). TASKS.md parser, editor and input rules done in app/Markdown (T2), with parity tests against check-tasks.py. Pipeline table parser and writer done (T3). Next: sync into MySQL (T4).
+Stack set up on 2026-10-06: Laravel 13, Inertia 3, Vue 3 and TypeScript, Pest, Larastan, Pint, Boost, Sail with MySQL and GitHub Actions CI. Spec done (T1). TASKS.md parser, editor and input rules done in app/Markdown (T2), with parity tests against check-tasks.py. Pipeline table parser and writer done (T3). Sync into MySQL done (T4): the index and history tables, sync on every request, `markboard:sync` every minute, and the made-up hub in `demo/` that the feature tests copy. Next: the read views (T5).

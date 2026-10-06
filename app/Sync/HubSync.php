@@ -109,8 +109,9 @@ final class HubSync
         $hash = hash('sha256', $bytes);
         $stat = ['mtime' => $mtime, 'size' => strlen($bytes), 'synced_at' => now()];
         $record = SourceFile::firstWhere('path_hash', $pathHash);
+        // The rows already match these bytes, so an earlier failure no longer applies.
         if ($record?->hash === $hash) {
-            $record->update($stat);
+            $record->update([...$stat, 'sync_error' => null]);
 
             return false;
         }
@@ -289,7 +290,7 @@ final class HubSync
         $parsed = PipelineFile::parse($bytes);
         $file->pipelineRows()->delete();
 
-        PipelineRow::insert(array_map(fn (ParsedRow $row): array => [
+        $rows = array_map(fn (ParsedRow $row): array => [
             'source_file_id' => $file->id,
             'project_id' => $file->project_id,
             'position' => $row->position,
@@ -298,7 +299,10 @@ final class HubSync
             'stage' => Stage::tryFrom($row->stage)?->value,
             'next_action' => $row->nextAction,
             'date' => self::date($row->date),
-        ], $parsed->rows));
+        ], $parsed->rows);
+        foreach (array_chunk($rows, 500) as $chunk) {
+            PipelineRow::insert($chunk);
+        }
 
         return [$parsed->isEditable(), [...$parsed->lines->errors, ...$parsed->errors]];
     }
