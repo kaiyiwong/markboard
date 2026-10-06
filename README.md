@@ -34,7 +34,7 @@ Pages sync the files on every request, so the scheduler is optional. To keep sea
 
 ### The demo hub
 
-With `MARKBOARD_HUB_PATH` unset, the app copies `demo/` to `storage/app/demo-hub/` on first use and works on that copy, so editing the demo never changes tracked files. The demo has seven made-up projects: one with an overdue and a due-soon task, a product with tasks in every section, a paused game, a job search with a pipeline, one whose `TASKS.md` has format errors (shown read-only, with its errors and line numbers) and one with no `TASKS.md` at all.
+With `MARKBOARD_HUB_PATH` unset, the app copies `demo/` to `storage/app/demo-hub/` on first use and works on that copy, so editing the demo never changes tracked files. The demo has seven made-up projects: a personal site, a client project with an overdue and a due-soon task, a product with tasks in every section, a paused game, a job search with a pipeline, one whose `TASKS.md` has format errors (shown read-only, with its errors and line numbers) and one with no `TASKS.md` at all.
 
 To start the demo again from scratch:
 
