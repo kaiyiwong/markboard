@@ -3,9 +3,6 @@
 Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 
 ## Up next
-- [ ] T7 Demo hub and README: what it is, how to run it with Sail, architecture and design decisions
-  proof: on a fresh clone, the README's commands bring up the app on localhost with the demo data, and the README states the AI assistance as decisions.md D24 describes; the parity test also runs on every demo file
-  note: demo/ itself was built in T4 (decisions D32); T7 adds the app's demo copy, markboard:demo --reset and the README
 - [ ] T8 End-to-end browser test: tick a task in the UI and see the change in the file
   proof: the Pest browser test ticks a task in the UI and finds the change in the temp hub's TASKS.md, locally and in CI (Chromium installed in the workflow)
 - [ ] T9 Private-content check, then make the repo public
@@ -14,6 +11,10 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## In progress
 
 ## Waiting on
+- [ ] T7 Demo hub and README: what it is, how to run it with Sail, architecture and design decisions (started 2026-10-07, waiting Kai, since 2026-10-07)
+  proof: on a fresh clone, the README's commands bring up the app on localhost with the demo data, and the README states the AI assistance as decisions.md D24 describes; the parity test also runs on every demo file
+  note: demo/ itself was built in T4 (decisions D32); T7 adds the app's demo copy, markboard:demo --reset and the README
+  note: built on branch t7/demo-readme; waiting on Kai to put Sail's MySQL settings in .env.example (Claude can't edit it), then run the README's fresh-clone commands with Sail
 
 ## Done
 - [x] T6 Edits through /api/v1 with ETag and If-Match, and the conflict panel (started 2026-10-07, done 2026-10-07, evidence docs/verify/T6.md, from In progress)
