@@ -102,11 +102,12 @@ The format is defined by `check-tasks.py`; this is a summary:
 
 Markboard owns this format's checks (no external checker exists for it):
 
-- The table is the first line whose cells are exactly `company`, `role`, `stage`, `next action`, `date` (trimmed, in any order), then a separator line (cells of `-`, optionally with `:`), then data rows: the `|` lines that follow without a break. Everything else in the file is free text and is never touched. Cells are read by header name, so the column order is whatever the header says.
-- A line is split on `|` after removing one leading and one trailing `|`; escaped pipes (`\|`) aren't supported.
-- Format errors (the file is then read-only): no header line; no separator under it; a data row whose cell count differs from the header's; a `stage` not in the list below; a `date` that isn't empty or a real `YYYY-MM-DD` date; invalid UTF-8; a line break other than `\n` or `\r\n` (see the line model).
+- A table line is a line that starts with `|` after any leading whitespace. The table is the first table line whose cells are exactly `company`, `role`, `stage`, `next action`, `date` (trimmed, case-sensitive, in any order), then a separator line (one cell per column, each of `-`, optionally with `:`), then data rows: the table lines that follow without a break. Everything else in the file is free text and is never touched, including a later table with the same columns. Cells are read by header name, so the column order is whatever the header says.
+- A line is split on `|` after trimming it and removing one leading and one trailing `|`; each cell is trimmed. Escaped pipes (`\|`) aren't supported.
+- Format errors (the file is then read-only): no header line; no separator under it; a data row whose cell count differs from the header's; a `stage` not in the list below; a `date` that isn't empty or a real `YYYY-MM-DD` date; invalid UTF-8; a line break other than `\n` or `\r\n` (see the line model). Parsing is best-effort: with no separator, the table lines straight after the header are read as rows, and a row with the wrong cell count is left out but still counts for the positions of the rows after it.
 - `stage` is open (`applied`, `screening`, `interviewing`, `offer`) or closed (`accepted`, `rejected`, `withdrawn`, `closed`).
 - A row is identified by its position among the data rows, starting at 1 [D9].
+- The table reader (`app/Markdown/Table`) is shared with the registry, which follows the same table rules.
 
 ## Reading files: the line model
 
@@ -173,10 +174,10 @@ Anything that passes validation must also pass the checker; the rules exist to g
 
 | Operation | Result |
 |---|---|
-| Edit row `n` (PATCH, partial) | Fields: `company`, `role`, `stage`, `next_action`, `date` (`null` or `""` empties it). The row line is rewritten in the header's column order as `\| a \| b \| c \| d \| e \|`. No other line changes. |
-| Add row | All five fields (date may be empty). A new row line after the last data row, or directly after the separator if the table has no rows. |
+| Edit row `n` (PATCH, partial) | Fields: `company`, `role`, `stage`, `next_action`, `date` (`null` or `""` empties it). The row line is rewritten in the header's column order as `\| a \| b \| c \| d \| e \|`, keeping its own terminator; if no value changes, it keeps its original bytes. No other line changes. |
+| Add row | All five fields (date may be empty). A new row line after the last data row, or directly after the separator if the table has no rows, with the file's dominant terminator. |
 
-Validation: `company`, `role`, `next_action` not empty, at most 200 characters, trimmed like every text value, and containing no line boundary, control character or `|`; `stage` from the list; `date` empty or a real `YYYY-MM-DD` date. A file with no table is not editable (409).
+Validation: `company`, `role`, `next_action` not empty, at most 200 characters, trimmed like every text value, and containing no line boundary, control character or `|` (`InputRules::pipelineCell`); `stage` from the list (the `Stage` enum); `date` empty or a real `YYYY-MM-DD` date. A file with no table is not editable (409). As with tasks, `PipelineEditor` parses its result again: if the file would have an error or the row wouldn't read back as meant, it throws `EditRefused` (422).
 
 ## The write path
 

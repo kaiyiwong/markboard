@@ -1,6 +1,8 @@
 <?php
 
+use App\Markdown\FormatError;
 use App\Markdown\InputRules;
+use App\Markdown\PipelineFile;
 use Tests\Support\Checker;
 
 /**
@@ -16,6 +18,18 @@ function pasted(string $upNext = '', string $waitingOn = '', string $done = ''):
 function checkerMessages(string $text): array
 {
     return array_column(Checker::errors([$text])[0] ?? [], 'message');
+}
+
+/**
+ * The pipeline parser's errors for a file with one row whose company is pasted in as is.
+ *
+ * @return list<string>
+ */
+function pastedCompanyErrors(string $company): array
+{
+    $file = PipelineFile::parse("| company | role | stage | next action | date |\n|---|---|---|---|---|\n| {$company} | Developer | applied | call | |\n");
+
+    return array_map(fn (FormatError $error): string => $error->message, [...$file->errors, ...$file->lines->errors]);
 }
 
 describe('trim', function () {
@@ -137,4 +151,33 @@ describe('due', function () {
         expect(InputRules::date($date))->toBe('The :attribute must be a real date written as YYYY-MM-DD.')
             ->and(checkerMessages(pasted("- [ ] T1 Task (due {$date})")))->toBe(["bad date for \"due\": {$date}"]);
     })->with(['2026-02-30', '2027-02-29', '2026-2-3', '26-10-20', 'tomorrow', '0000-01-01', '2026-10-20x']);
+});
+
+describe('pipeline cell', function () {
+    it('accepts ordinary text, parentheses and commas included', function (string $value) {
+        expect(InputRules::pipelineCell($value))->toBeNull();
+    })->with(['Northwind', 'Senior Engineer (platform)', 'prepare system design, then rest']);
+
+    it('refuses a |, which splits the cell and breaks the row', function () {
+        expect(InputRules::pipelineCell('call | or email'))->toBe('The :attribute must not contain a | character.')
+            ->and(pastedCompanyErrors('North | wind'))->toBe(['row has 6 cells, the header has 5']);
+    });
+
+    it('refuses empty text', function () {
+        expect(InputRules::pipelineCell(InputRules::trim(" \u{a0}")))->toBe('The :attribute must not be empty.');
+    });
+
+    it('refuses line breaks and control characters, which would split the row', function (string $control) {
+        expect(InputRules::pipelineCell("one{$control}two"))->toContain('line breaks');
+    })->with(["\n", "\r", "\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\u{85}", "\u{2028}", "\u{2029}", "\x00", "\t", "\x7f"]);
+
+    it('guards the format: a line break in a cell breaks the file', function () {
+        expect(pastedCompanyErrors("North\nwind"))->toBe(['row has 1 cell, the header has 5'])
+            ->and(pastedCompanyErrors("North\u{2028}wind"))->toContain('line break U+2028: only \n and \r\n line breaks can be edited');
+    });
+
+    it('allows 200 characters, counting characters rather than bytes', function () {
+        expect(InputRules::pipelineCell(str_repeat('é', 200)))->toBeNull()
+            ->and(InputRules::pipelineCell(str_repeat('é', 201)))->toBe('The :attribute must be at most 200 characters.');
+    });
 });

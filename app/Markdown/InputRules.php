@@ -3,8 +3,8 @@
 namespace App\Markdown;
 
 /**
- * The rules a typed value must pass before it goes into a TASKS.md, so that anything valid here
- * also passes check-tasks.py. The Form Requests call these; they are plain PHP so they are
+ * The rules a typed value must pass before it goes into a TASKS.md or a pipeline.md, so that anything
+ * valid here also passes check-tasks.py, or Markboard's own pipeline checks. The Form Requests call these; they are plain PHP so they are
  * unit-tested without booting the app.
  *
  * Callers trim with trim() first. Each rule returns the problem as a validation message
@@ -15,6 +15,8 @@ final class InputRules
     public const int TITLE_MAX = 300;
 
     public const int TEXT_MAX = 500;
+
+    public const int CELL_MAX = 200;
 
     /** Line boundaries from the line model and every other control character. */
     private const string CONTROL = '/[\x{0}-\x{1f}\x{7f}\x{85}\x{2028}\x{2029}]/u';
@@ -44,6 +46,13 @@ final class InputRules
     {
         return self::text($value, self::TEXT_MAX)
             ?? (strpbrk($value, ',()') !== false ? 'The :attribute must not contain commas or parentheses.' : null);
+    }
+
+    /** A pipeline row's company, role or next action: a `|` would split the cell in two. */
+    public static function pipelineCell(string $value): ?string
+    {
+        return self::text($value, self::CELL_MAX)
+            ?? (str_contains($value, '|') ? 'The :attribute must not contain a | character.' : null);
     }
 
     public static function date(string $value): ?string
