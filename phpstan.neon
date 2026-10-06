@@ -1,0 +1,9 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - app
+        - routes
+    # tests/ is left out: PHPStan can't see the $this that Pest binds inside test closures.
