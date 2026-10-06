@@ -19,12 +19,12 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
 
 ## In progress
-- [ ] T2 TASKS.md parser and writer in app/Markdown with Pest round-trip tests (started 2026-10-06)
-  proof: the Unit and Parity tests listed under Testing in docs/spec.md pass, covering every fixture named there; every operation's result passes check-tasks.py; every validation rule has a test
 
 ## Waiting on
 
 ## Done
+- [x] T2 TASKS.md parser and writer in app/Markdown with Pest round-trip tests (started 2026-10-06, done 2026-10-06, evidence docs/verify/T2.md, from In progress)
+  proof: the Unit and Parity tests listed under Testing in docs/spec.md pass, covering every fixture named there; every operation's result passes check-tasks.py; every validation rule has a test
 - [x] T10 CI green: Inertia page path pinned to resources/js/Pages (done 2026-10-06, from Up next)
   proof: the CI run on the T1 pull request passes
   note: tests passed on the Mac but failed on Linux, because Inertia 3 looks in js/pages and the folder is js/Pages

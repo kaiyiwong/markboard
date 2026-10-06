@@ -38,6 +38,7 @@ describe('title', function () {
 
     it('refuses an empty title, which the checker would not read as a task', function () {
         expect(InputRules::title(''))->toBe('The :attribute must not be empty.')
+            ->and(InputRules::title(InputRules::trim(" \u{a0}\u{3000}")))->toBe('The :attribute must not be empty.')
             ->and(checkerMessages(pasted('- [ ] T1 ')))->toBe(['text between sections']);
     });
 
@@ -78,9 +79,15 @@ describe('proof and note', function () {
             ->and(checkerMessages(pasted("- [ ] T1 Task\n  note: ")))->toBe(['indented line must be "  proof: ..." or "  note: ..."']);
     });
 
-    it('refuses line breaks, which would leave text between sections', function () {
-        expect(InputRules::proseLine("one\ntwo"))->toContain('line breaks')
-            ->and(checkerMessages(pasted("- [ ] T1 Task\n  proof: one\ntwo")))->toBe(['text between sections']);
+    it('refuses line breaks and control characters, which would leave text between sections', function (string $control) {
+        expect(InputRules::proseLine("one{$control}two"))->toContain('line breaks')
+            ->and(InputRules::metadataValue("one{$control}two"))->toContain('line breaks');
+    })->with(["\n", "\r", "\x0b", "\x0c", "\x1c", "\x1d", "\x1e", "\u{85}", "\u{2028}", "\u{2029}", "\x00", "\t", "\x7f"]);
+
+    it('guards the format: a line break in a proof or in waiting breaks the file', function () {
+        expect(checkerMessages(pasted("- [ ] T1 Task\n  proof: one\ntwo")))->toBe(['text between sections'])
+            ->and(checkerMessages(pasted(waitingOn: "- [ ] T1 Task (waiting Ana\nBob, since 2026-10-01)")))
+            ->toBe(['Waiting on task needs waiting', 'Waiting on task needs since', 'text between sections']);
     });
 
     it('allows 500 characters', function () {

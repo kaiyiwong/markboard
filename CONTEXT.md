@@ -42,4 +42,4 @@ markboard/
 
 ## Current status
 
-Stack set up on 2026-10-06: Laravel 13, Inertia 3, Vue 3 and TypeScript, Pest, Larastan, Pint, Boost, Sail with MySQL and GitHub Actions CI. One placeholder page. Next: the spec, then the TASKS.md parser and writer with round-trip tests.
+Stack set up on 2026-10-06: Laravel 13, Inertia 3, Vue 3 and TypeScript, Pest, Larastan, Pint, Boost, Sail with MySQL and GitHub Actions CI. Spec done (T1). TASKS.md parser, editor and input rules done in app/Markdown (T2), with parity tests against check-tasks.py. Next: the pipeline parser (T3).

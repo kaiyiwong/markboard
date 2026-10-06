@@ -297,6 +297,34 @@ describe('tick, cancel and undo', function () {
                 MD);
     });
 
+    it('keeps dates and evidence the task already has, and drops the opposite outcome', function () {
+        $file = TasksFile::parse(Fixtures::tasks('basic.md'));
+        $line = fn (string $result, int $number): string => TasksFile::parse($result)->task($number)->line->render();
+
+        expect($line(editor()->move($file, 9, Section::InProgress), 9))
+            ->toBe('- [ ] T09 Copy review (waiting Ana, since 2026-09-28, started 2026-10-06)')
+            ->and($line(editor()->move(TasksFile::parse(editor()->move($file, 11, Section::UpNext)), 11, Section::InProgress), 11))
+            ->toBe('- [ ] T11 Settings page (started 2026-10-01)')
+            ->and($line(editor()->undo($file, 10), 10))->toBe('- [ ] T10 Sign-in flow (started 2026-09-22)');
+
+        $cancelledWithEvidence = TasksFile::parse(str_replace(
+            '- [ ] T12 Export to CSV (due 2026-10-20)',
+            '- [ ] T12 Export to CSV (due 2026-10-20, evidence abc, cancelled 2026-10-01)',
+            Fixtures::tasks('basic.md'),
+        ));
+        expect($line(editor()->tick($cancelledWithEvidence, 12), 12))
+            ->toBe('- [x] T12 Export to CSV (due 2026-10-20, evidence abc, done 2026-10-06, from Up next)')
+            ->and($line(editor()->cancel(TasksFile::parse(editor()->undo(TasksFile::parse(editor()->tick($file, 12, 'abc')), 12)), 12), 12))
+            ->toBe('- [x] T12 Export to CSV (due 2026-10-20, cancelled 2026-10-06, from Up next)');
+
+        $waitingDone = TasksFile::parse(str_replace(
+            '- [x] T07 Offline mode (cancelled 2026-09-24, from Up next)',
+            '- [x] T07 Offline mode (waiting Ana, since 2026-09-01, done 2026-09-24, evidence f00, from Waiting on)',
+            Fixtures::tasks('basic.md'),
+        ));
+        expect($line(editor()->undo($waitingDone, 7, 'Bob'), 7))->toBe('- [ ] T07 Offline mode (waiting Ana, since 2026-09-01)');
+    });
+
     it('ticks the last line of a file with no final newline, and keeps it without one', function () {
         $file = TasksFile::parse(Fixtures::tasks('no-final-newline.md'));
 
