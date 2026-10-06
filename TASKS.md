@@ -25,5 +25,8 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T10 CI green: Inertia page path pinned to resources/js/Pages (done 2026-10-06, from Up next)
+  proof: the CI run on the T1 pull request passes
+  note: tests passed on the Mac but failed on Linux, because Inertia 3 looks in js/pages and the folder is js/Pages
 - [x] T1 docs/spec.md: views, data model, sync, write-back rules, conflicts and the REST API (started 2026-10-06, done 2026-10-06, evidence docs/spec-review.md, from In progress)
   proof: spec-reviewer on docs/spec.md returns CLEAN, or each remaining issue is answered in the spec
