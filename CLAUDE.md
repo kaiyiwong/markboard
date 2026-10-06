@@ -1,3 +1,84 @@
+# CLAUDE.md — Markboard
+
+## Engineering Philosophy
+
+1. Read the code, not the docs. Docs lie. Code is truth. When in doubt, read the source.
+2. Don't add code, remove it. Every line is a liability. The best code is no code.
+3. Don't fix symptoms, fix causes. If you're patching the same thing twice, you're in the wrong place.
+
+---
+
+## What this project is
+
+Markboard is a local Laravel + Vue dashboard over plain-markdown project files: each project's TASKS.md (a strict task format) and a job-search pipeline table. It lists every project in priority order, shows one project's tasks grouped as in its file, the pipeline as a board and the daily brief, and lets the user add, edit, tick, move and reorder tasks in the browser. The markdown files stay the source of truth: AI agents and scripts keep editing them directly, Markboard syncs them into MySQL for filtering and search, and writes edits back so a git diff shows only the change. It is also a public portfolio project for Laravel + Vue roles, so code, tests and docs are written for reviewers to read.
+
+## Tech stack
+
+- PHP 8.5, Laravel 13, Inertia 3, Vue 3 (`<script setup>`), TypeScript 6
+- MySQL 8.4 through Laravel Sail (Docker); in-memory SQLite for local test runs, MySQL in CI
+- Pest 5, Larastan (level 6), Pint, vue-tsc; GitHub Actions CI
+- Kai's design system v1.2.0 in `design-system/` with Vue scoped CSS (no Tailwind)
+- Runs on localhost only; no auth
+
+---
+
+## Non-negotiables
+
+- The files are the source of truth. The database is an index filled by sync, never typed into, and can be dropped and rebuilt from the files at any time.
+- A write changes only the lines of the task or row being edited. Every other byte of the file stays the same, proven by round-trip tests.
+- Never overwrite a file that changed on disk since the version the user saw: compare its hash (`If-Match`), refuse with `412`, re-sync and show the conflict.
+- A file with format errors is shown read-only, never edited. Every write must pass `check-tasks.py`.
+- No real project content in this repo: no copies of Kai's TASKS.md files, no client names. Tests and the demo use synthetic data. The repo goes public.
+- Every published port binds to 127.0.0.1, because there is no auth.
+- No paid AI API calls from the app, its tests or the build.
+
+---
+
+## Prompt structure (caching rules)
+
+These rules apply to every session. Violating them breaks prompt caching and increases cost.
+
+- Static content always before dynamic content in any prompt
+- Never change the tool set mid-session
+- Dynamic updates (date, config changes, user input) go in `<system-reminder>` tags in
+  messages — never as prompt edits
+
+---
+
+## Engineering rules
+
+- Parsing and writing live in plain PHP classes under `app/Markdown/` with no Laravel dependency, unit-tested without booting the app.
+- Edits go through the versioned JSON API (`/api/v1/...`) with Form Requests and API Resources. Inertia only renders pages.
+- Controllers stay thin; each write operation is one action class in `app/Actions/`.
+- PHP: typed properties, parameters and return types everywhere; array shapes in PHPDoc. TypeScript: strict, no `any`; response shapes typed in `resources/js/types/`.
+- Styling: design-system tokens and classes plus scoped CSS; no hardcoded colours or sizes.
+- Before calling a change done: `php artisan test`, `composer lint`, `composer analyse`, `npm run typecheck`, `npm run build`.
+- One branch and pull request per task; the PR says what changed and why.
+
+---
+
+## Gotchas
+
+- TypeScript 7 breaks vue-tsc (it can't find `typescript/lib/tsc`): keep `typescript` on ^6.
+- Laravel Boost only registers in the `local` environment. With no environment file, prefix artisan with `APP_ENV=local`.
+- Claude never reads or edits the environment files, including the example template; they're on the sandbox deny list. Defaults go in `config/*.php` and `phpunit.xml`.
+- In Claude's sandbox: PHPStan's workers need `PHP_INI_SCAN_DIR=":$TMPDIR/phpini"` (an ini setting `opcache.lockfile_path` to `$TMPDIR`); npm needs `--cache "$TMPDIR/npm-cache"`; Docker isn't reachable, so Kai runs Sail.
+
+---
+
+## Session start
+
+Read in order: CLAUDE.md → DESIGN.md → CONTEXT.md → TASKS.md → docs/spec.md.
+Identify current state from TASKS.md. Confirm next task with user before starting.
+Ask clarifying questions before writing code.
+
+## Task management
+
+- TASKS.md is the source of truth for what's open — never rely on memory or git for current state
+- Its format is the hub's strict format (~/projects/hub/docs/spec.md); the close-out rule is in ~/.claude/CLAUDE.md
+- Every change also gets a learning note for the author, kept outside this repo; CLAUDE.local.md (not in git) says where.
+
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

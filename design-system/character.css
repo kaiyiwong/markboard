@@ -1,0 +1,35 @@
+/* design-system v1.2.0 | character.css
+   The character dials: how a project looks, chosen per project and set on <html> like data-accent.
+   data-surface  lines (default) | fills | layered
+   data-shape    sharp (default) | soft | round
+   data-type     quiet (default) | loud
+   data-color    quiet (default) | signature
+   With no dial set, a page looks exactly as it did in v1.1.0. Load after palettes.css. See SPEC.md 14. */
+
+/* ---------- surface ---------- */
+/* fills: tinted canvas, borderless surfaces, filled fields identified by their label and fill */
+:root[data-surface="fills"],:root[data-surface="layered"]{
+  --bg-canvas:var(--neutral-2);--bg-surface:#ffffff;
+  --field-bg:var(--bg-control);--field-border:transparent;--field-edge:transparent;
+  --field-bg-hover:var(--bg-control-hover);--field-border-hover:transparent;
+  --panel-border:transparent;
+}
+/* layered: fills, plus cards raised with --shadow-raised */
+:root[data-surface="layered"]{--panel-shadow:var(--shadow-raised)}
+/* dark keeps its own canvas and surface: these selectors are more specific than the light ones and tokens.css's :root.dark */
+:root.dark:is([data-surface="fills"],[data-surface="layered"]){--bg-canvas:var(--neutral-1);--bg-surface:var(--neutral-2)}
+@media (prefers-color-scheme:dark){:root:not(.light):is([data-surface="fills"],[data-surface="layered"]){--bg-canvas:var(--neutral-1);--bg-surface:var(--neutral-2)}}
+
+/* ---------- shape ---------- */
+:root[data-shape="soft"]{--control-radius:var(--radius-2);--container-radius:var(--radius-3);--media-radius:var(--radius-2)}
+:root[data-shape="round"]{--control-radius:var(--radius-full);--container-radius:var(--radius-4);--media-radius:var(--radius-3)}
+
+/* ---------- type ---------- */
+:root[data-type="loud"]{--key-size:36px;--key-lh:44px;--key-ls:-0.01em}
+
+/* ---------- color ---------- */
+/* signature: the accent may fill one surface per view (the stage by default), not just controls.
+   Muted text mixes toward the stage instead of using an accent step, so it never reads as a link */
+:root[data-color="signature"]{--bg-stage:var(--accent-12);--fg-stage-muted:color-mix(in srgb,var(--fg-stage) 72%,var(--bg-stage))}
+:root.dark[data-color="signature"]{--bg-stage:var(--accent-2);--fg-stage-muted:color-mix(in srgb,var(--fg-stage) 72%,var(--bg-stage))}
+@media (prefers-color-scheme:dark){:root:not(.light)[data-color="signature"]{--bg-stage:var(--accent-2);--fg-stage-muted:color-mix(in srgb,var(--fg-stage) 72%,var(--bg-stage))}}

@@ -1,3 +1,12 @@
+// Design system first, in the order its setup guide requires; project styles last.
+import '../../design-system/fonts.css';
+import '../../design-system/colors.css';
+import '../../design-system/tokens.css';
+import '../../design-system/palettes.css';
+import '../../design-system/character.css';
+import '../../design-system/base.css';
+import '../css/app.css';
+
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createApp, h, type DefineComponent } from 'vue';
 

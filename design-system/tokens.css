@@ -1,0 +1,109 @@
+/* design-system v1.2.0 | tokens.css
+   All three tiers: primitive values, semantic roles and component sizes. Components use roles, never raw values. */
+:root{
+  /* type: editorial roles, fluid from 360 to 1440 */
+  --ed-caption:clamp(0.8125rem, 0.7917rem + 0.0926vw, 0.875rem);--ed-label:clamp(0.8125rem, 0.7917rem + 0.0926vw, 0.875rem);--ed-body:clamp(1rem, 0.9583rem + 0.1852vw, 1.125rem);--ed-lead:clamp(1.188rem, 1.1042rem + 0.3704vw, 1.438rem);--ed-title:clamp(1.188rem, 1.1042rem + 0.3704vw, 1.438rem);--ed-headline:clamp(1.75rem, 1.6042rem + 0.6481vw, 2.188rem);--ed-display:clamp(2.5rem, 2.1875rem + 1.3889vw, 3.438rem);--ed-hero:clamp(3rem, 2.5625rem + 1.9444vw, 4.312rem);--ed-hero-lg:clamp(3.562rem, 2.9583rem + 2.6852vw, 5.375rem);
+  --ed-body-lh:clamp(1.5rem, 1.4167rem + 0.3704vw, 1.75rem);--cjk-body-lh:clamp(1.75rem, 1.6667rem + 0.3704vw, 2rem);
+  /* spacing ladder: 1 to 6 fixed, 7 to 10 fluid */
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:clamp(2.5rem, 2.3333rem + 0.7407vw, 3rem);--space-8:clamp(3rem, 2.6667rem + 1.4815vw, 4rem);--space-9:clamp(4rem, 3.3333rem + 2.9630vw, 6rem);--space-10:clamp(5rem, 4.0000rem + 4.4444vw, 8rem);
+  /* fonts */
+  --font-latin:"Inter";
+  --font-sans:var(--font-latin),ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-system:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --font-ja:"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Yu Gothic";
+  --font-sc:"Noto Sans SC","Noto Sans CJK SC","PingFang SC","Microsoft YaHei";
+  --font-tc:"Noto Sans TC","Noto Sans CJK TC","PingFang TC","Microsoft JhengHei";
+  /* weights: three in the whole system */
+  --weight-regular:400;--weight-medium:500;--weight-strong:600;
+  /* letter-spacing per role, measured for Inter */
+  --ls-title:-0.005em;--ls-headline:-0.01em;--ls-display:-0.02em;--ls-hero:-0.025em;
+  /* optional voice font: headline, display, hero, pull quotes only. Off by default */
+  --font-voice:var(--font-sans);--weight-voice:var(--weight-medium);
+  --ls-voice-headline:var(--ls-headline);--ls-voice-display:var(--ls-display);--ls-voice-hero:var(--ls-hero);
+  /* radius by tier */
+  --radius-0:0;--radius-1:4px;--radius-2:8px;--radius-3:16px;--radius-4:24px;--radius-full:9999px;--radius-bar:12px;
+  /* radius by role; the shape dial in character.css changes all three */
+  --container-radius:var(--radius-2);--media-radius:var(--radius-0);
+  /* component tier: control sizes shared by every control */
+  --control-radius:var(--radius-1);
+  --control-h-sm:24px;--control-h-md:32px;--control-h-lg:40px;--control-h-xl:48px;
+  --control-px-sm:var(--space-2);--control-px-md:var(--space-3);--control-px-lg:var(--space-4);--control-px-xl:var(--space-5);
+  --control-px-icon-sm:var(--space-1);--control-px-icon-md:var(--space-2);--control-px-icon-lg:var(--space-3);--control-px-icon-xl:var(--space-4);
+  --control-fs-sm:12px;--control-fs-md:14px;--control-fs-lg:14px;--control-fs-xl:16px;
+  --control-icon-sm:16px;--control-icon-md:16px;--control-icon-lg:20px;--control-icon-xl:20px;
+  --control-gap-sm:var(--space-1);--control-gap-md:var(--space-2);--control-gap-lg:var(--space-2);--control-gap-xl:var(--space-2);
+  --control-minw-sm:calc(var(--control-h-sm) * 2);--control-minw-md:calc(var(--control-h-md) * 2);
+  --control-minw-lg:calc(var(--control-h-lg) * 2);--control-minw-xl:calc(var(--control-h-xl) * 2);
+  /* stacking order (placeholder values, to test with components) */
+  --z-base:0;--z-sticky:100;--z-dropdown:200;--z-overlay:300;--z-modal:400;--z-popover:500;--z-toast:600;
+  /* grid */
+  --cols:4;--gutter:16px;--margin:16px;--page-max:1440px;
+  /* media ratios */
+  --ratio-wide:16/9;--ratio-photo:4/3;--ratio-portrait:3/4;--ratio-square:1/1;
+  /* accent: blue by default (see palettes.css) */
+  --accent-1:var(--blue-1);--accent-2:var(--blue-2);--accent-3:var(--blue-3);--accent-4:var(--blue-4);--accent-5:var(--blue-5);--accent-6:var(--blue-6);--accent-7:var(--blue-7);--accent-8:var(--blue-8);--accent-9:var(--blue-9);--accent-10:var(--blue-10);--accent-11:var(--blue-11);--accent-12:var(--blue-12);--accent-strong-light:var(--blue-9);--accent-strong-dark:var(--blue-8);--accent-solid:#0d74ce;--accent-solid-hover:color-mix(in srgb,#0d74ce 88%,black);--accent-solid-active:color-mix(in srgb,#0d74ce 80%,black);--fg-on-accent:#ffffff;
+  /* neutral: slate by default */
+  --neutral-1:var(--slate-1);--neutral-a1:var(--slate-a1);--neutral-2:var(--slate-2);--neutral-a2:var(--slate-a2);--neutral-3:var(--slate-3);--neutral-a3:var(--slate-a3);--neutral-4:var(--slate-4);--neutral-a4:var(--slate-a4);--neutral-5:var(--slate-5);--neutral-a5:var(--slate-a5);--neutral-6:var(--slate-6);--neutral-a6:var(--slate-a6);--neutral-7:var(--slate-7);--neutral-a7:var(--slate-a7);--neutral-8:var(--slate-8);--neutral-a8:var(--slate-a8);--neutral-9:var(--slate-9);--neutral-a9:var(--slate-a9);--neutral-10:var(--slate-10);--neutral-a10:var(--slate-a10);--neutral-11:var(--slate-11);--neutral-a11:var(--slate-a11);--neutral-12:var(--slate-12);--neutral-a12:var(--slate-a12);
+  --danger-solid:#ce2c31;--danger-solid-hover:color-mix(in srgb,#ce2c31 88%,black);--danger-solid-active:color-mix(in srgb,#ce2c31 80%,black);
+  /* semantic roles, light */
+  color-scheme:light;
+  --bg-canvas:#ffffff;--bg-subtle:var(--neutral-2);--bg-surface:#ffffff;
+  --bg-control:var(--neutral-3);--bg-control-hover:var(--neutral-4);--bg-control-active:var(--neutral-5);--bg-input-disabled:var(--neutral-2);
+  --border-subtle:var(--neutral-6);--border-default:var(--neutral-7);--border-strong:var(--neutral-8);
+  --border-control:var(--neutral-9);--border-control-hover:var(--neutral-10);
+  --fg-default:var(--neutral-12);--fg-muted:var(--neutral-11);--fg-disabled:var(--neutral-8);
+  --accent-bg:var(--accent-3);--accent-bg-hover:var(--accent-4);--accent-fg:var(--accent-11);--accent-fg-strong:var(--accent-12);
+  --accent-strong:var(--accent-strong-light);--focus-ring:var(--accent-strong);
+  /* status: -fg is text on the canvas or a surface; -fg-strong is text on the status's own -bg (step 11 on step 3 is under 4.5:1) */
+  --danger-bg:var(--red-3);--danger-border:var(--red-9);--danger-fg:var(--red-11);--danger-fg-strong:var(--red-12);
+  --warning-bg:var(--amber-3);--warning-border:var(--amber-11);--warning-fg:var(--amber-11);--warning-fg-strong:var(--amber-12);
+  --success-bg:var(--green-3);--success-border:var(--green-9);--success-fg:var(--green-11);--success-fg-strong:var(--green-12);
+  --info-bg:var(--blue-3);--info-border:var(--blue-9);--info-fg:var(--blue-11);--info-fg-strong:var(--blue-12);
+  /* fields: outlined by default; the surface dial can fill them instead */
+  --field-bg:var(--bg-canvas);--field-border:var(--border-control);--field-edge:var(--border-control);
+  --field-bg-hover:var(--bg-canvas);--field-border-hover:var(--border-control-hover);
+  --panel-border:var(--border-subtle);--panel-shadow:none;
+  /* stage: an area that stays dark in both themes, for media to sit on */
+  --bg-stage:var(--neutral-12);--fg-stage:var(--neutral-1);--fg-stage-muted:var(--neutral-8);
+  --stage-hover:color-mix(in srgb,var(--neutral-1) 12%,transparent);--stage-selected:var(--neutral-1);
+  /* the one key element of a view (a real number or title); the type dial makes it loud */
+  --key-size:16px;--key-lh:24px;--key-ls:0em;
+  --chart-1:var(--cyan-10);--chart-2:var(--violet-9);--chart-3:var(--crimson-9);--chart-4:var(--yellow-11);--chart-5:var(--mint-11);--chart-muted:var(--neutral-9);
+  --scrim:rgb(0 0 0 / 0.4);
+  /* elevation: a 1px ring that defines the edge, then soft layers. raised = cards, overlay = menus and popovers, modal = dialogs */
+  --shadow-raised:0 2px 3px -1px rgb(0 0 0 / 0.1),0 1px 0 0 rgb(25 28 33 / 0.02),0 0 0 1px rgb(25 28 33 / 0.08);
+  --shadow-overlay:0 0 0 1px rgb(0 0 0 / 0.06),0 1px 1px -0.5px rgb(0 0 0 / 0.06),0 3px 3px -1.5px rgb(0 0 0 / 0.06),0 6px 6px -3px rgb(0 0 0 / 0.06),0 12px 12px -6px rgb(0 0 0 / 0.06),0 24px 24px -12px rgb(0 0 0 / 0.06);
+  --shadow-modal:0 2.8px 2.2px rgb(0 0 0 / 0.034),0 6.7px 5.3px rgb(0 0 0 / 0.048),0 12.5px 10px rgb(0 0 0 / 0.06),0 22.3px 17.9px rgb(0 0 0 / 0.072),0 41.8px 33.4px rgb(0 0 0 / 0.086),0 100px 80px rgb(0 0 0 / 0.12);
+}
+/* dark: <html class="dark">, or the OS setting when <html> has neither .light nor .dark */
+:root.dark{
+  color-scheme:dark;
+  --bg-canvas:var(--neutral-1);--bg-surface:var(--neutral-2);
+  --accent-strong:var(--accent-strong-dark);
+  --chart-1:var(--cyan-9);--chart-4:var(--yellow-9);--chart-5:var(--mint-9);
+  --scrim:rgb(0 0 0 / 0.6);
+  --bg-stage:color-mix(in srgb,var(--neutral-1) 55%,black);--fg-stage:var(--neutral-12);--fg-stage-muted:var(--neutral-11);
+  --stage-hover:color-mix(in srgb,var(--neutral-12) 12%,transparent);--stage-selected:var(--neutral-12);
+  /* black shadows vanish on a dark canvas: a light ring defines the edge, darker layers do the rest */
+  --shadow-raised:0 0 0 1px var(--neutral-a4),0 2px 3px -1px rgb(0 0 0 / 0.4);
+  --shadow-overlay:0 0 0 1px var(--neutral-a4),0 3px 3px -1.5px rgb(0 0 0 / 0.3),0 12px 12px -6px rgb(0 0 0 / 0.3),0 24px 24px -12px rgb(0 0 0 / 0.3);
+  --shadow-modal:0 0 0 1px var(--neutral-a5),0 12.5px 10px rgb(0 0 0 / 0.3),0 41.8px 33.4px rgb(0 0 0 / 0.4),0 100px 80px rgb(0 0 0 / 0.5);
+}
+@media (prefers-color-scheme: dark){:root:not(.light){
+  color-scheme:dark;
+  --bg-canvas:var(--neutral-1);--bg-surface:var(--neutral-2);
+  --accent-strong:var(--accent-strong-dark);
+  --chart-1:var(--cyan-9);--chart-4:var(--yellow-9);--chart-5:var(--mint-9);
+  --scrim:rgb(0 0 0 / 0.6);
+  --bg-stage:color-mix(in srgb,var(--neutral-1) 55%,black);--fg-stage:var(--neutral-12);--fg-stage-muted:var(--neutral-11);
+  --stage-hover:color-mix(in srgb,var(--neutral-12) 12%,transparent);--stage-selected:var(--neutral-12);
+  /* black shadows vanish on a dark canvas: a light ring defines the edge, darker layers do the rest */
+  --shadow-raised:0 0 0 1px var(--neutral-a4),0 2px 3px -1px rgb(0 0 0 / 0.4);
+  --shadow-overlay:0 0 0 1px var(--neutral-a4),0 3px 3px -1.5px rgb(0 0 0 / 0.3),0 12px 12px -6px rgb(0 0 0 / 0.3),0 24px 24px -12px rgb(0 0 0 / 0.3);
+  --shadow-modal:0 0 0 1px var(--neutral-a5),0 12.5px 10px rgb(0 0 0 / 0.3),0 41.8px 33.4px rgb(0 0 0 / 0.4),0 100px 80px rgb(0 0 0 / 0.5);
+}}
+@media (min-width:640px){:root{--cols:8;--gutter:16px;--margin:32px}}
+@media (min-width:1024px){:root{--cols:12;--gutter:24px;--margin:48px}}
+/* voice font switch: <html data-voice="serif"> uses Source Serif 4 (recommended pairing) */
+:root[data-voice="serif"]{--font-voice:"Source Serif 4",Georgia,serif;--weight-voice:var(--weight-medium);--ls-voice-headline:0em;--ls-voice-display:-0.005em;--ls-voice-hero:-0.01em}

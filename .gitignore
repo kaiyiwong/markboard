@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local only
+/.mcp.json
+/CLAUDE.local.md
+/drafts/

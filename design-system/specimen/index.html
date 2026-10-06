@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en" data-neutral="slate" data-accent="blue">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design system v1 specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Noto+Sans+SC:wght@400;500&display=swap&text=%E3%80%81%E3%80%82%E3%81%84%E3%81%8B%E3%81%93%E3%81%97%E3%81%98%E3%81%99%E3%81%9B%E3%81%9D%E3%81%9F%E3%81%A6%E3%81%A7%E3%81%A8%E3%81%AA%E3%81%AB%E3%81%AE%E3%81%AF%E3%81%B9%E3%81%BE%E3%81%BF%E3%82%81%E3%82%89%E3%82%8A%E3%82%8F%E3%82%92%E3%82%A4%E3%82%A7%E3%82%AF%E3%82%B0%E3%82%B6%E3%82%B8%E3%83%83%E3%83%87%E3%83%88%E3%83%89%E3%83%97%E3%83%AA%E3%83%AD%E3%83%B3%E4%B8%80%E4%B8%8D%E4%B8%AA%E4%BA%8B%E4%BA%8E%E4%BB%8E%E4%BB%95%E4%BB%A5%E4%BD%99%E4%BD%9C%E4%BD%BF%E4%BE%8B%E5%85%8B%E5%86%8D%E5%88%86%E5%88%99%E5%88%B6%E5%8F%8A%E5%8F%8D%E5%8F%B0%E5%8F%B7%E5%90%88%E5%90%8C%E5%9C%9F%E5%9F%BA%E5%A4%8D%E5%A7%8B%E5%AD%97%E5%AE%9A%E5%B0%8F%E5%B0%91%E5%B0%B1%E5%B1%82%E5%B1%9E%E5%B1%A4%E5%B7%A5%E5%B9%B4%E5%BA%A6%E5%BC%80%E6%96%87%E6%97%A5%E6%97%A6%E6%97%B6%E6%99%82%E6%9C%88%E6%9C%AC%E6%A0%B7%E6%A0%BC%E6%A2%AF%E6%AC%A1%E6%AD%A3%E6%AE%8B%E6%AE%B5%E6%AF%8F%E6%B1%BA%E6%B8%88%E7%95%99%E7%99%BD%E7%9A%84%E7%9B%AE%E7%9B%B4%E7%9C%9F%E7%A1%80%E7%A1%AE%E7%B5%84%E7%BA%A7%E7%BB%84%E7%BB%99%E7%BD%91%E8%89%B2%E8%A7%84%E8%A7%92%E8%AA%9E%E8%AE%A1%E8%AE%A8%E8%AE%BA%E8%AE%BE%E8%B7%9D%E8%BF%99%E9%83%A8%E9%83%BD%E9%96%93%E9%97%B4%E9%98%B6%E9%9A%8E%E9%9D%99%E9%A1%B9%E9%A2%9C%E9%AA%A8%EF%BC%8C%EF%BC%9A">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../colors/all.css">
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../character.css">
+<link rel="stylesheet" href="../base.css">
+<link rel="stylesheet" href="specimen.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle vector-effect="non-scaling-stroke" cx="11" cy="11" r="6.5"/><path vector-effect="non-scaling-stroke" d="M20 20l-4.4-4.4"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle vector-effect="non-scaling-stroke" cx="12" cy="12" r="9"/><path vector-effect="non-scaling-stroke" d="M12 7.5v5.5M12 16.5v.01"/></symbol>
+  <symbol id="i-spin" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M12 3a9 9 0 1 1-9 9"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M7 10l5 5 5-5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle vector-effect="non-scaling-stroke" cx="12" cy="12" r="4"/><path vector-effect="non-scaling-stroke" d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect vector-effect="non-scaling-stroke" x="3" y="4.5" width="18" height="12" rx="1"/><path vector-effect="non-scaling-stroke" d="M8.5 20h7M12 16.5V20"/></symbol>
+  <symbol id="i-columns" viewBox="0 0 24 24"><rect vector-effect="non-scaling-stroke" x="3.5" y="4.5" width="17" height="15" rx="1"/><path vector-effect="non-scaling-stroke" d="M9.2 4.5v15M14.8 4.5v15"/></symbol>
+  <symbol id="i-textbox" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M9 9h6M12 9v6"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle vector-effect="non-scaling-stroke" cx="12" cy="12" r="8"/><circle vector-effect="non-scaling-stroke" cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path vector-effect="non-scaling-stroke" d="M12 5v14M6 13l6 6 6-6"/></symbol>
+</svg>
+
+
+<header class="bar">
+  <div class="page">
+    <div class="stack gap-2">
+      <span class="bar-title">Design system v1</span>
+      <div class="readout" aria-live="polite">
+        <span>Width <b id="ro-w">0</b></span>
+        <span>Body <b id="ro-body">0</b></span>
+        <span>u <b id="ro-u">0</b></span>
+        <span>Columns <b id="ro-cols">0</b></span>
+      </div>
+    </div>
+    <div class="controls auto">
+      <div class="seg segmented" role="group" aria-label="Theme"><button class="btn btn-ghost icon-only hit" data-theme-set="light" aria-pressed="false" aria-label="Light" data-tip="Light"><svg class="icon"><use href="#i-sun"/></svg></button><button class="btn btn-ghost icon-only hit" data-theme-set="dark" aria-pressed="false" aria-label="Dark" data-tip="Dark"><svg class="icon"><use href="#i-moon"/></svg></button><button class="btn btn-ghost icon-only hit" data-theme-set="system" aria-pressed="true" aria-label="System" data-tip="System"><svg class="icon"><use href="#i-monitor"/></svg></button></div>
+      <div class="seg segmented" role="group" aria-label="Voice font"><button class="btn btn-ghost icon-only hit" data-voice-set="none" aria-pressed="true" aria-label="No voice font" data-tip="No voice font"><span class="aa" style="font-family:var(--font-sans)">Aa</span></button><button class="btn btn-ghost icon-only hit" data-voice-set="serif" aria-pressed="false" aria-label="Source Serif 4" data-tip="Source Serif 4"><span class="aa" style="font-family:'Source Serif 4'">Aa</span></button></div>
+      <div class="seg segmented" role="group" aria-label="Neutral"><button class="btn btn-ghost icon-only hit" data-neutral-set="slate" aria-pressed="true" aria-label="Slate" data-tip="Slate"><span class="chip-sw" style="background:var(--slate-9)"></span></button><button class="btn btn-ghost icon-only hit" data-neutral-set="gray" aria-pressed="false" aria-label="Gray" data-tip="Gray"><span class="chip-sw" style="background:var(--gray-9)"></span></button></div>
+      <div class="seg segmented" role="group" aria-label="Accent"><button class="btn btn-ghost icon-only hit" data-accent-set="blue" aria-pressed="true" aria-label="Blue" data-tip="Blue"><span class="chip-sw" style="background:var(--blue-9)"></span></button><button class="btn btn-ghost icon-only hit" data-accent-set="violet" aria-pressed="false" aria-label="Violet" data-tip="Violet"><span class="chip-sw" style="background:var(--violet-9)"></span></button><button class="btn btn-ghost icon-only hit" data-accent-set="crimson" aria-pressed="false" aria-label="Crimson" data-tip="Crimson"><span class="chip-sw" style="background:var(--crimson-9)"></span></button><button class="btn btn-ghost icon-only hit" data-accent-set="orange" aria-pressed="false" aria-label="Orange" data-tip="Orange"><span class="chip-sw" style="background:var(--orange-9)"></span></button><button class="btn btn-ghost icon-only hit" data-accent-set="amber" aria-pressed="false" aria-label="Amber" data-tip="Amber"><span class="chip-sw" style="background:var(--amber-9)"></span></button><button class="btn btn-ghost icon-only hit" data-accent-set="mint" aria-pressed="false" aria-label="Mint" data-tip="Mint"><span class="chip-sw" style="background:var(--mint-9)"></span></button></div>
+      <div class="seg" role="group" aria-label="Show"><button class="btn btn-ghost icon-only hit" data-overlay="show-grid" aria-pressed="false" aria-label="Grid" data-tip="Grid"><svg class="icon"><use href="#i-columns"/></svg></button><button class="btn btn-ghost icon-only hit" data-overlay="show-boxes" aria-pressed="false" aria-label="Text boxes" data-tip="Text boxes"><svg class="icon"><use href="#i-textbox"/></svg></button><button class="btn btn-ghost icon-only hit" data-overlay="show-hit" aria-pressed="false" aria-label="Touch targets" data-tip="Touch targets"><svg class="icon"><use href="#i-target"/></svg></button></div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="main" tabindex="-1">
+<div class="grid-overlay" aria-hidden="true"><div class="grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+
+<section aria-labelledby="h-hero">
+  <div class="stack stack-group">
+    <div class="stack stack-pair">
+      <p class="t t-label">Editorial preset</p>
+      <h1 class="t t-display" id="h-hero">A starting point for every project</h1>
+    </div>
+    <p class="t t-lead">Every value on this page comes from the tokens. Resize the window, switch the theme or accent, and turn on the overlays to check them.</p>
+  </div>
+</section>
+
+<section aria-labelledby="h-type">
+  <div class="grid">
+    <div class="col-full stack stack-para"><h2 class="t t-title" id="h-type">Editorial type</h2><p class="t t-caption">Fluid from 360 to 1440. Under each role: size / line height / letter-spacing, read from the page.</p></div>
+    <div class="col-full roles">
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Hero large, step +7</p><p class="t t-caption num" data-metrics="s-hero-lg"></p></div><div class="s"><p class="t t-hero-lg" id="s-hero-lg">Quiet by design</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Hero, step +6</p><p class="t t-caption num" data-metrics="s-hero"></p></div><div class="s"><p class="t t-hero" id="s-hero">Quiet by design</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Display, step +5</p><p class="t t-caption num" data-metrics="s-display"></p></div><div class="s"><p class="t t-display" id="s-display">Quiet by design</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Headline, step +3</p><p class="t t-caption num" data-metrics="s-headline"></p></div><div class="s"><p class="t t-headline" id="s-headline">Built to replace repetitive work</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Title, step +1</p><p class="t t-caption num" data-metrics="s-title"></p></div><div class="s"><p class="t t-title" id="s-title">A starting point for every project</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Lead, step +1</p><p class="t t-caption num" data-metrics="s-lead"></p></div><div class="s"><p class="t t-lead" id="s-lead">One grid, one type scale and one spacing ladder, set once and reused, so each project spends its time on what makes it different.</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Body, step 0</p><p class="t t-caption num" data-metrics="s-body"></p></div><div class="s"><p class="t t-body" id="s-body">Every project starts from the same foundations: a grid, a type scale, a spacing ladder and a small set of colors. The rules stay fixed, so decisions that were made once are not made again, and the time goes into the parts that are specific to the work.</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Label, step −1</p><p class="t t-caption num" data-metrics="s-label"></p></div><div class="s"><p class="t t-label" id="s-label">Case study, 2026</p></div></div>
+      <div class="role"><div class="m stack stack-pair"><p class="t t-label">Caption, step −1</p><p class="t t-caption num" data-metrics="s-caption"></p></div><div class="s"><p class="t t-caption" id="s-caption">Photograph by the author, Tokyo, 2026. Captions may wrap onto a second line when the image is narrow.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-gaps">
+  <div class="grid">
+    <div class="col-meta stack stack-para">
+      <h2 class="t t-title" id="h-gaps">Text spacing</h2>
+      <p class="t t-caption">Gaps between text are measured in body cap height (u), from the letters, and set on the container.</p>
+      <div class="stack stack-pair">
+        <p class="t t-caption">Pair (1u) <b id="ro-pair">0</b></p>
+        <p class="t t-caption">Para (2u) <b id="ro-para">0</b></p>
+        <p class="t t-caption">Group (3u) <b id="ro-group">0</b></p>
+      </div>
+    </div>
+    <div class="col-main">
+      <article class="stack stack-group">
+        <div class="stack stack-para">
+          <div class="stack stack-pair">
+            <p class="t t-label">Chapter one</p>
+            <h3 class="t t-headline">How the gaps are measured</h3>
+          </div>
+          <p class="t t-body">A label sits one cap height above the heading it belongs to. Paragraphs sit two cap heights apart, which is nearly double the space between lines inside a paragraph, so a new paragraph always reads as a break.</p>
+          <p class="t t-body">A new heading sits three cap heights below the text before it and two above the text after it, so it groups with what it introduces. Turn on text boxes to see the trimmed edges.</p>
+        </div>
+        <div class="stack stack-para">
+          <h3 class="t t-hero-lg">Big heroes</h3>
+          <p class="t t-body">At the hero sizes, a heading's own line gap can be larger than two cap heights of body text. The floor rule keeps the gap below it at least as large as its own line gap.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-cjk">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-cjk">Chinese and Japanese</h2><p class="t t-caption">The same roles and gaps, with four differences: language, font order, trim and spacing.</p></div>
+    <div class="col-main subs">
+      <div class="sub">
+        <p class="t t-label">Same characters, different shapes</p>
+        <div class="glyphs">
+          <div class="stack stack-pair"><p class="t t-caption">Chinese, simplified</p><p class="t t-display glyph-row" lang="zh-Hans">直骨角次</p></div>
+          <div class="stack stack-pair"><p class="t t-caption">Japanese</p><p class="t t-display glyph-row" lang="ja">直骨角次</p></div>
+        </div>
+      </div>
+      <div class="sub">
+        <p class="t t-label">Japanese</p>
+        <div class="stack stack-para" lang="ja">
+          <h3 class="t t-headline">静かなデザイン</h3>
+          <p class="t t-body">すべてのプロジェクトは、同じ土台から始まります。グリッド、文字の階層、余白の段階、そして少ない色。決めたことは一度で済ませ、残りの時間を、その仕事ならではの部分に使います。</p>
+          <p class="t t-body">Design System と日本語を組み合わせた例、2026年10月1日。</p>
+        </div>
+      </div>
+      <div class="sub">
+        <p class="t t-label">Chinese, simplified</p>
+        <div class="stack stack-para" lang="zh-Hans">
+          <h3 class="t t-headline">克制的设计</h3>
+          <p class="t t-body">每个项目都从同样的基础开始：网格、字号层级、间距阶梯，以及一小组颜色。规则一旦确定就不再反复讨论，时间留给真正属于这项工作的部分。</p>
+          <h3 class="t t-headline" id="zh-phrases">慢慢来，<wbr>每一天<wbr>都是新的开始</h3>
+          <p class="t t-caption" lang="en">Chinese headings break only where <code>&lt;wbr&gt;</code> marks a phrase, so 每一天都是新的开始 never splits mid-phrase. Without <code>&lt;wbr&gt;</code>, a heading breaks only when it would overflow.</p>
+        </div>
+      </div>
+      <ol class="t-body rules stack stack-pair">
+        <li class="t">Set <code>lang</code> on every Chinese or Japanese element: <code>zh-Hans</code>, <code>zh-Hant</code> or <code>ja</code>. The same character is drawn differently in each, and <code>lang</code> picks the right font.</li>
+        <li class="t">List the Latin font first, then the language's font. Latin letters stay in Inter and everything else falls through to the Chinese or Japanese font.</li>
+        <li class="t">Trim to the text box, not the cap height: <code>text-box: trim-both text</code>. Cap height and baseline are Latin measurements.</li>
+        <li class="t">Looser lines: body 1.75 (28px at 360, 32px at 1440), lead 1.6, headings 1.3.</li>
+        <li class="t">No negative letter-spacing and no italics. Emphasis uses weight.</li>
+        <li class="t">Japanese headings use <code>word-break: auto-phrase</code> so lines break between phrases where the browser supports it.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-space">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-space">Spacing ladder</h2><p class="t t-caption">Levels 1 to 6 are fixed. Levels 7 to 10 are fluid from 360 to 1440.</p></div>
+    <div class="col-main ladder" id="ladder"></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-grid">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-grid">Grid</h2><p class="t t-caption">4 columns under 640, 8 up to 1023, 12 from 1024. The grid stops growing at 1440.</p>
+      <div class="stack stack-pair"><p class="t t-caption">Gutter <b id="ro-gutter">0</b></p><p class="t t-caption">Margin <b id="ro-margin">0</b></p><p class="t t-caption">Column <b id="ro-colw">0</b></p></div></div>
+    <div class="col-main stack gap-7">
+      <div class="stack gap-3">
+        <p class="t t-label">Reading page: named lines</p>
+        <div class="reading">
+          <div class="bo full">full</div>
+          <div class="bo wide">wide</div>
+          <div class="bo content">content, 65 characters</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-full"><div class="cols-strip" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div></div></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-media">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-media">Images and media</h2><p class="t t-caption">Four ratios, all cropped from one source image. Widths follow the grid, heights follow the ratio.</p></div>
+    <div class="col-main subs">
+      <div class="figs">
+        <figure class="fig f-169"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="Placeholder landscape: hills under a low sun" width="1200" height="800"><figcaption class="t t-caption">16:9, the default. Heroes, video and wide images.</figcaption></figure>
+        <figure class="fig f-43"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="" width="1200" height="800"><figcaption class="t t-caption">4:3. Photos, matching phone cameras.</figcaption></figure>
+        <figure class="fig f-34"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="" width="1200" height="800"><figcaption class="t t-caption">3:4. Portraits.</figcaption></figure>
+        <figure class="fig f-11"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="" width="1200" height="800"><figcaption class="t t-caption">1:1. Thumbnails.</figcaption></figure>
+      </div>
+      <ol class="t-body rules stack stack-pair">
+        <li class="t">Four ratios: 16:9 by default, 4:3 for photos, 3:4 for portraits, 1:1 for thumbnails and avatars. 9:16 only for vertical video.</li>
+        <li class="t">Width follows the grid: full, wide, content, or a column span. Height comes from the ratio, never set by hand.</li>
+        <li class="t">Square corners. Avatars are round. Inside a rounded container, images follow the concentric rule.</li>
+        <li class="t">Reserve the space before the image loads, with <code>aspect-ratio</code> or width and height, so nothing jumps. Crop with <code>object-fit: cover</code> and set <code>object-position</code> on the subject.</li>
+        <li class="t">Captions use the caption role, 8px below the image, aligned to its left edge, at most 65 characters wide.</li>
+        <li class="t">Alt text says what the image shows. Decorative images get empty alt text.</li>
+        <li class="t">Video is 16:9 with a captions track, and never autoplays with sound.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-color">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-color">Color roles</h2><p class="t t-caption">Contrast is measured against the canvas. Roles that identify controls need 3:1, text needs 4.5:1.</p></div>
+    <div class="col-main swatches" id="swatches"></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-controls">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-controls">Controls</h2><p class="t t-caption">Heights are minimums. Tab through the page to see the focus ring.</p></div>
+    <div class="col-main subs">
+      <div class="sub">
+        <p class="t t-label">Sizes</p>
+        <div class="stack gap-4" id="sizes">
+          <div class="row sm"><span class="t t-caption" style="width:56px">sm 24</span><button class="btn sm btn-primary hit"><span class="lbl">Save changes</span></button><button class="btn sm btn-secondary hit"><span class="lbl">Cancel</span></button><button class="btn sm btn-ghost icon-only hit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button><input class="input sm hit" placeholder="Report name" aria-label="Report name"></div>
+          <div class="row md"><span class="t t-caption" style="width:56px">md 32</span><button class="btn md btn-primary hit"><span class="lbl">Save changes</span></button><button class="btn md btn-secondary hit"><span class="lbl">Cancel</span></button><button class="btn md btn-ghost icon-only hit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button><input class="input md hit" placeholder="Report name" aria-label="Report name"></div>
+          <div class="row lg"><span class="t t-caption" style="width:56px">lg 40</span><button class="btn lg btn-primary hit"><span class="lbl">Save changes</span></button><button class="btn lg btn-secondary hit"><span class="lbl">Cancel</span></button><button class="btn lg btn-ghost icon-only hit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button><input class="input lg hit" placeholder="Report name" aria-label="Report name"></div>
+          <div class="row xl"><span class="t t-caption" style="width:56px">xl 48</span><button class="btn xl btn-primary hit"><span class="lbl">Save changes</span></button><button class="btn xl btn-secondary hit"><span class="lbl">Cancel</span></button><button class="btn xl btn-ghost icon-only hit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button><input class="input xl hit" placeholder="Report name" aria-label="Report name"></div>
+        </div>
+      </div>
+      <div class="sub">
+        <p class="t t-label">Buttons</p>
+        <div class="stack gap-7">
+          <div class="stack gap-3">
+            <div class="row md"><button class="btn md btn-primary hit" id="m-icon"><svg class="icon"><use href="#i-down"/></svg><span class="lbl">Export report</span></button><button class="btn md btn-secondary hit" id="m-trail"><span class="lbl">Filter</span><svg class="icon"><use href="#i-chevron"/></svg></button><button class="btn md btn-secondary hit" id="m-plain"><span class="lbl">Share</span></button></div>
+            <div class="stack stack-pair">
+              <p class="t t-caption">Leading icon: <span class="measure" data-measure="m-icon"></span></p>
+              <p class="t t-caption">Trailing icon: <span class="measure" data-measure="m-trail"></span></p>
+              <p class="t t-caption">No icon: <span class="measure" data-measure="m-plain"></span></p>
+            </div>
+          </div>
+          <div class="stack gap-3">
+            <div class="row md"><button class="btn md btn-primary hit" id="m-ok"><span class="lbl">OK</span></button></div>
+            <div class="row sm"><button class="btn sm btn-secondary hit" id="m-ok-sm"><span class="lbl">OK</span></button></div>
+            <div class="stack stack-pair">
+              <p class="t t-caption">Minimum width, md: <span class="measure" data-measure="m-ok"></span></p>
+              <p class="t t-caption">Minimum width, sm: <span class="measure" data-measure="m-ok-sm"></span></p>
+            </div>
+          </div>
+          <div class="row md"><button class="btn md btn-danger hit"><svg class="icon"><use href="#i-trash"/></svg><span class="lbl">Delete report</span></button><button class="btn md btn-danger is-hover" tabindex="-1"><span class="lbl">Delete</span></button><button class="btn md btn-danger is-active" tabindex="-1"><span class="lbl">Delete</span></button><button class="btn md btn-danger" disabled><span class="lbl">Delete</span></button></div>
+          <div class="stack gap-3">
+            <p class="t t-caption">Button group: primary last, stacked full width with primary on top below 640.</p>
+            <div class="actions md"><button class="btn md btn-secondary hit"><span class="lbl">Cancel</span></button><button class="btn md btn-primary hit"><span class="lbl">Save changes</span></button></div>
+          </div>
+        </div>
+      </div>
+      <div class="sub">
+        <p class="t t-label">States</p>
+        <div class="states md">
+          <table>
+            <thead><tr><th></th><th>Rest</th><th>Hover</th><th>Pressed</th><th>Focus</th><th>Disabled</th><th>Loading</th></tr></thead>
+            <tbody>
+              <tr><th>Primary</th>
+                <td><button class="btn md btn-primary" tabindex="-1"><span class="lbl">Save</span></button></td>
+                <td><button class="btn md btn-primary is-hover" tabindex="-1"><span class="lbl">Save</span></button></td>
+                <td><button class="btn md btn-primary is-active" tabindex="-1"><span class="lbl">Save</span></button></td>
+                <td><button class="btn md btn-primary is-focus" tabindex="-1"><span class="lbl">Save</span></button></td>
+                <td><button class="btn md btn-primary" disabled><span class="lbl">Save</span></button></td>
+                <td><button class="btn md btn-primary" aria-busy="true" tabindex="-1"><svg class="icon spin"><use href="#i-spin"/></svg><span class="lbl">Save</span></button></td></tr>
+              <tr><th>Secondary</th>
+                <td><button class="btn md btn-secondary" tabindex="-1"><span class="lbl">Cancel</span></button></td>
+                <td><button class="btn md btn-secondary is-hover" tabindex="-1"><span class="lbl">Cancel</span></button></td>
+                <td><button class="btn md btn-secondary is-active" tabindex="-1"><span class="lbl">Cancel</span></button></td>
+                <td><button class="btn md btn-secondary is-focus" tabindex="-1"><span class="lbl">Cancel</span></button></td>
+                <td><button class="btn md btn-secondary" disabled><span class="lbl">Cancel</span></button></td>
+                <td></td></tr>
+              <tr><th>Ghost</th>
+                <td><button class="btn md btn-ghost icon-only" aria-label="Add" tabindex="-1"><svg class="icon"><use href="#i-plus"/></svg></button></td>
+                <td><button class="btn md btn-ghost icon-only is-hover" aria-label="Add" tabindex="-1"><svg class="icon"><use href="#i-plus"/></svg></button></td>
+                <td><button class="btn md btn-ghost icon-only is-active" aria-label="Add" tabindex="-1"><svg class="icon"><use href="#i-plus"/></svg></button></td>
+                <td><button class="btn md btn-ghost icon-only is-focus" aria-label="Add" tabindex="-1"><svg class="icon"><use href="#i-plus"/></svg></button></td>
+                <td><button class="btn md btn-ghost icon-only" aria-label="Add" disabled><svg class="icon"><use href="#i-plus"/></svg></button></td>
+                <td></td></tr>
+              <tr><th>Input</th>
+                <td><input class="input md" value="Weekly report" aria-label="Rest" tabindex="-1"></td>
+                <td><input class="input md is-hover" value="Weekly report" aria-label="Hover" tabindex="-1"></td>
+                <td></td>
+                <td><input class="input md is-focus" value="Weekly report" aria-label="Focus" tabindex="-1"></td>
+                <td><input class="input md" value="Weekly report" aria-label="Disabled" disabled></td>
+                <td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sub">
+        <p class="t t-label">Selection and validation</p>
+        <div class="stack gap-6">
+          <div class="tabs" role="tablist" aria-label="Example tabs">
+            <button class="tab hit" role="tab" aria-selected="true"><span class="lbl">Overview</span></button>
+            <button class="tab hit" role="tab" aria-selected="false"><span class="lbl">Activity</span></button>
+            <button class="tab hit" role="tab" aria-selected="false"><span class="lbl">Settings</span></button>
+          </div>
+          <div class="listbox" role="listbox" aria-label="Frequency">
+            <div class="option hit" role="option" aria-selected="false"><span>Daily</span><svg class="icon"><use href="#i-check"/></svg></div>
+            <div class="option hit" role="option" aria-selected="true"><span>Weekly</span><svg class="icon"><use href="#i-check"/></svg></div>
+            <div class="option hit" role="option" aria-selected="false"><span>Monthly</span><svg class="icon"><use href="#i-check"/></svg></div>
+          </div>
+          <div class="choice-groups">
+            <div class="stack gap-2" role="group" aria-label="Checkboxes">
+              <label class="choice hit"><input class="cb" type="checkbox"><span class="lbl">Email me</span></label>
+              <label class="choice hit"><input class="cb" type="checkbox" checked><span class="lbl">Include charts</span></label>
+              <label class="choice hit"><input class="cb" type="checkbox" disabled><span class="lbl">Archive</span></label>
+            </div>
+            <div class="stack gap-2" role="radiogroup" aria-label="Format">
+              <label class="choice hit"><input class="cb" type="radio" name="fmt" checked><span class="lbl">PDF</span></label>
+              <label class="choice hit"><input class="cb" type="radio" name="fmt"><span class="lbl">CSV</span></label>
+            </div>
+            <div class="switch-list md" role="group" aria-label="Switches">
+              <label class="switch-row hit"><span class="lbl">Email summaries</span><button class="switch" type="button" role="switch" aria-checked="true"></button></label>
+              <label class="switch-row hit"><span class="lbl">Weekend reports</span><button class="switch" type="button" role="switch" aria-checked="false"></button></label>
+              <label class="switch-row hit"><span class="lbl">Archive old reports</span><button class="switch" type="button" role="switch" aria-checked="true" disabled></button></label>
+            </div>
+          </div>
+          <div class="field md" style="max-width:320px">
+            <label class="t t-label" for="inv">Report name</label>
+            <input class="input md" id="inv" aria-invalid="true" aria-describedby="inv-msg" value="">
+            <p class="t t-caption msg" id="inv-msg"><svg class="icon"><use href="#i-alert"/></svg><span>Enter a name for the report</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-comp">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-comp">Composition</h2><p class="t t-caption">How parts sit together. The bar at the top follows the same rules.</p></div>
+    <div class="col-main subs">
+      <div class="sub">
+        <p class="t t-label">Row of controls</p>
+        <div class="controls auto" style="justify-content:flex-start">
+          <div class="cgroup"><span class="select search"><svg class="icon lead"><use href="#i-search"/></svg><input class="input" placeholder="Search reports" aria-label="Search reports"></span></div>
+          <div class="cgroup"><label class="ctl-label" for="c-status">Status</label><span class="select"><select class="input" id="c-status"><option>All</option><option>Ready</option><option>Failed</option></select><svg class="icon"><use href="#i-chevron"/></svg></span></div>
+          <div class="cgroup"><span class="ctl-label" id="c-show">Show</span><div class="seg" role="group" aria-labelledby="c-show"><button class="btn btn-ghost hit" data-toggle aria-pressed="true"><span class="lbl">Archived</span></button></div></div>
+          <div class="cgroup"><button class="btn btn-primary hit"><svg class="icon"><use href="#i-down"/></svg><span class="lbl">Export</span></button></div>
+        </div>
+        <ol class="t-body rules stack stack-pair">
+          <li class="t">One size per row: md with a mouse, lg on touch.</li>
+          <li class="t">Label every group in a row, or none. Prefer controls that show their own meaning, like icons and color chips, and keep words only when no icon is clear.</li>
+          <li class="t">Labels sit to the left of controls, regular weight and muted. Values inside controls are medium weight. Labels above are for vertical forms.</li>
+          <li class="t">Icon-only controls are square, with a name for screen readers and a tooltip on hover and keyboard focus.</li>
+          <li class="t">Everything in a row shares one center line.</li>
+          <li class="t">8px inside a group, 12px on touch. 24px between groups.</li>
+          <li class="t">Settings that apply immediately: a switch for one setting on or off, a segmented control to choose between 2 to 4 options, toggle buttons for independent tools. Checkboxes and radios are for forms.</li>
+          <li class="t">Selects look like inputs, with the system chevron.</li>
+          <li class="t">Text of different sizes side by side aligns on the cap top, the top edge of its trimmed box.</li>
+          <li class="t">Hairlines separate rows in tables and specimen lists only. Sections and reading text are separated by spacing alone.</li>
+        </ol>
+      </div>
+      <div class="sub">
+        <p class="t t-label">Components respond to their container</p>
+        <div class="cq-demo">
+          <div class="stack gap-3 cq-a"><p class="t t-caption">Container <b class="num" data-cqw="cq1"></b></p>
+            <div class="report-wrap" id="cq1"><article class="report"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="" width="1200" height="800"><div class="stack stack-para report-body"><div class="stack stack-pair"><p class="t t-label">Weekly summary</p><h3 class="t t-title">Invoices processed</h3></div><p class="t t-caption">Updated two hours ago</p><div class="row md"><button class="btn md btn-secondary hit"><span class="lbl">Open</span></button></div></div></article></div></div>
+          <div class="stack gap-3 cq-b"><p class="t t-caption">Container <b class="num" data-cqw="cq2"></b></p>
+            <div class="report-wrap" id="cq2"><article class="report"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="" width="1200" height="800"><div class="stack stack-para report-body"><div class="stack stack-pair"><p class="t t-label">Weekly summary</p><h3 class="t t-title">Invoices processed</h3></div><p class="t t-caption">Updated two hours ago</p><div class="row md"><button class="btn md btn-secondary hit"><span class="lbl">Open</span></button></div></div></article></div></div>
+        </div>
+        <ol class="t-body rules stack stack-pair">
+          <li class="t">The page layout (columns, margins) responds to the window. Components respond to the space they are given.</li>
+          <li class="t">A component's root is a container (<code>container-type: inline-size</code>), and its layout switches at container widths: compact under 480px, regular from 480px.</li>
+          <li class="t">Only the arrangement changes. Type roles stay the page's, and control sizes still follow mouse or touch.</li>
+        </ol>
+      </div>
+      <div class="sub">
+        <p class="t t-label">Page spacing</p>
+        <div class="table-wrap"><table class="data num" style="max-width:560px">
+          <thead><tr><th>Where</th><th>Level</th><th class="r">Now</th></tr></thead>
+          <tbody>
+            <tr><td>Top and bottom of the page, around the hero</td><td>space-10</td><td class="r" data-space="10"></td></tr>
+            <tr><td>Between sections</td><td>space-9</td><td class="r" data-space="9"></td></tr>
+            <tr><td>Between sub-sections</td><td>space-8</td><td class="r" data-space="8"></td></tr>
+            <tr><td>Between blocks inside a section</td><td>space-7</td><td class="r" data-space="7"></td></tr>
+            <tr><td>Editorial text to text</td><td>1u, 2u, 3u</td><td class="r" data-u="1,2,3"></td></tr>
+            <tr><td>Items in an editorial list</td><td>1u</td><td class="r" data-u="1"></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-product">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-product">Product preset</h2><p class="t t-caption">Inter at fixed sizes, pixel ladder for every gap.</p></div>
+    <div class="col-main">
+      <div class="product panel stack gap-8">
+        <div class="stack gap-4">
+          <p class="p-label">Roles</p>
+          <div class="stack gap-5">
+            <p class="p-display num">12,840</p>
+            <p class="p-headline">Reports</p>
+            <p class="p-title">Weekly summary</p>
+            <p class="p-body">Body text for tables, forms and settings.</p>
+            <p class="p-label">Column header</p>
+            <p class="p-caption">Help text can wrap onto a second line when the field is narrow.</p>
+          </div>
+        </div>
+        <div class="stack gap-5">
+          <div class="stack gap-2">
+            <p class="p-label">Invoices processed</p>
+            <p class="p-display num">12,840</p>
+            <p class="p-caption">8% more than last week</p>
+          </div>
+          <div class="table-wrap">
+            <table class="data num">
+              <thead><tr><th>Team</th><th class="r">Processed</th><th class="r">Errors</th><th class="r">Hours saved</th></tr></thead>
+              <tbody>
+                <tr><td>Finance</td><td class="r">4,210</td><td class="r">12</td><td class="r">96.5</td></tr>
+                <tr><td>Operations</td><td class="r">6,905</td><td class="r">3</td><td class="r">141.0</td></tr>
+                <tr><td>Procurement</td><td class="r">1,725</td><td class="r">27</td><td class="r">38.3</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="stack gap-4" style="max-width:360px">
+          <div class="field md" style="gap:var(--space-1)">
+            <label class="p-label" for="rn">Report name</label>
+            <input class="input md" id="rn" value="Weekly summary">
+            <p class="p-caption" style="margin-top:var(--space-1)">Shown at the top of the exported PDF.</p>
+          </div>
+          <label class="choice hit"><input class="cb" type="checkbox" checked><span class="lbl">Email me when it is ready</span></label>
+          <div class="row"><button class="btn md btn-primary hit"><svg class="icon"><use href="#i-down"/></svg><span class="lbl">Export report</span></button><button class="btn md btn-secondary hit"><span class="lbl">Cancel</span></button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-charts">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-charts">Charts</h2><p class="t t-caption">Focus by default. Up to five categorical series, with 2px gaps and direct labels.</p></div>
+    <div class="col-main stack gap-8">
+      <div class="stack gap-3"><p class="t t-label">Focus</p><svg class="chart" viewBox="0 0 560 226" role="img" aria-labelledby="ch2t"><title id="ch2t">Monthly values with April highlighted at 96</title><line class="ch-grid" x1="28" x2="520" y1="137.2" y2="137.2"/><text class="ch-axis" x="0" y="141.2">40</text><line class="ch-grid" x1="28" x2="520" y1="84.4" y2="84.4"/><text class="ch-axis" x="0" y="88.4">80</text><path class="c-mu" d="M44 190V120.2A12 12 0 0 1 56 108.2H76A12 12 0 0 1 88 120.2V190Z"/><text class="ch-axis" x="66.0" y="214" text-anchor="middle">Jan</text><path class="c-mu" d="M112 190V138.6A12 12 0 0 1 124 126.6H144A12 12 0 0 1 156 138.6V190Z"/><text class="ch-axis" x="134.0" y="214" text-anchor="middle">Feb</text><path class="c-mu" d="M180 190V103.0A12 12 0 0 1 192 91.0H212A12 12 0 0 1 224 103.0V190Z"/><text class="ch-axis" x="202.0" y="214" text-anchor="middle">Mar</text><path class="c-hi" d="M248 190V75.3A12 12 0 0 1 260 63.3H280A12 12 0 0 1 292 75.3V190Z"/><text class="ch-lab" x="270.0" y="53.3" text-anchor="middle">96</text><text class="ch-axis" x="270.0" y="214" text-anchor="middle">Apr</text><path class="c-mu" d="M316 190V125.4A12 12 0 0 1 328 113.4H348A12 12 0 0 1 360 125.4V190Z"/><text class="ch-axis" x="338.0" y="214" text-anchor="middle">May</text><path class="c-mu" d="M384 190V109.6A12 12 0 0 1 396 97.6H416A12 12 0 0 1 428 109.6V190Z"/><text class="ch-axis" x="406.0" y="214" text-anchor="middle">Jun</text><path class="c-mu" d="M452 190V133.4A12 12 0 0 1 464 121.4H484A12 12 0 0 1 496 133.4V190Z"/><text class="ch-axis" x="474.0" y="214" text-anchor="middle">Jul</text><line class="ch-base" x1="28" x2="520" y1="190.5" y2="190.5"/></svg></div>
+      <div class="stack gap-3"><p class="t t-label">Categorical</p><svg class="chart" viewBox="0 0 560 226" role="img" aria-labelledby="ch1t"><title id="ch1t">Stacked bars for North, South and West over five days</title><line class="ch-grid" x1="28" x2="452" y1="142.0" y2="142.0"/><text class="ch-axis" x="0" y="146.0">40</text><line class="ch-grid" x1="28" x2="452" y1="94.0" y2="94.0"/><text class="ch-axis" x="0" y="98.0">80</text><rect class="c1" x="44" y="142.0" width="52" height="48.0"/><rect class="c2" x="44" y="104.0" width="52" height="36.0"/><path class="c3" d="M44 102.0V90.0A12 12 0 0 1 56 78.0H84A12 12 0 0 1 96 90.0V102.0Z"/><text class="ch-axis" x="70.0" y="214" text-anchor="middle">Mon</text><rect class="c1" x="132" y="154.0" width="52" height="36.0"/><rect class="c2" x="132" y="98.0" width="52" height="54.0"/><path class="c3" d="M132 96.0V78.0A12 12 0 0 1 144 66.0H172A12 12 0 0 1 184 78.0V96.0Z"/><text class="ch-axis" x="158.0" y="214" text-anchor="middle">Tue</text><rect class="c1" x="220" y="130.0" width="52" height="60.0"/><rect class="c2" x="220" y="104.0" width="52" height="24.0"/><path class="c3" d="M220 102.0V72.0A12 12 0 0 1 232 60.0H260A12 12 0 0 1 272 72.0V102.0Z"/><text class="ch-axis" x="246.0" y="214" text-anchor="middle">Wed</text><rect class="c1" x="308" y="160.0" width="52" height="30.0"/><rect class="c2" x="308" y="116.0" width="52" height="42.0"/><path class="c3" d="M308 114.0V78.0A12 12 0 0 1 320 66.0H348A12 12 0 0 1 360 78.0V114.0Z"/><text class="ch-axis" x="334.0" y="214" text-anchor="middle">Thu</text><rect class="c1" x="396" y="136.0" width="52" height="54.0"/><text class="ch-lab" x="460" y="167.0">North</text><rect class="c2" x="396" y="98.0" width="52" height="36.0"/><text class="ch-lab" x="460" y="120.0">South</text><path class="c3" d="M396 96.0V72.0A12 12 0 0 1 408 60.0H436A12 12 0 0 1 448 72.0V96.0Z"/><text class="ch-lab" x="460" y="82.0">West</text><text class="ch-axis" x="422.0" y="214" text-anchor="middle">Fri</text><line class="ch-base" x1="28" x2="452" y1="190.5" y2="190.5"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-a11y">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-a11y">Accessibility</h2><p class="t t-caption">WCAG 2.2 AA as the floor. Each rule is checked on this page.</p></div>
+    <div class="col-main">
+      <ol class="t-body rules stack stack-pair">
+        <li class="t">Contrast: text 4.5:1, controls and chart shapes 3:1, measured live in Color roles.</li>
+        <li class="t">Focus: a 2px ring on keyboard focus, and a skip link to the content as the first stop.</li>
+        <li class="t">Windows high contrast: anything that shows its state with a background (selected options, switches, checkboxes, tabs) switches to system colors so the state stays visible.</li>
+        <li class="t">Reflow: nothing scrolls sideways at 320px wide, except data tables inside their own scroll area.</li>
+        <li class="t">Text spacing: raising line height to 1.5 and letter-spacing to 0.12em clips nothing, because controls use minimum heights.</li>
+        <li class="t">Touch: 44px targets, and at least 12px between controls.</li>
+        <li class="t">Motion: everything will respect reduced motion. The rules arrive with the motion section.</li>
+        <li class="t">Keyboard: tabs, list boxes and menus move with arrow keys. The tabs and list on this page are visual only until the components are built.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-char">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-char">Character</h2><p class="t t-caption">Four dials, set per project on the html element. They restyle this whole page. With none set, it looks as it did in 1.1.0.</p></div>
+    <div class="col-main subs">
+      <div class="sub"><p class="t t-label">Dials</p>
+        <div class="controls md">
+          <div class="cgroup"><span class="ctl-label" id="dl-surface">Surface</span><div class="seg segmented" role="group" aria-labelledby="dl-surface"><button class="btn btn-ghost hit" data-dial-set="surface" data-v="lines" aria-pressed="true"><span class="lbl">Lines</span></button><button class="btn btn-ghost hit" data-dial-set="surface" data-v="fills" aria-pressed="false"><span class="lbl">Fills</span></button><button class="btn btn-ghost hit" data-dial-set="surface" data-v="layered" aria-pressed="false"><span class="lbl">Layered</span></button></div></div>
+          <div class="cgroup"><span class="ctl-label" id="dl-shape">Shape</span><div class="seg segmented" role="group" aria-labelledby="dl-shape"><button class="btn btn-ghost hit" data-dial-set="shape" data-v="sharp" aria-pressed="true"><span class="lbl">Sharp</span></button><button class="btn btn-ghost hit" data-dial-set="shape" data-v="soft" aria-pressed="false"><span class="lbl">Soft</span></button><button class="btn btn-ghost hit" data-dial-set="shape" data-v="round" aria-pressed="false"><span class="lbl">Round</span></button></div></div>
+          <div class="cgroup"><span class="ctl-label" id="dl-type">Type</span><div class="seg segmented" role="group" aria-labelledby="dl-type"><button class="btn btn-ghost hit" data-dial-set="type" data-v="quiet" aria-pressed="true"><span class="lbl">Quiet</span></button><button class="btn btn-ghost hit" data-dial-set="type" data-v="loud" aria-pressed="false"><span class="lbl">Loud</span></button></div></div>
+          <div class="cgroup"><span class="ctl-label" id="dl-color">Color</span><div class="seg segmented" role="group" aria-labelledby="dl-color"><button class="btn btn-ghost hit" data-dial-set="color" data-v="quiet" aria-pressed="true"><span class="lbl">Quiet</span></button><button class="btn btn-ghost hit" data-dial-set="color" data-v="signature" aria-pressed="false"><span class="lbl">Signature</span></button></div></div>
+        </div>
+      </div>
+      <div class="sub"><p class="t t-label">Stage, field labels and the key element</p>
+        <div class="char-sample product md">
+          <figure class="stage stack gap-3"><img class="media" src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201200%20800%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e2e5ec%22/%3E%3Ccircle%20cx%3D%22720%22%20cy%3D%22330%22%20r%3D%2296%22%20fill%3D%22%23ffc53d%22/%3E%3Cpath%20d%3D%22M0%20520%20L180%20440%20L360%20505%20L560%20385%20L760%20470%20L940%20405%20L1200%20490%20V800%20H0Z%22%20fill%3D%22%238b8d98%22/%3E%3Cpath%20d%3D%22M0%20625%20L240%20545%20L480%20612%20L700%20532%20L960%20602%20L1200%20560%20V800%20H0Z%22%20fill%3D%22%2360646c%22/%3E%3Crect%20y%3D%22690%22%20width%3D%221200%22%20height%3D%22110%22%20fill%3D%22%231c2024%22/%3E%3C/svg%3E" alt="Placeholder landscape on the stage" width="1200" height="800"><figcaption class="p-caption">The stage stays dark in both themes. Signature color fills it with the accent.</figcaption></figure>
+          <div class="panel stack gap-5">
+            <div class="field">
+              <div class="field-head"><label class="p-field" for="char-name">Project name</label><span class="p-caption num">12 of 40</span></div>
+              <input class="input" id="char-name" value="Spring launch">
+              <p class="p-caption">Shown on invoices and in the browser tab.</p>
+            </div>
+            <label class="char-row hit"><span class="ctl-label">Email summaries</span><button class="switch" type="button" role="switch" aria-checked="true" data-toggle-switch></button></label>
+            <div class="stack gap-3"><p class="p-label">Estimated total</p><p class="p-key">$1,240</p><p class="p-caption">12 seats, billed yearly.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="sub"><p class="t t-label">Radius by shape</p>
+        <div class="radius-row">
+          <div class="stack gap-2"><div class="rbox" style="border-radius:var(--control-radius)"></div><span class="t t-caption">Controls</span></div>
+          <div class="stack gap-2"><div class="rbox" style="border-radius:var(--container-radius)"></div><span class="t t-caption">Containers</span></div>
+          <div class="stack gap-2"><div class="rbox" style="border-radius:var(--media-radius)"></div><span class="t t-caption">Media</span></div>
+          <div class="stack gap-2"><div class="rbox" style="border-radius:var(--radius-full)"></div><span class="t t-caption">Full, dots</span></div>
+        </div>
+      </div>
+      <div class="sub"><p class="t t-label">Elevation</p>
+        <div class="shadow-row">
+          <div class="sbox" style="box-shadow:var(--shadow-raised)"><span class="t t-caption">Raised, cards</span></div>
+          <div class="sbox" style="box-shadow:var(--shadow-overlay)"><span class="t t-caption">Overlay, menus</span></div>
+          <div class="sbox" style="box-shadow:var(--shadow-modal)"><span class="t t-caption">Modal, dialogs</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-test">
+  <div class="grid">
+    <div class="col-meta stack stack-para"><h2 class="t t-title" id="h-test">To test</h2><p class="t t-caption">Placeholder values, to confirm or replace.</p></div>
+    <div class="col-main subs">
+      <div class="sub"><p class="t t-label">Stacking order</p>
+        <div class="table-wrap"><table class="data num" style="min-width:0;max-width:360px"><tbody>
+          <tr><td>Base</td><td class="r">0</td></tr><tr><td>Sticky header</td><td class="r">100</td></tr><tr><td>Dropdown</td><td class="r">200</td></tr><tr><td>Overlay and scrim</td><td class="r">300</td></tr><tr><td>Modal</td><td class="r">400</td></tr><tr><td>Popover and tooltip</td><td class="r">500</td></tr><tr><td>Toast</td><td class="r">600</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer><div class="page"><p class="t t-caption">Design system v1.2.0. Radix Colors, Inter, Source Serif 4.</p></div></footer>
+
+<script src="specimen.js"></script>
+</body>
+</html>
