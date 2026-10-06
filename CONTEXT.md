@@ -34,7 +34,7 @@ markboard/
 
 ## Contacts / accounts
 
-- Data source: `MARKBOARD_HUB_PATH` points at a hub folder (projects.md, priorities.md, TODAY.md, briefs/, the pipeline file). Unset, it uses `demo/`.
+- Data source: `MARKBOARD_HUB_PATH` points at a hub folder (projects.md, priorities.md, TODAY.md, briefs/). Each registered project's folder holds its TASKS.md and, for job search, a pipeline.md. Unset, the app works on a copy of `demo/`.
 - The app's environment file is on the sandbox credentials list; Claude never opens it.
 - Deploy: none. Local only (Sail on localhost).
 
