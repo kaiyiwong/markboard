@@ -1,0 +1,1 @@
+This file marks a demo hub: relative registry paths are allowed, and the bundled checker is used when scripts/check-tasks.py is absent. A real hub never has it.

@@ -48,7 +48,7 @@ Each registered project's folder holds a `TASKS.md`, and may hold a `pipeline.md
 ```
 
 - The table is the first line whose cells are exactly `id`, `name`, `path`, `category`, `status`, `next milestone`, `docs` (trimmed, in any order), the separator line under it, and the `|` lines that follow without a break. Cells are read by header name. Everything else in the file is ignored.
-- A row is malformed, skipped and listed on the Projects page when: its cell count differs from the header's; `id` is empty or not kebab-case (`[a-z0-9]+(-[a-z0-9]+)*`); `category` isn't one of `own-site`, `client`, `job`, `product`, `game`, `gen-ai`, `personal`; `status` isn't one of `active`, `paused`, `done`; or `path` is empty, or relative in a real hub. A repeated `id` keeps the first row; later ones are listed as duplicates.
+- A row is malformed, skipped and listed on the Projects page when: its cell count differs from the header's; `id` is empty, not kebab-case (`[a-z0-9]+(-[a-z0-9]+)*`) or longer than 64 characters; `category` isn't one of `own-site`, `client`, `job`, `product`, `game`, `gen-ai`, `personal`; `status` isn't one of `active`, `paused`, `done`; or `path` is empty, or relative in a real hub. A repeated `id`, or a repeated path once resolved, keeps the first row; later ones are listed as duplicates. With no separator under the header, the rows are still read and that is listed too. These problems are the registry's errors (line and message, in `source_files.errors`); `app/Markdown/Registry` and `Priorities` parse the two files.
 - A relative `path` (demo-kind hubs only) is resolved against the hub folder, so the demo works from any clone.
 - A relative path is allowed only in a demo-kind hub; in a real hub it makes the row malformed.
 - A row whose folder doesn't exist (or isn't mounted, in Sail) is shown with "folder not found" and has no tasks.
@@ -102,11 +102,12 @@ The format is defined by `check-tasks.py`; this is a summary:
 
 Markboard owns this format's checks (no external checker exists for it):
 
-- The table is the first line whose cells are exactly `company`, `role`, `stage`, `next action`, `date` (trimmed, in any order), then a separator line (cells of `-`, optionally with `:`), then data rows: the `|` lines that follow without a break. Everything else in the file is free text and is never touched. Cells are read by header name, so the column order is whatever the header says.
-- A line is split on `|` after removing one leading and one trailing `|`; escaped pipes (`\|`) aren't supported.
-- Format errors (the file is then read-only): no header line; no separator under it; a data row whose cell count differs from the header's; a `stage` not in the list below; a `date` that isn't empty or a real `YYYY-MM-DD` date; invalid UTF-8; a line break other than `\n` or `\r\n` (see the line model).
+- A table line is a line that starts with `|` after any leading whitespace. The table is the first table line whose cells are exactly `company`, `role`, `stage`, `next action`, `date` (trimmed, case-sensitive, in any order), then a separator line (one cell per column, each of `-`, optionally with `:`), then data rows: the table lines that follow without a break. Everything else in the file is free text and is never touched, including a later table with the same columns. Cells are read by header name, so the column order is whatever the header says.
+- A line is split on `|` after trimming it and removing one leading and one trailing `|`; each cell is trimmed. Escaped pipes (`\|`) aren't supported.
+- Format errors (the file is then read-only): no header line; no separator under it; a data row whose cell count differs from the header's; a `stage` not in the list below; a `date` that isn't empty or a real `YYYY-MM-DD` date; invalid UTF-8; a line break other than `\n` or `\r\n` (see the line model). Parsing is best-effort: with no separator, the table lines straight after the header are read as rows, and a row with the wrong cell count is left out but still counts for the positions of the rows after it.
 - `stage` is open (`applied`, `screening`, `interviewing`, `offer`) or closed (`accepted`, `rejected`, `withdrawn`, `closed`).
 - A row is identified by its position among the data rows, starting at 1 [D9].
+- The table reader (`app/Markdown/Table`) is shared with the registry, which follows the same table rules.
 
 ## Reading files: the line model
 
@@ -114,7 +115,7 @@ The parsers in `app/Markdown/` are plain PHP with no Laravel dependency. The sam
 
 **Lines.** A file is split into lines at the same boundaries the checker uses: Python opens the file with universal newlines and then calls `splitlines()`, so the boundaries are `\r\n`, `\r`, `\n`, `\v`, `\f`, `\x1c`, `\x1d`, `\x1e`, U+0085, U+2028 and U+2029. Line numbers therefore match the checker's. Each line keeps its own terminator; the last line's may be empty.
 
-**Editable files.** A file is editable only if it is valid UTF-8, every terminator is `\n` or `\r\n`, and it has no format errors. Invalid UTF-8 and other terminators are Markboard's own file errors, reported next to the checker's format errors. A file that isn't editable is shown read-only, with its errors and line numbers [D6].
+**Editable files.** A file is editable only if it is valid UTF-8, every terminator is `\n` or `\r\n`, and it has no format errors. One deliberate difference from the checker: Python's `\d` also matches non-ASCII digits, so it reads `T٣` as a task ID; the PHP parser accepts only `0-9`, so such a line is "text between sections" and the file is read-only, never written wrongly. Dates are the same: only `0-9` makes a valid date, so a non-ASCII digit in a date is a format error here and the file is read-only. Invalid UTF-8 and other terminators are Markboard's own file errors, reported next to the checker's format errors. A file that isn't editable is shown read-only, with its errors and line numbers [D6].
 
 **Task blocks.** A block is a task line plus every following line up to the last `proof:` or `note:` line that belongs to it, which matches how the checker attaches indented lines: blank lines between a task and its indented lines are inside the block and move with it. Blank lines after the block's last line belong to no block and stay where they are. A block ends before the next task line, section heading or other non-blank, non-indented line.
 
@@ -167,16 +168,16 @@ Anything that passes validation must also pass the checker; the rules exist to g
 - **Metadata values** (`due`, `waiting`, `evidence`): not empty; no `,`, `(` or `)`.
 - **`due`**: a real date in `YYYY-MM-DD`.
 - **Proof and each note**: not empty.
-- **State** (checked by the action classes, not `InputRules`): moving a task to the section it is in; moving, ticking or cancelling a task in Done; undoing a task that isn't in Done or has no `from`; a reorder position below 0 or beyond the section's last task.
+- **State** (checked by `TasksEditor`, not `InputRules`, because the editor can't build a file without them; it throws `EditRefused`, which the action classes turn into `422`): moving a task to the section it is in or to Done; moving into Waiting on without `waiting`; moving, ticking or cancelling a task in Done; undoing a task that isn't in Done or has no `from`; a reorder position below 0 or beyond the section's last task.
 
 ### Pipeline operations
 
 | Operation | Result |
 |---|---|
-| Edit row `n` (PATCH, partial) | Fields: `company`, `role`, `stage`, `next_action`, `date` (`null` or `""` empties it). The row line is rewritten in the header's column order as `\| a \| b \| c \| d \| e \|`. No other line changes. |
-| Add row | All five fields (date may be empty). A new row line after the last data row, or directly after the separator if the table has no rows. |
+| Edit row `n` (PATCH, partial) | Fields: `company`, `role`, `stage`, `next_action`, `date` (`null` or `""` empties it). The row line is rewritten in the header's column order as `\| a \| b \| c \| d \| e \|`, keeping its own terminator; if no value changes, it keeps its original bytes. No other line changes. |
+| Add row | All five fields (date may be empty). A new row line after the last data row, or directly after the separator if the table has no rows, with the file's dominant terminator. |
 
-Validation: `company`, `role`, `next_action` not empty, at most 200 characters, trimmed like every text value, and containing no line boundary, control character or `|`; `stage` from the list; `date` empty or a real `YYYY-MM-DD` date. A file with no table is not editable (409).
+Validation: `company`, `role`, `next_action` not empty, at most 200 characters, trimmed like every text value, and containing no line boundary, control character or `|` (`InputRules::pipelineCell`); `stage` from the list (the `Stage` enum); `date` empty or a real `YYYY-MM-DD` date. A file with no table is not editable (409). As with tasks, `PipelineEditor` parses its result again: if the file would have an error or the row wouldn't read back as meant, it throws `EditRefused` (422).
 
 ## The write path
 
@@ -219,6 +220,8 @@ Sync copies files into the database [D13]:
 3. Otherwise parse it and, in one transaction: update `source_files` (hash, mtime, size, errors), delete the file's rows and insert the freshly parsed ones. Store the version in `file_versions`. If the transaction fails, it rolls back, so the old rows and the old hash stay together; the failure is recorded in `source_files.sync_error` and shown on the Projects page, and the next sync tries again.
 4. Projects no longer in the registry lose their rows. A registered project whose TASKS.md is missing or has format errors is "not migrated" [D6]: missing shows "no TASKS.md", errors show the count and the tasks read on a best-effort basis.
 
+A file that is gone loses its `source_files` row and its rows. Projects are upserted by id rather than deleted and inserted, because deleting a project deletes its tasks; a project whose path changed loses its files' rows, which are then read from the new path. A change to `priorities.md` only re-ranks the projects. With no hub (see Hub missing), sync does nothing.
+
 Pages read each file's `etag` and its rows in one database transaction, so the etag always describes the rows shown.
 
 When sync runs:
@@ -241,7 +244,8 @@ When sync runs:
 
 - `projects`, `source_files`, `tasks` and `pipeline_rows` are the index. `file_versions` and `conflicts` are history, keyed by path so they survive `--fresh`.
 - `file_versions`: seeing a hash again updates its `last_seen_at`. Each file keeps its 10 most recently seen versions, plus every version an open conflict refers to.
-- The date and string columns copy values out of the metadata so they can be filtered. A value that isn't a valid date is stored as null in its date column (the raw value stays in `metadata`). A repeated key uses its first value. In a file with errors, a repeated task number indexes only its first task.
+- The date and string columns copy values out of the metadata so they can be filtered. A value that isn't a valid date is stored as null in its date column (the raw value stays in `metadata`); so is a `from` that isn't an open section, and a pipeline `stage` or `date` that isn't valid. A repeated key uses its first value. In a file with errors, a repeated task number indexes only its first task.
+- `tasks.position` is 0-based among its section's tasks, like Reorder's; `line_start` and `line_end` are 1-based line numbers. `file_versions.content` is stored as bytes, so a file with invalid UTF-8 is kept as it was.
 - Index ids never appear in URLs or the API [D13]: projects and tasks are addressed by registry id and task number. Conflicts are the exception: they exist only in the database, so the API addresses them by their id.
 - **Search** [D14]: a `FULLTEXT` index on `tasks` (`title`, `proof`, `notes_text`). The query is split into words at every character that isn't a letter or digit, so no boolean-mode operator (`+ - * " ( ) ~ < > @`) can reach MySQL. On MySQL each word of 3 or more characters becomes `+word*` in boolean mode (every word must match, as a prefix); InnoDB also ignores its stopwords. On SQLite (local tests) each word must appear in one of the three columns (`LIKE`). The two differ for short words and stopwords, so feature tests search for a word of 6 or more letters that isn't a stopword (for example "spreadsheet").
 
@@ -321,7 +325,7 @@ With `MARKBOARD_HUB_PATH` unset, the app copies `demo/` to `storage/app/demo-hub
 - **Unit (Pest, no app boot), against `tests/Fixtures/`**: small files for edge cases the demo shouldn't carry: CRLF, mixed `\n` and `\r\n`, a lone `\r` and the other Python line boundaries, no final newline (including an empty `## Done` as the last line), a preamble, a blank line between a task and its proof, several proof lines, a note before a proof, titles ending in "(v2)" and other non-metadata parentheses, a title that would turn into metadata if its last key were removed, padded IDs, repeated metadata keys, invalid dates, a file with errors. For pipeline.md: columns in a different order, an empty table, an empty date, CRLF, no final newline, free text around the table, and one fixture per pipeline format error.
   - For every fixture, parse then write returns identical bytes.
   - For every operation, the line diff touches only the expected lines, and the result passes the checker.
-  - Every value rule in `InputRules` has a test; for each rule that guards the format, the test also shows that the refused input would otherwise produce a file the checker rejects. Length rules have plain boundary tests. State checks (wrong section, not in Done, position out of range) belong to the action classes and are tested in T6.
+  - Every value rule in `InputRules` has a test; for each rule that guards the format, the test also shows that the refused input would otherwise produce a file the checker rejects. Length rules have plain boundary tests. State checks (wrong section, not in Done, position out of range) are unit-tested with `TasksEditor` in T2; T6 tests their `422` responses.
 - **Parity**: the PHP parser reports the same format errors (line and message) as `check-tasks.py` on every fixture, and on every demo file once `demo/` exists (T7). Markboard's own file errors are compared separately. When `MARKBOARD_HUB_PATH` is set locally, the same check runs over every TASKS.md in that hub; CI skips it.
 - **Feature (Pest), against a temp copy of `demo/` per test** (demo-kind, with `MARKBOARD_HUB_PATH` pointed at the copy): sync (a changed file re-synced, an unchanged one skipped, the 2-second rule, `--fresh` rebuilding the index and keeping history); each page's Inertia props; each API endpoint and every status code in the table; apply and discard.
 - **Concurrency**: through a test hook that runs between steps 4 and 7, a test changes the file on disk and checks that the step 7 re-hash catches it: nothing is written and a conflict is recorded. (A change between steps 7 and 8 is the accepted window and isn't tested.)

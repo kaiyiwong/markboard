@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 6
+    # Read each model's casts() body, so cast attributes (enums, dates, JSON) get their real types.
+    parseModelCastsMethod: true
     paths:
         - app
         - routes
