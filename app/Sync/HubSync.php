@@ -322,7 +322,7 @@ final class HubSync
         $recent = FileVersion::where('path_hash', $pathHash)
             ->orderByDesc('last_seen_at')->orderByDesc('id')
             ->limit(self::VERSIONS_KEPT)->pluck('id');
-        $referenced = Conflict::where('path_hash', $pathHash)->where('status', 'open')
+        $referenced = Conflict::where('path_hash', $pathHash)->where('status', Conflict::OPEN)
             ->get(['base_hash', 'disk_hash'])
             ->flatMap(fn (Conflict $conflict): array => [$conflict->base_hash, $conflict->disk_hash]);
 

@@ -84,4 +84,27 @@ export interface Board {
     project: { id: string; name: string };
     file: SourceFile;
     rows: PipelineRow[];
+    conflicts: Conflict[];
+}
+
+/** One line of a conflict's diff, with its 1-based number in the old version, the new one, or both. */
+export interface DiffLine {
+    op: 'same' | 'removed' | 'added';
+    old: number | null;
+    new: number | null;
+    text: string;
+}
+
+/** An edit refused because the file changed on disk (a 412), as the conflict panel shows it. */
+export interface Conflict {
+    id: number;
+    operation: string;
+    summary: string;
+    /** The file's etag now: Apply sends it as If-Match. */
+    etag: string | null;
+    applicable: boolean;
+    /** The task or row as it is on disk now; null for an Add, or if it's gone. */
+    current: Task | PipelineRow | null;
+    /** Null when the version the user edited is no longer stored. */
+    diff: DiffLine[] | null;
 }

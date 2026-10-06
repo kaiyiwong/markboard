@@ -205,10 +205,10 @@ Steps 7 and 8 leave a window of microseconds in which another process could save
 A conflict is a refused edit [D2, D4, D19]:
 
 - Every `412` stores a conflict: the file path, the operation and its parameters, the hash the user had (`base_hash`) and the hash on disk (`disk_hash`). Two stale submits are two conflicts.
-- The `412` body holds the conflict (id, and whether it can be applied), the current task or row (none for an Add), the current `etag`, and, when the base version is still stored, a line diff from it to the current version.
+- The `412` body is `{message, conflict}`, where `conflict` (`ConflictResource`, the same shape the pages show) holds its `id`, `operation`, a `summary` such as "Tick T12", whether it is `applicable`, the `current` task or row (null for an Add), the current `etag`, and, when the base version is still stored, a line `diff` from it to the current version (each line `same`, `removed` or `added`, with its old and new line numbers, and two unchanged lines of context around each change).
 - **Can be applied** when the base version is still stored and the operation's lines are unchanged between base and current: for Edit, Tick, Cancel, Undo and Move, the task's block bytes and its section; for Reorder, every block in that section and their order; for a pipeline row edit, that row line at the same position; Add and pipeline Add are always applicable.
 - **Apply** needs `If-Match` with the `etag` the conflict panel showed. It refuses with `409` a conflict that is resolved or superseded. It reads the file under the lock: if the disk hash isn't the `If-Match` hash, `412`: this conflict is superseded and a new one created that keeps the original `base_hash` (only its `disk_hash` is new), so applicability is always judged from the version the user first edited. Otherwise it re-checks "can be applied" between the base version and the version on disk now; if that fails, `409` and the conflict stays open (the user can only discard it). If it passes, the operation runs through the write path from step 3, and success resolves the conflict.
-- **Discard** needs no `If-Match`, marks the conflict resolved and changes nothing.
+- **Discard** needs no `If-Match`, marks the conflict resolved and changes nothing. It answers `200` with `{data: {id, status}}`, or `409` if the conflict isn't open.
 - Unresolved conflicts are shown above the affected file's tasks on the Project page, and above the board on the Pipeline page.
 
 ## Sync
@@ -251,7 +251,7 @@ When sync runs:
 
 ## API
 
-Versioned JSON under `/api/v1`. Every write except Discard needs `If-Match: "<hash>"`. Successful writes return the file's new `ETag` [D10].
+Versioned JSON under `/api/v1`. Every write except Discard needs `If-Match: "<hash>"` (a weak `W/` prefix or missing quotes are accepted); without it the request is refused with `428` before its fields are validated. Successful writes return the file's new `ETag` [D10]. Text fields are trimmed as the checker trims (Python's `str.strip()`), and Laravel's own trimming and empty-to-null conversion are off for the API, so `""` is refused as empty rather than read as `null`.
 
 | Method and path | Does |
 |---|---|

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage, usePoll } from '@inertiajs/vue3';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { editsInProgress } from '@/api';
 import type { SharedProps } from '@/types';
 
 const page = usePage<SharedProps>();
@@ -13,8 +14,14 @@ const nav = [
 
 // The files change under the page (agents and scripts edit them), so the page reloads its props
 // every 15 seconds and whenever the window regains focus. Each request re-syncs changed files.
-usePoll(15_000);
-const reload = () => router.reload();
+// Polling pauses while an edit form is open or a drag is under way.
+const poll = usePoll(15_000);
+watch(editsInProgress, (count) => (count > 0 ? poll.stop() : poll.start()));
+const reload = () => {
+    if (editsInProgress.value === 0) {
+        router.reload();
+    }
+};
 onMounted(() => window.addEventListener('focus', reload));
 onBeforeUnmount(() => window.removeEventListener('focus', reload));
 

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ConflictResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SourceFileResource;
 use App\Http\Resources\TaskResource;
 use App\Markdown\Registry;
 use App\Markdown\Section;
+use App\Models\Conflict;
 use App\Models\Project;
 use App\Models\SourceFile;
 use App\Models\Task;
@@ -67,8 +69,8 @@ class ProjectController extends Controller
     }
 
     /**
-     * One project's tasks by section, in file order. The task route highlights one task; a task
-     * number that isn't in the file is a 404, like the API's.
+     * One project's tasks by section, in file order, with the open conflicts on its TASKS.md. The
+     * task route highlights one task; a task number that isn't in the file is a 404, like the API's.
      */
     public function show(Project $project, ?string $task = null): Response
     {
@@ -86,6 +88,7 @@ class ProjectController extends Controller
                     'tasks' => TaskResource::collection($tasks->where('section', $section)->values())->resolve(),
                 ], Section::cases()),
                 'highlight' => $highlight?->task_id,
+                'conflicts' => $file === null ? [] : ConflictResource::collection(Conflict::openOn($file))->resolve(),
             ];
         }));
     }

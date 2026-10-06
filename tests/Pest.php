@@ -10,3 +10,13 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Feature');
+
+/**
+ * The If-Match header for a file as it is on disk now: the etag a page would have shown.
+ *
+ * @return array{If-Match: string}
+ */
+function ifMatch(string $path): array
+{
+    return ['If-Match' => '"'.hash_file('sha256', $path).'"'];
+}
