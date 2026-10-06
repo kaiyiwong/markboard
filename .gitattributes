@@ -6,6 +6,9 @@
 *.md diff=markdown
 *.php diff=php
 
+# Parser fixtures are byte-exact test data (CRLF, lone CR, no final newline): never normalise them.
+/tests/Fixtures/** -text
+
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore

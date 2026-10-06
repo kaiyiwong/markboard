@@ -3,8 +3,6 @@
 Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 
 ## Up next
-- [ ] T2 TASKS.md parser and writer in app/Markdown with Pest round-trip tests
-  proof: the Unit and Parity tests listed under Testing in docs/spec.md pass, covering every fixture named there; every operation's result passes check-tasks.py; every validation rule has a test
 - [ ] T3 Pipeline table parser and writer with Pest tests
   proof: the pipeline fixtures named under Testing in docs/spec.md round-trip to identical bytes; editing a row touches only that row, in the header's column order; adding a row works on the empty-table fixture; each format-error fixture is read-only
 - [ ] T4 Sync into MySQL: migrations, models, the sync middleware and service, markboard:sync and its schedule
@@ -21,6 +19,8 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
 
 ## In progress
+- [ ] T2 TASKS.md parser and writer in app/Markdown with Pest round-trip tests (started 2026-10-06)
+  proof: the Unit and Parity tests listed under Testing in docs/spec.md pass, covering every fixture named there; every operation's result passes check-tasks.py; every validation rule has a test
 
 ## Waiting on
 
