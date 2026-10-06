@@ -32,4 +32,24 @@ final readonly class Hub
     {
         return $this->path.'/priorities.md';
     }
+
+    /** Today's brief, or a past one by its date (YYYY-MM-DD). */
+    public function briefPath(?string $date = null): string
+    {
+        return $date === null ? $this->path.'/TODAY.md' : $this->path."/briefs/{$date}.md";
+    }
+
+    /**
+     * The dates of the past briefs, newest first.
+     *
+     * @return list<string>
+     */
+    public function briefDates(): array
+    {
+        $dates = array_map(fn (string $path): string => basename($path, '.md'), glob($this->path.'/briefs/*.md') ?: []);
+        $dates = array_values(array_filter($dates, fn (string $date): bool => preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1));
+        rsort($dates);
+
+        return $dates;
+    }
 }

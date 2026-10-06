@@ -3,8 +3,6 @@
 Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 
 ## Up next
-- [ ] T5 Read views on the design system: Projects, Project, Pipeline and Brief
-  proof: Pest feature tests assert each page's Inertia props from the demo hub; npm run snapshot saves each page's rendered HTML from the running app with its CSS inlined, and the ui-foundations check_page.py passes on every snapshot (contrast in light and dark, no sideways scroll at 320, 375, 768 and 1440, text spacing)
 - [ ] T6 Edits through /api/v1 with ETag and If-Match, and the conflict panel
   proof: API tests cover every endpoint and every status code in the API section of docs/spec.md, apply and discard, and the concurrency test from Testing; the Project and Pipeline pages show an open conflict with its diff
 - [ ] T7 Demo hub and README: what it is, how to run it with Sail, architecture and design decisions
@@ -20,6 +18,8 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T5 Read views on the design system: Projects, Project, Pipeline and Brief (started 2026-10-07, done 2026-10-07, evidence docs/verify/T5.md, from In progress)
+  proof: Pest feature tests assert each page's Inertia props from the demo hub; npm run snapshot saves each page's rendered HTML from the running app with its CSS inlined, and the ui-foundations check_page.py passes on every snapshot (contrast in light and dark, no sideways scroll at 320, 375, 768 and 1440, text spacing)
 - [x] T4 Sync into MySQL: migrations, models, the sync middleware and service, markboard:sync and its schedule (started 2026-10-07, done 2026-10-07, evidence docs/verify/T4.md, from In progress)
   proof: feature tests show a changed file re-synced by hash, an unchanged one skipped, the 2-second rule, registry and priorities parsed with malformed rows listed, and --fresh rebuilding the index while keeping file_versions and conflicts; schedule:list shows markboard:sync every minute
 - [x] T3 Pipeline table parser and writer with Pest tests (started 2026-10-06, done 2026-10-06, evidence docs/verify/T3.md, from In progress)

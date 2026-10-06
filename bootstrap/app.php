@@ -14,10 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [
-            SyncHub::class,
-            HandleInertiaRequests::class,
-        ]);
+        // Sync runs first, before route-model binding looks a project up in the index.
+        $middleware->web(prepend: [SyncHub::class], append: [HandleInertiaRequests::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
