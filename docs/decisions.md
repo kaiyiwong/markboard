@@ -51,3 +51,14 @@ Settled in one design review before any feature code, one question at a time, ea
 
 23. **The GitHub repo exists from the start, private,** and goes public at T9, so CI runs on every push and each task has a pull request.
 24. **AI assistance is stated openly.** Commits keep their `Co-Authored-By` line, and the README says the app was built with Claude Code under a spec, review and verify workflow, with the design set and every change reviewed by the author.
+
+## Round 2, 2026-10-06 (first spec review)
+
+The first spec review (`docs/spec-review.md`, 31 issues) found four places where the spec had to go beyond or change a round 1 decision. Everything else it raised is a build detail, settled in `docs/spec.md`.
+
+25. **Pipeline routes sit under the project** (`/api/v1/projects/{project}/pipeline/rows/{n}`), refining [D10]. A `pipeline.md` lives in a project folder, and any registered project may have one; the Pipeline page shows one board per such project.
+26. **Cancel also records `from`, and Undo also removes `cancelled`**, extending [D8], so a cancelled task can be undone like a ticked one. Tick removes `cancelled` and Cancel removes `done` and `evidence`, so a task never carries both a done and a cancelled date.
+27. **Two fixture sets**, refining [D21]: feature tests use a temp copy of `demo/`; parser unit tests also use small files in `tests/Fixtures/` for edge cases (mixed line endings, no final newline, odd line breaks) that don't belong in a demo.
+28. **The scheduled sync stays in T4** (every minute, `schedule:work` in Sail), as the first thing to cut if time is short [D1].
+29. **Demo-kind hubs**, refining [D5] and [D20]: a hub containing a `.markboard-demo` file may use relative registry paths and falls back to the bundled checker. `demo/` and every copy of it carry the file; a real hub never does, so a real hub without a checker still refuses writes.
+30. **Conflicts are addressed by their database id**, an exception to [D13]: conflicts exist only in the database (they record refused edits, not file content), so there is no file-based key to use. Index rows (projects, tasks, pipeline rows) still never expose ids.
