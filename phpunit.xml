@@ -19,6 +19,8 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Test-only key, so tests and CI need no local environment file. Never used outside tests. -->
+        <env name="APP_KEY" value="base64:VNjqYQo7oj/BngEAXPKYsM9kgO2RuJg8EQtwN8+S6JY="/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
