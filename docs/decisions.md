@@ -50,7 +50,7 @@ Settled in one design review before any feature code, one question at a time, ea
 ### Process
 
 23. **The GitHub repo exists from the start, private,** and goes public at T9, so CI runs on every push and each task has a pull request.
-24. **AI assistance is stated openly.** Commits keep their `Co-Authored-By` line, and the README says the app was built with Claude Code under a spec, review and verify workflow, with the design set and every change reviewed by the author.
+24. **AI assistance is stated openly.** Commits keep their `Co-Authored-By` line (replaced by D31), and the README says the app was built with Claude Code under a spec, review and verify workflow, with the design set and every change reviewed by the author.
 
 ## Round 2, 2026-10-06 (first spec review)
 
@@ -62,3 +62,8 @@ The first spec review (`docs/spec-review.md`, 31 issues) found four places where
 28. **The scheduled sync stays in T4** (every minute, `schedule:work` in Sail), as the first thing to cut if time is short [D1].
 29. **Demo-kind hubs**, refining [D5] and [D20]: a hub containing a `.markboard-demo` file may use relative registry paths and falls back to the bundled checker. `demo/` and every copy of it carry the file; a real hub never does, so a real hub without a checker still refuses writes.
 30. **Conflicts are addressed by their database id**, an exception to [D13]: conflicts exist only in the database (they record refused edits, not file content), so there is no file-based key to use. Index rows (projects, tasks, pipeline rows) still never expose ids.
+
+## Round 3, 2026-10-07 (starting T4)
+
+31. **Commits carry no Claude attribution line**, replacing the commit part of [D24]. Kai's global rule for every project forbids it (deploy hosts reject such commits). The README still states the AI assistance, as D24 describes; commits before T4 keep theirs.
+32. **`demo/` is built in T4**, refining [D21]: T4's sync tests and T5's page tests both run on a temp copy of it. T7 keeps the README, the app's demo copy with `markboard:demo --reset`, and the parity run over the demo files.

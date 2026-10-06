@@ -48,7 +48,7 @@ Each registered project's folder holds a `TASKS.md`, and may hold a `pipeline.md
 ```
 
 - The table is the first line whose cells are exactly `id`, `name`, `path`, `category`, `status`, `next milestone`, `docs` (trimmed, in any order), the separator line under it, and the `|` lines that follow without a break. Cells are read by header name. Everything else in the file is ignored.
-- A row is malformed, skipped and listed on the Projects page when: its cell count differs from the header's; `id` is empty or not kebab-case (`[a-z0-9]+(-[a-z0-9]+)*`); `category` isn't one of `own-site`, `client`, `job`, `product`, `game`, `gen-ai`, `personal`; `status` isn't one of `active`, `paused`, `done`; or `path` is empty, or relative in a real hub. A repeated `id` keeps the first row; later ones are listed as duplicates.
+- A row is malformed, skipped and listed on the Projects page when: its cell count differs from the header's; `id` is empty, not kebab-case (`[a-z0-9]+(-[a-z0-9]+)*`) or longer than 64 characters; `category` isn't one of `own-site`, `client`, `job`, `product`, `game`, `gen-ai`, `personal`; `status` isn't one of `active`, `paused`, `done`; or `path` is empty, or relative in a real hub. A repeated `id`, or a repeated path once resolved, keeps the first row; later ones are listed as duplicates. With no separator under the header, the rows are still read and that is listed too. These problems are the registry's errors (line and message, in `source_files.errors`); `app/Markdown/Registry` and `Priorities` parse the two files.
 - A relative `path` (demo-kind hubs only) is resolved against the hub folder, so the demo works from any clone.
 - A relative path is allowed only in a demo-kind hub; in a real hub it makes the row malformed.
 - A row whose folder doesn't exist (or isn't mounted, in Sail) is shown with "folder not found" and has no tasks.
@@ -220,6 +220,8 @@ Sync copies files into the database [D13]:
 3. Otherwise parse it and, in one transaction: update `source_files` (hash, mtime, size, errors), delete the file's rows and insert the freshly parsed ones. Store the version in `file_versions`. If the transaction fails, it rolls back, so the old rows and the old hash stay together; the failure is recorded in `source_files.sync_error` and shown on the Projects page, and the next sync tries again.
 4. Projects no longer in the registry lose their rows. A registered project whose TASKS.md is missing or has format errors is "not migrated" [D6]: missing shows "no TASKS.md", errors show the count and the tasks read on a best-effort basis.
 
+A file that is gone loses its `source_files` row and its rows. Projects are upserted by id rather than deleted and inserted, because deleting a project deletes its tasks; a project whose path changed loses its files' rows, which are then read from the new path. A change to `priorities.md` only re-ranks the projects. With no hub (see Hub missing), sync does nothing.
+
 Pages read each file's `etag` and its rows in one database transaction, so the etag always describes the rows shown.
 
 When sync runs:
@@ -242,7 +244,8 @@ When sync runs:
 
 - `projects`, `source_files`, `tasks` and `pipeline_rows` are the index. `file_versions` and `conflicts` are history, keyed by path so they survive `--fresh`.
 - `file_versions`: seeing a hash again updates its `last_seen_at`. Each file keeps its 10 most recently seen versions, plus every version an open conflict refers to.
-- The date and string columns copy values out of the metadata so they can be filtered. A value that isn't a valid date is stored as null in its date column (the raw value stays in `metadata`). A repeated key uses its first value. In a file with errors, a repeated task number indexes only its first task.
+- The date and string columns copy values out of the metadata so they can be filtered. A value that isn't a valid date is stored as null in its date column (the raw value stays in `metadata`); so is a `from` that isn't an open section, and a pipeline `stage` or `date` that isn't valid. A repeated key uses its first value. In a file with errors, a repeated task number indexes only its first task.
+- `tasks.position` is 0-based among its section's tasks, like Reorder's; `line_start` and `line_end` are 1-based line numbers. `file_versions.content` is stored as bytes, so a file with invalid UTF-8 is kept as it was.
 - Index ids never appear in URLs or the API [D13]: projects and tasks are addressed by registry id and task number. Conflicts are the exception: they exist only in the database, so the API addresses them by their id.
 - **Search** [D14]: a `FULLTEXT` index on `tasks` (`title`, `proof`, `notes_text`). The query is split into words at every character that isn't a letter or digit, so no boolean-mode operator (`+ - * " ( ) ~ < > @`) can reach MySQL. On MySQL each word of 3 or more characters becomes `+word*` in boolean mode (every word must match, as a prefix); InnoDB also ignores its stopwords. On SQLite (local tests) each word must appear in one of the three columns (`LIKE`). The two differ for short words and stopwords, so feature tests search for a word of 6 or more letters that isn't a stopword (for example "spreadsheet").
 
