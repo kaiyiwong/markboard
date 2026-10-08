@@ -30,6 +30,8 @@ cp .env.example .env
 
 Open <http://localhost>. Every published port binds to `127.0.0.1`, so the app can't be reached from the network. If port 80 is taken, set `APP_PORT` in `.env` and run `sail up -d` again.
 
+If `migrate` says `Access denied for user 'sail'`, MySQL first started with other `DB_*` settings: it creates its user and database only on an empty volume. Run `./vendor/bin/sail down -v` (this deletes the app's database, which sync rebuilds from the files) and start again from `sail up`.
+
 Pages sync the files on every request, so the scheduler is optional. To keep search current while no page is open, run `./vendor/bin/sail artisan schedule:work` in a second terminal.
 
 ### The demo hub

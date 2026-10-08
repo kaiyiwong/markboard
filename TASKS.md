@@ -11,12 +11,12 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## In progress
 
 ## Waiting on
-- [ ] T7 Demo hub and README: what it is, how to run it with Sail, architecture and design decisions (started 2026-10-07, waiting Kai, since 2026-10-07)
-  proof: on a fresh clone, the README's commands bring up the app on localhost with the demo data, and the README states the AI assistance as decisions.md D24 describes; the parity test also runs on every demo file
-  note: demo/ itself was built in T4 (decisions D32); T7 adds the app's demo copy, markboard:demo --reset and the README
-  note: built on branch t7/demo-readme; waiting on Kai to put Sail's MySQL settings in .env.example (Claude can't edit it), then run the README's fresh-clone commands with Sail
 
 ## Done
+- [x] T7 Demo hub and README: what it is, how to run it with Sail, architecture and design decisions (started 2026-10-07, done 2026-10-08, evidence docs/verify/T7.md, from Waiting on)
+  proof: on a fresh clone, the README's commands bring up the app on localhost with the demo data, and the README states the AI assistance as decisions.md D24 describes; the parity test also runs on every demo file
+  note: demo/ itself was built in T4 (decisions D32); T7 adds the app's demo copy, markboard:demo --reset and the README
+  note: Kai brought up a fresh clone with Sail on 2026-10-08, after putting Sail's MySQL settings in .env.example
 - [x] T6 Edits through /api/v1 with ETag and If-Match, and the conflict panel (started 2026-10-07, done 2026-10-07, evidence docs/verify/T6.md, from In progress)
   proof: API tests cover every endpoint and every status code in the API section of docs/spec.md, apply and discard, and the concurrency test from Testing; the Project and Pipeline pages show an open conflict with its diff
   note: shown by page-prop tests; the controls and panel are still to be clicked through in a browser on the demo hub
