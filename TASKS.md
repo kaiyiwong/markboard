@@ -11,6 +11,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T13 No app key in the repo: tests make a fresh one each run (done 2026-10-08, from Up next)
+  proof: phpunit.xml holds no APP_KEY; the suite passes on SQLite and MySQL; with the per-run key disabled the page tests fail with "No application encryption key"
+  note: GitGuardian flagged the test-only key in phpunit.xml once the repo was public; it never encrypted anything outside tests, so nothing was rotated
 - [x] T12 Product design pass: design system v1.3.0 with its style lint, the fills and loud dials, a key element on every page and the tick animation (done 2026-10-08, from Up next)
   proof: npm run lint:css passes inside npm run build; check_page.py passes on all nine snapshots (contrast in light and dark, no sideways scroll at 320 to 1440, text spacing); tests pass on SQLite and MySQL
   note: Kai found the pages read as words and lines; SPEC 14's character check failed (every dial quiet, no key element, the signature not visible)
