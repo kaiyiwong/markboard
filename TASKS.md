@@ -11,6 +11,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T14 Brief page as a product page: one surface per section with its count, project and task tags as links, the day as its title (done 2026-10-08, from Up next)
+  proof: unit tests for the Brief parser and BriefLinks; the Brief page test; check_page.py passes on both Brief pages; tests pass on SQLite and MySQL
+  note: Kai found the Brief still read as a document; checked against his real TODAY.md (40 lines, 9 sections, several empty)
 - [x] T13 No app key in the repo: tests make a fresh one each run (done 2026-10-08, from Up next)
   proof: phpunit.xml holds no APP_KEY; the suite passes on SQLite and MySQL; with the per-run key disabled the page tests fail with "No application encryption key"
   note: GitGuardian flagged the test-only key in phpunit.xml once the repo was public; it never encrypted anything outside tests, so nothing was rotated
