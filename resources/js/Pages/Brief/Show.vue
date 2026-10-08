@@ -6,29 +6,53 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 
 defineOptions({ layout: AppLayout });
 
+interface BriefSection {
+    title: string;
+    /** Top-level list items, the section's count. */
+    items: number;
+    /** Rendered on the server, raw HTML escaped, project tags linked. */
+    html: string;
+}
+
 const props = defineProps<{
     /** Null for today's brief (TODAY.md). */
     date: string | null;
-    /** Rendered on the server, with raw HTML escaped; null when there is no TODAY.md. */
-    html: string | null;
+    /** Null when there is no TODAY.md. */
+    brief: { title: string | null; intro: string; sections: BriefSection[] } | null;
     dates: string[];
 }>();
 
-// A brief normally opens with its own heading, which is the page's title; one that doesn't gets a
-// hidden one, so the page still has a heading.
-const hasTitle = computed(() => props.html?.trimStart().startsWith('<h1>') ?? false);
-
-// Past briefs by day, as people say them: Yesterday, then the weekday and date.
 const today = useToday();
-function dayName(date: string): string {
-    if (daysFrom(today.value, date) === -1) {
-        return 'Yesterday';
-    }
-    return new Intl.DateTimeFormat('en', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
-}
+const fullDate = (date: string) =>
+    new Intl.DateTimeFormat('en', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
+const shortDay = (date: string) =>
+    daysFrom(today.value, date) === -1
+        ? 'Yesterday'
+        : new Intl.DateTimeFormat('en', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
 
-// The brief's task links are plain <a> tags in server-rendered HTML; follow the app's own links
-// as Inertia visits so the page doesn't fully reload.
+// The page's key element is the brief's day. A title with a date in it ("Today, 2026-10-08") is shown
+// as that day in words; any other title as written.
+const heading = computed(() => {
+    const title = props.brief?.title ?? null;
+    const date = title?.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? props.date;
+    const days = date ? daysFrom(today.value, date) : null;
+    return {
+        label: props.date ? 'Brief' : "Today's brief",
+        key: date ? fullDate(date) : (title ?? 'Brief'),
+        note: days === null || days === 0 ? null : days === -1 ? 'Yesterday' : days < 0 ? `${-days} days ago` : null,
+    };
+});
+
+// A short intro (a line about how the brief was made) reads as a caption; a list gets its own surface.
+const introIsList = computed(() => props.brief?.intro.includes('<li') ?? false);
+// The hub also files today's brief under today's date: "Today" already stands for it.
+const pastDates = computed(() => props.dates.filter((past) => past !== today.value));
+
+const filled = computed(() => props.brief?.sections.filter((section) => section.html !== '') ?? []);
+const empty = computed(() => props.brief?.sections.filter((section) => section.html === '').map((section) => section.title) ?? []);
+
+// The brief's links are plain <a> tags in server-rendered HTML; follow the app's own links as Inertia
+// visits so the page doesn't fully reload.
 function follow(event: MouseEvent) {
     const link = (event.target as HTMLElement).closest('a');
     const href = link?.getAttribute('href');
@@ -42,22 +66,41 @@ function follow(event: MouseEvent) {
 <template>
     <Head :title="date ? `Brief, ${date}` : 'Brief'" />
     <div class="layout">
-        <h1 v-if="html && !hasTitle" class="visually-hidden">{{ date ? `Brief, ${date}` : 'Today\'s brief' }}</h1>
-        <!-- Escaped on the server (raw HTML as text, no unsafe links). Its first heading is the page's title. -->
-        <article v-if="html" class="panel brief stack stack-para" @click="follow" v-html="html" />
-        <div v-else class="panel stack gap-3">
-            <h1 class="p-headline">No brief yet</h1>
-            <p class="p-body">Today's brief appears here once the hub has a TODAY.md. Past briefs are listed with it.</p>
+        <div class="stack gap-6 main-col">
+            <div class="stack gap-3">
+                <p class="p-label">{{ heading.label }}</p>
+                <h1 class="p-key">{{ brief ? heading.key : 'No brief yet' }}</h1>
+                <p v-if="brief && heading.note" class="p-caption">{{ heading.note }}</p>
+            </div>
+
+            <div v-if="!brief" class="panel stack gap-3">
+                <p class="p-body">Today's brief appears here once the hub has a TODAY.md. Past briefs are listed with it.</p>
+            </div>
+
+            <template v-else>
+                <!-- Escaped on the server (raw HTML as text, no unsafe links). -->
+                <div v-if="brief.intro" class="content" :class="introIsList ? 'panel p-body' : 'p-caption intro'" @click="follow" v-html="brief.intro" />
+                <div class="sections">
+                    <section v-for="section in filled" :key="section.title" class="panel section">
+                        <h2 class="p-title section-head">
+                            <span>{{ section.title }}</span>
+                            <span v-if="section.items" class="chip"><span class="p-label num">{{ section.items }}</span></span>
+                        </h2>
+                        <div class="content p-body" @click="follow" v-html="section.html" />
+                    </section>
+                </div>
+                <p v-if="empty.length" class="p-caption">Nothing in {{ empty.join(', ') }}.</p>
+            </template>
         </div>
 
-        <nav class="stack gap-4 past-nav" aria-labelledby="past-briefs">
+        <nav class="panel past-nav" aria-labelledby="past-briefs">
             <h2 id="past-briefs" class="p-label">Past briefs</h2>
-            <ul v-if="dates.length || date" class="ledger">
-                <li v-if="date" class="past">
-                    <Link href="/brief" class="p-body link-quiet">Today</Link>
+            <ul v-if="pastDates.length || date" class="past-list">
+                <li>
+                    <Link href="/brief" class="p-body past" :aria-current="date === null ? 'page' : undefined">Today</Link>
                 </li>
-                <li v-for="past in dates" :key="past" class="past">
-                    <Link :href="`/brief/${past}`" class="p-body link-quiet" :aria-current="past === date ? 'page' : undefined" :title="past">{{ dayName(past) }}</Link>
+                <li v-for="past in pastDates" :key="past">
+                    <Link :href="`/brief/${past}`" class="p-body past" :aria-current="past === date ? 'page' : undefined" :title="past">{{ shortDay(past) }}</Link>
                 </li>
             </ul>
             <p v-else class="p-caption">No past briefs in the hub's briefs folder.</p>
@@ -66,7 +109,7 @@ function follow(event: MouseEvent) {
 </template>
 
 <style scoped>
-/* The brief first, past briefs beside it from 1024 (spans of the page grid), under it on smaller screens. */
+/* The brief first, past briefs beside it from 1024, under it on smaller screens. */
 .layout {
     display: grid;
     gap: var(--space-6);
@@ -74,75 +117,165 @@ function follow(event: MouseEvent) {
 
 @media (min-width: 1024px) {
     .layout {
-        grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem);
         align-items: start;
     }
 }
 
-/* The brief is a document to read, so it uses the editorial roles (SPEC 4.3) at a reading measure. */
-.brief {
-    overflow-wrap: anywhere;
-    padding: var(--space-7);
+/* Each section is a surface. The first, usually the day's focus, spans the width; the rest flow in
+   newspaper columns, so a short section never leaves a hole beside a long one. */
+.sections {
+    columns: 24rem;
+    column-gap: var(--space-4);
 }
 
-.brief :deep(> *) {
-    max-inline-size: 65ch;
+.sections > :first-child {
+    column-span: all;
 }
 
-.brief :deep(> *),
-.brief :deep(li) {
-    margin: 0;
-    text-box: trim-both cap alphabetic;
+.section {
+    break-inside: avoid;
+    margin-block-end: var(--space-4);
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-5) var(--space-2);
 }
 
-.brief :deep(h1) {
-    font-size: var(--ed-headline);
-    line-height: 1.15;
-    letter-spacing: var(--ls-headline);
-    font-weight: var(--weight-strong);
-    text-wrap: balance;
+.intro {
+    margin-block-start: calc(-1 * var(--space-3));
 }
 
-.brief :deep(h2) {
-    font-size: var(--ed-title);
-    line-height: 1.3;
-    letter-spacing: var(--ls-title);
-    font-weight: var(--weight-strong);
-    text-wrap: balance;
-}
-
-.brief :deep(:is(p, li)) {
-    font-size: var(--ed-body);
-    line-height: var(--ed-body-lh);
-    text-wrap: pretty;
-}
-
-.brief :deep(:is(ul, ol)) {
+.section-head {
     display: flex;
-    flex-direction: column;
-    gap: var(--u);
-    padding-inline-start: var(--space-5);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
 }
 
-.brief :deep(:is(h1, h2, h3):not(:first-child)) {
-    margin-block-start: var(--u);
+/* The brief's Markdown, as product rows: each list item a row with a hairline, its project and task as chips. */
+.content {
+    overflow-wrap: anywhere;
 }
 
-.brief :deep(:is(pre, table)) {
+.content :deep(> * + *) {
+    margin-block-start: var(--space-3);
+}
+
+.content :deep(:is(p, ul, ol, h3)) {
+    margin-block: 0;
+}
+
+.content :deep(:is(ul, ol)) {
+    padding: 0;
+    list-style: none;
+    counter-reset: item;
+}
+
+.content :deep(li) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.content :deep(li:first-child) {
+    border-top: 0;
+}
+
+/* A numbered list ("Top today") keeps its order as a number in a circle. */
+.content :deep(ol > li) {
+    counter-increment: item;
+}
+
+.content :deep(ol > li)::before {
+    content: counter(item);
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--control-h-sm);
+    block-size: var(--control-h-sm);
+    border-radius: var(--radius-bar);
+    background: var(--accent-bg);
+    color: var(--accent-fg-strong);
+    font-weight: var(--weight-medium);
+    font-variant-numeric: tabular-nums;
+}
+
+/* A project tag links to the project, by name; a task ID after it links to the task, as a pill in the
+   accent tint (its text uses the strong role: accent-fg on a tint is under 4.5:1). */
+.content :deep(a[href^='/projects/']) {
+    text-decoration: none;
+}
+
+.content :deep(a[href^='/projects/']:not([href*='/tasks/'])) {
+    color: var(--fg-default);
+    font-weight: var(--weight-medium);
+}
+
+.content :deep(a[href*='/tasks/']) {
+    padding-inline: var(--space-1);
+    border-radius: var(--control-radius);
+    background: var(--accent-bg);
+    color: var(--accent-fg-strong);
+    font-family: var(--font-mono);
+}
+
+@media (hover: hover) {
+    .content :deep(a[href^='/projects/']:hover) {
+        text-decoration: underline;
+    }
+}
+
+.content :deep(:is(pre, table)) {
     display: block;
     max-inline-size: 100%;
     overflow-x: auto;
 }
 
 .past-nav {
-    padding-block-start: var(--space-2);
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+}
+
+.past-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .past {
-    padding-block: var(--space-3);
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--control-radius);
+    color: var(--fg-default);
+    text-decoration: none;
 }
 
-.past [aria-current='page'] {
-    color: var(--fg-default);
+/* The brief on screen: the accent marks it, with a 2px bar that reaches 3:1 (SPEC 3.5 rule 2). */
+.past[aria-current='page'] {
+    position: relative;
+    background: var(--accent-bg);
+    color: var(--accent-fg-strong);
+    font-weight: var(--weight-medium);
+}
+
+.past[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    inset-block: var(--space-2);
+    inset-inline-start: 0;
+    inline-size: 2px;
+    background: var(--accent-strong);
+}
+
+@media (hover: hover) {
+    .past:not([aria-current='page']):hover {
+        background: var(--bg-control-hover);
+    }
 }
 </style>
