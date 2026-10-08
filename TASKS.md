@@ -7,13 +7,13 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: the Pest browser test ticks a task in the UI and finds the change in the temp hub's TASKS.md, locally and in CI (Chromium installed in the workflow)
 
 ## In progress
-- [ ] T9 Private-content check, then make the repo public (started 2026-10-08)
-  proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
-  note: both scans pass and the MIT license is added (docs/verify/T9.md); still to do: merge, make the repo public, CI green on main
 
 ## Waiting on
 
 ## Done
+- [x] T9 Private-content check, then make the repo public (started 2026-10-08, done 2026-10-08, evidence docs/verify/T9.md, from In progress)
+  proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
+  note: public since 2026-10-08 under the MIT license
 - [x] T11 CI green on MySQL: three tests that passed on SQLite failed in CI (done 2026-10-08, evidence 964c57c, from Up next)
   proof: the full suite passes on MySQL 8.4 (Sail's testing database) and on SQLite
   note: a lock taken on the frozen clock had expired by the real one; MySQL's JSON type sorts keys; InnoDB indexes FULLTEXT rows only on commit
