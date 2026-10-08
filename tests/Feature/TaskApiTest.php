@@ -250,7 +250,7 @@ describe('412: the file changed since the user saw it', function () {
             ->and(Conflict::sole())
             ->path->toBe($this->tasks)
             ->operation->value->toBe('tick')
-            ->parameters->toBe(['number' => 12, 'evidence' => null])
+            ->parameters->toEqual(['number' => 12, 'evidence' => null])
             ->base_hash->toBe(hash('sha256', $this->original))
             ->disk_hash->toBe(hash('sha256', $changed))
             ->status->toBe('open');
@@ -393,9 +393,11 @@ describe('500: the candidate fails the format check', function () {
 describe('503: busy, or no verdict from the checker', function () {
     it('answers Retry-After when another write holds the lock', function () {
         $this->getJson('/')->assertOk();
+        // The lock wait runs on the real clock, so the lock is taken on it too: taken on the frozen
+        // clock, it would already have expired once the real time passed 2026-10-07 12:00:30.
+        $this->travelBack();
         $lock = Cache::lock('markboard:file:'.hash('sha256', realpath($this->tasks)), 30);
         $lock->get();
-        $this->travelBack(); // the lock wait runs on the real clock
 
         $this->withHeaders(ifMatch($this->tasks))
             ->postJson('/api/v1/projects/lantern/tasks/T12/tick')

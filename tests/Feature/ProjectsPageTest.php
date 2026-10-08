@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -106,6 +107,11 @@ it('filters by category and status, ignoring values it does not know', function 
 });
 
 it('searches task titles, proofs and notes across projects', function () {
+    // InnoDB adds rows to a FULLTEXT index only when their transaction commits, so the synced rows are
+    // committed, ending the test's transaction; RefreshDatabase then rebuilds the schema for the next test.
+    $this->get('/')->assertOk();
+    DB::commit();
+
     // "spreadsheet" is in Lantern T12's proof; "icon" in T11's note; "kickoff" in Bramble T1's title.
     expect($this->get('/?q=spreadsheet')->inertiaProps('results'))->toBe([
         ['project_id' => 'lantern', 'project_name' => 'Lantern', 'task_id' => 'T12', 'title' => 'Export to CSV', 'section' => 'Up next'],

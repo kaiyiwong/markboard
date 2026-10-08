@@ -66,7 +66,8 @@ describe('the other status codes', function () {
             ->assertJsonPath('conflict.applicable', true)
             ->assertJsonPath('conflict.current.company', 'Northwind');
 
-        expect(Conflict::sole()->parameters)->toBe(['position' => 1, 'changes' => ['stage' => 'offer']]);
+        // toEqual, not toBe: MySQL's JSON type sorts keys, and replay passes them as named arguments.
+        expect(Conflict::sole()->parameters)->toEqual(['position' => 1, 'changes' => ['stage' => 'offer']]);
     });
 
     it('refuses bad fields with 422', function (array $body, string $field) {
