@@ -21,6 +21,9 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            # The folder holding the hub and the project folders, at the same path as on the host, so
+            # the registry's absolute paths work unchanged. Unset, an empty folder: the app uses its demo copy.
+            - '${MARKBOARD_PROJECTS_ROOT:-./docker/no-projects}:${MARKBOARD_PROJECTS_ROOT:-/mnt/no-projects}'
         networks:
             - sail
         depends_on:

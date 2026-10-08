@@ -1,9 +1,11 @@
 <?php
 
 use App\Markdown\FormatError;
+use App\Markdown\Registry;
 use App\Markdown\Section;
 use App\Markdown\TaskBlock;
 use App\Markdown\TasksFile;
+use App\Sync\Hub;
 use Tests\Support\Checker;
 use Tests\Support\Fixtures;
 
@@ -26,19 +28,15 @@ it('reports the same format errors as check-tasks.py', function (string $name) {
     expect(errorsOf(TasksFile::parse($bytes)))->toBe(Checker::errors([$bytes])[0]);
 })->with(Fixtures::taskDataset());
 
-it('reports the same format errors as check-tasks.py on every TASKS.md in the local hub', function () {
-    $hub = getenv('MARKBOARD_HUB_PATH');
+it('reports the same format errors as check-tasks.py on every TASKS.md in a hub', function (string|false $hub) {
     if (! is_string($hub) || $hub === '') {
         $this->markTestSkipped('MARKBOARD_HUB_PATH is not set (CI never sets it).');
     }
 
-    // A minimal read of the registry's path column; the real registry parser comes with sync.
-    $rows = array_filter(file("{$hub}/projects.md", FILE_IGNORE_NEW_LINES) ?: [], fn (string $line): bool => str_starts_with($line, '|'));
-    $cells = array_map(fn (string $row): array => array_map(trim(...), explode('|', trim($row, '|'))), array_values($rows));
-    $column = array_search('path', $cells[0] ?? [], true);
+    $hub = new Hub($hub);
+    $registry = Registry::parse((string) file_get_contents($hub->registryPath()), $hub->path, $hub->isDemoKind());
     $texts = [];
-    foreach (array_slice($cells, 2) as $row) {
-        $path = $row[$column] ?? '';
+    foreach ($registry->projects as ['path' => $path]) {
         if (is_file("{$path}/TASKS.md")) {
             $texts[$path] = (string) file_get_contents("{$path}/TASKS.md");
         }
@@ -48,7 +46,10 @@ it('reports the same format errors as check-tasks.py on every TASKS.md in the lo
     foreach (Checker::errors($texts) as $path => $expected) {
         expect(errorsOf(TasksFile::parse($texts[$path])))->toBe($expected, $path);
     }
-});
+})->with([
+    'the demo hub' => [__DIR__.'/../../../demo'],
+    'the local hub in MARKBOARD_HUB_PATH' => [getenv('MARKBOARD_HUB_PATH')],
+]);
 
 it('reads sections, tasks, metadata, proofs and notes', function () {
     $file = TasksFile::parse(Fixtures::tasks('basic.md'));

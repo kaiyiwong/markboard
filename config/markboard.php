@@ -8,12 +8,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | The folder holding projects.md, priorities.md, TODAY.md and briefs/.
-    | Unset, the app works on its copy of the demo hub, so editing the demo
-    | never changes tracked files.
+    | Unset, the app works on its copy of demo/ at demo_path, made on first
+    | use, so editing the demo never changes tracked files. Replace the copy
+    | with `php artisan markboard:demo --reset`.
     |
     */
 
-    'hub_path' => env('MARKBOARD_HUB_PATH') ?: storage_path('app/demo-hub'),
+    'hub_path' => env('MARKBOARD_HUB_PATH') ?: null,
+
+    'demo_path' => storage_path('app/demo-hub'),
 
     /*
     |--------------------------------------------------------------------------

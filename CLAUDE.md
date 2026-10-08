@@ -63,6 +63,8 @@ These rules apply to every session. Violating them breaks prompt caching and inc
 - macOS ignores case in file names; CI's Linux doesn't. Inertia 3 defaults to `resources/js/pages`, Boost says `Pages`: `config/inertia.php` pins `js/Pages`. Match the case of every path exactly, or CI fails where the Mac passes.
 - Laravel Boost only registers in the `local` environment. With no environment file, prefix artisan with `APP_ENV=local`.
 - Claude never reads or edits the environment files, including the example template; they're on the sandbox deny list. Defaults go in `config/*.php` and `phpunit.xml`.
+- Local tests run on SQLite, CI on MySQL, and they differ (InnoDB indexes FULLTEXT rows only on commit; MySQL's JSON type sorts keys). Before a pull request, with Sail up, also run the suite on Sail's MySQL: `DB_CONNECTION=mysql DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=sail DB_PASSWORD=password php artisan test`.
+- Sail's MySQL container creates its user and database only on an empty volume. After changing the `DB_*` settings, run `sail down -v` (sync rebuilds the index from the files), or `migrate` fails with "Access denied for user 'sail'".
 - In Claude's sandbox: PHPStan's workers need `PHP_INI_SCAN_DIR=":$TMPDIR/phpini"` (an ini setting `opcache.lockfile_path` to `$TMPDIR`); npm needs `--cache "$TMPDIR/npm-cache"`; Docker isn't reachable, so Kai runs Sail.
 
 ---
