@@ -5,7 +5,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "typecheck": "vue-tsc --noEmit"
+        "typecheck": "vue-tsc --noEmit",
+        "snapshot": "${PYTHON:-python3} tests/Snapshots/snapshot.py"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^3.8.0",

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Sync\Hub;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,9 +36,12 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $hub = app(Hub::class);
+
         return [
             ...parent::share($request),
-            //
+            // With no hub, every page says so and shows the path it looked in.
+            'hub' => ['found' => $hub->exists(), 'path' => $hub->path],
         ];
     }
 }

@@ -1,1 +1,93 @@
 /* Project styles: overrides and shared components only. Every value comes from design-system tokens (DESIGN.md). */
+
+/* Links are something you can act on, so they take the accent (DESIGN.md, Character: color quiet). */
+a {
+    color: var(--accent-fg);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+}
+
+/* A link standing alone in a list or heading: no underline until hovered. */
+.link-quiet {
+    text-decoration: none;
+}
+
+@media (hover: hover) {
+    .link-quiet:hover {
+        text-decoration: underline;
+    }
+}
+
+/* Chip: a short fact about a task, project or row, such as "due 2026-10-20". Not a control.
+   Its text takes a role class (.p-label for one-word states, .p-caption for values that may wrap). */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--control-h-sm);
+    min-width: 0;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--control-radius);
+    background: var(--bg-control);
+    color: var(--fg-default);
+    overflow-wrap: anywhere;
+}
+
+.chip :is(.p-label, .p-caption) {
+    color: inherit;
+}
+
+/* Status chips use the -fg-strong roles: step 11 text on its own tint is under 4.5:1. */
+.chip-danger {
+    background: var(--danger-bg);
+    color: var(--danger-fg-strong);
+}
+
+.chip-warning {
+    background: var(--warning-bg);
+    color: var(--warning-fg-strong);
+}
+
+/* The key in a key-value fact ("due", "Proof"), quieter than its value. */
+.key {
+    color: var(--fg-muted);
+}
+
+.chip-danger .key,
+.chip-warning .key {
+    color: inherit;
+}
+
+/* Lists the pages draw as ledgers: no bullets, a hairline between rows. */
+.ledger {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ledger > li {
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.ledger > li:first-child {
+    border-top: 1px solid var(--border-subtle);
+}
+
+/* Text for screen readers only. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
