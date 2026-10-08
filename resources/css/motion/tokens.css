@@ -1,0 +1,11 @@
+/* Motion tokens and levels, copied from the motion-tokens skill's motion.css (draft 0.1): the tokens and the Full,
+   Light and Reduced levels only. Markboard uses no reveal primitives, so they and motion.js aren't copied. */
+:root{--ease-out:cubic-bezier(0.25,1,0.5,1);--ease-out-strong:cubic-bezier(0.16,1,0.3,1);--ease-in-out:cubic-bezier(0.65,0,0.35,1);--ease-in-out-strong:cubic-bezier(0.83,0,0.17,1);--ease-in:cubic-bezier(0.32,0,0.67,0);--ease-hover:cubic-bezier(0.25,0.1,0.25,1)}
+:root{--dur-instant:100ms;--dur-quick:150ms;--dur-base:200ms;--dur-large:300ms;--dur-reveal-s:400ms;--dur-reveal:700ms;--dur-type:800ms;--dur-media:900ms;--dur-reveal-l:1000ms;--dur-line-s:500ms;--dur-line:750ms;--dur-line-l:1000ms}
+:root{--stagger-tight:33ms;--stagger:100ms;--stagger-wide:133ms;--stagger-line:240ms;--stagger-word:120ms;--stagger-char:40ms;--stagger-budget:1000ms;--rise-pct:50%;--rise-min:16px;--rise-max:120px;--rise-base:clamp(var(--rise-min),var(--rise-pct),var(--rise-max));--hover-scale:1.06;--hover-duration:400ms;--hover-ease:var(--ease-out-strong);--m-threshold:0.2;--m:1}
+/* levels: Markboard sets no data-motion, so Full applies, or Reduced when the system asks for reduced motion. */
+:root,[data-motion="full"]{--cap:1000000ms;--dm:1;--sm:1;--bm:1;--rm:1;--rise:calc(var(--rise-base)*var(--rm));--dr:16px;--mask:105%;--hover-move:1;--tfade0:1;--out-op:1;--dash0:1;--fade0:1;--clip0:inset(0 0 100% 0)}
+[data-motion="light"]{--cap:1000000ms;--dm:0.5;--sm:0.5;--bm:0.25;--rm:0.5;--rise:calc(var(--rise-base)*var(--rm));--dr:8px;--mask:105%;--hover-move:1;--tfade0:1;--out-op:1;--dash0:1;--fade0:1;--clip0:inset(0 0 100% 0)}
+[data-motion="reduced"]{--cap:150ms;--dm:1;--sm:0;--bm:0;--rm:0;--rise:calc(var(--rise-base)*var(--rm));--dr:0px;--mask:0%;--hover-move:0;--tfade0:0;--out-op:0;--dash0:0;--fade0:0;--clip0:inset(0)}
+@media (prefers-reduced-motion:reduce){:root:not([data-motion]){--cap:150ms;--dm:1;--sm:0;--bm:0;--rm:0;--rise:calc(var(--rise-base)*var(--rm));--dr:0px;--mask:0%;--hover-move:0;--tfade0:0;--out-op:0;--dash0:0;--fade0:0;--clip0:inset(0)}
+}

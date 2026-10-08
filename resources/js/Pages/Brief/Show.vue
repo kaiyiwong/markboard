@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { daysFrom, useToday } from '@/dates';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 defineOptions({ layout: AppLayout });
@@ -17,6 +18,15 @@ const props = defineProps<{
 // hidden one, so the page still has a heading.
 const hasTitle = computed(() => props.html?.trimStart().startsWith('<h1>') ?? false);
 
+// Past briefs by day, as people say them: Yesterday, then the weekday and date.
+const today = useToday();
+function dayName(date: string): string {
+    if (daysFrom(today.value, date) === -1) {
+        return 'Yesterday';
+    }
+    return new Intl.DateTimeFormat('en', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
+}
+
 // The brief's task links are plain <a> tags in server-rendered HTML; follow the app's own links
 // as Inertia visits so the page doesn't fully reload.
 function follow(event: MouseEvent) {
@@ -31,23 +41,23 @@ function follow(event: MouseEvent) {
 
 <template>
     <Head :title="date ? `Brief, ${date}` : 'Brief'" />
-    <div class="stack gap-8">
+    <div class="layout">
         <h1 v-if="html && !hasTitle" class="visually-hidden">{{ date ? `Brief, ${date}` : 'Today\'s brief' }}</h1>
         <!-- Escaped on the server (raw HTML as text, no unsafe links). Its first heading is the page's title. -->
-        <article v-if="html" class="brief stack stack-para" @click="follow" v-html="html" />
-        <div v-else class="stack gap-3">
+        <article v-if="html" class="panel brief stack stack-para" @click="follow" v-html="html" />
+        <div v-else class="panel stack gap-3">
             <h1 class="p-headline">No brief yet</h1>
-            <p class="p-body">Today's brief appears here once the hub has a TODAY.md. Past briefs are listed below.</p>
+            <p class="p-body">Today's brief appears here once the hub has a TODAY.md. Past briefs are listed with it.</p>
         </div>
 
-        <nav class="stack gap-4" aria-labelledby="past-briefs">
-            <h2 id="past-briefs" class="p-title">Past briefs</h2>
+        <nav class="stack gap-4 past-nav" aria-labelledby="past-briefs">
+            <h2 id="past-briefs" class="p-label">Past briefs</h2>
             <ul v-if="dates.length || date" class="ledger">
                 <li v-if="date" class="past">
                     <Link href="/brief" class="p-body link-quiet">Today</Link>
                 </li>
                 <li v-for="past in dates" :key="past" class="past">
-                    <Link :href="`/brief/${past}`" class="p-body link-quiet num" :aria-current="past === date ? 'page' : undefined">{{ past }}</Link>
+                    <Link :href="`/brief/${past}`" class="p-body link-quiet" :aria-current="past === date ? 'page' : undefined" :title="past">{{ dayName(past) }}</Link>
                 </li>
             </ul>
             <p v-else class="p-caption">No past briefs in the hub's briefs folder.</p>
@@ -56,10 +66,27 @@ function follow(event: MouseEvent) {
 </template>
 
 <style scoped>
+/* The brief first, past briefs beside it from 1024 (spans of the page grid), under it on smaller screens. */
+.layout {
+    display: grid;
+    gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+    .layout {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
 /* The brief is a document to read, so it uses the editorial roles (SPEC 4.3) at a reading measure. */
 .brief {
-    max-inline-size: 65ch;
     overflow-wrap: anywhere;
+    padding: var(--space-7);
+}
+
+.brief :deep(> *) {
+    max-inline-size: 65ch;
 }
 
 .brief :deep(> *),
@@ -105,6 +132,10 @@ function follow(event: MouseEvent) {
     display: block;
     max-inline-size: 100%;
     overflow-x: auto;
+}
+
+.past-nav {
+    padding-block-start: var(--space-2);
 }
 
 .past {

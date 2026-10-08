@@ -1,0 +1,6 @@
+/* A fourth size kept on purpose, with a reason: passes. */
+.specimen { font-size: var(--text-display); }
+.specimen .b { font-size: var(--text-title); }
+.specimen .c { font-size: var(--text-body); }
+/* stylelint-disable-next-line ds/font-size-count -- type specimen shows every role */
+.specimen .d { font-size: var(--text-small); }

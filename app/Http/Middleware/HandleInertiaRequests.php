@@ -42,6 +42,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             // With no hub, every page says so and shows the path it looked in.
             'hub' => ['found' => $hub->exists(), 'path' => $hub->path],
+            // Pages show dates relative to it ("due in 3 days"), in the timezone the app writes dates in.
+            'today' => today(config()->string('markboard.timezone'))->toDateString(),
         ];
     }
 }

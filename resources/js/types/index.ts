@@ -13,6 +13,8 @@ export interface FormatError {
 /** Props every page gets (HandleInertiaRequests::share). */
 export interface SharedProps {
     hub: { found: boolean; path: string };
+    /** Today in MARKBOARD_TIMEZONE, as YYYY-MM-DD. */
+    today: string;
     [key: string]: unknown;
 }
 
@@ -39,7 +41,7 @@ export interface Project {
 export interface ProjectSummary extends Project {
     tasks_file: 'ok' | 'errors' | 'missing';
     error_count: number;
-    counts: Record<Exclude<SectionName, 'Done'>, number>;
+    counts: Record<SectionName, number>;
     due: 'overdue' | 'soon' | null;
     sync_error: string | null;
 }

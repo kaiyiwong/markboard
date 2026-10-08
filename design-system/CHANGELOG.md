@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Lint: `checks/lint/` is a stylelint config that fails on raw values in a project's styles (hex and named colors, color functions, scale steps outside token files, raw spacing, radius, font size, weight and shadow), in `.css` files and in `<style>` blocks and `style=` attributes of `.astro`, `.vue`, `.svelte` and `.html` files. Allowed raw: `0`, `%`, ±1px hairlines and inset hairline shadows. Setup is in README.md, including a Claude Code hook that lints a stylesheet right after it's edited.
+- New type rule (SPEC 4.5 rule 8): a component uses at most 3 font sizes. The lint checks it.
+- Overrides need a reason: `stylelint-disable-next-line <rule> -- <reason>`. A disable without one fails.
+- `npm run check:lint` tests every rule on fixtures in `checks/lint/fixtures/`.
+
+Upgrading from 1.2.0: replace `design-system/` and follow README.md "Lint". No CSS changed. Expect findings on the first run: fix each value with a token, or keep it with a reason. Upgrading from an older version: the lint folder can be copied on its own.
+
 ## 1.2.0
 
 - Character: four dials set per project on `<html>` (`data-surface`, `data-shape`, `data-type`, `data-color`), in the new `character.css`, and six composition rules (SPEC 14). With no dial set, a page looks as it did in 1.1.0.

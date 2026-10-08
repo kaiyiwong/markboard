@@ -5,6 +5,7 @@ import '../../design-system/tokens.css';
 import '../../design-system/palettes.css';
 import '../../design-system/character.css';
 import '../../design-system/base.css';
+import '../css/motion/tokens.css';
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';

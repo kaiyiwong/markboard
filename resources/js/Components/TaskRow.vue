@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { edit, fieldError, refusal, useEditing, type EditResult } from '@/api';
 import Icon from '@/Components/Icon.vue';
+import { dueLabel, shortDate, useToday } from '@/dates';
 import type { SectionName, Task } from '@/types';
 
 // The signature element (DESIGN.md): a task row with its ID, title, metadata chips and proof line.
@@ -16,7 +17,19 @@ const props = defineProps<{
     etag: string | null;
     /** How many tasks share the section, for the arrow-key reorder. */
     sectionSize: number;
+    /** Set when the task just moved here from another section: down from one above, up from one below. */
+    arrived?: 'down' | 'up' | null;
 }>();
+
+// The signature moment: a ticked task lands in Done. It starts offset toward where it came from and
+// tinted, and transitions into place on the next frames (a transition, so a second tick can interrupt it).
+const arriving = ref<'down' | 'up' | null>(null);
+onMounted(() => {
+    if (props.arrived) {
+        arriving.value = props.arrived;
+        requestAnimationFrame(() => requestAnimationFrame(() => (arriving.value = null)));
+    }
+});
 
 type Form = 'tick' | 'edit' | 'waiting' | 'undo-waiting';
 const OPEN_SECTIONS: SectionName[] = ['Up next', 'In progress', 'Waiting on'];
@@ -34,6 +47,22 @@ const formEl = useTemplateRef<HTMLFormElement>('formEl');
 const menu = useTemplateRef<HTMLElement>('menu');
 
 const isOpen = computed(() => props.task.section !== 'Done');
+const today = useToday();
+
+// The due date is the one fact that can need action, so it's the one chip, toned by how close it is
+// (only while the task is open). The rest is plain text in the file's order: "Started Oct 1 · Waiting on Ana".
+const DATE_KEYS = ['due', 'started', 'since', 'done', 'cancelled'];
+const LABELS: Record<string, string> = { due: 'Due', started: 'Started', since: 'since', done: 'Done', cancelled: 'Cancelled', waiting: 'Waiting on', evidence: 'Evidence', from: 'from' };
+const due = computed(() => (props.task.due && isOpen.value ? dueLabel(today.value, props.task.due) : null));
+const facts = computed(() =>
+    props.task.metadata
+        .filter(([key]) => !(key === 'due' && due.value))
+        .map(([key, value]) => ({
+            key: LABELS[key] ?? key,
+            value: DATE_KEYS.includes(key) && /^\d{4}-\d{2}-\d{2}$/.test(value) ? shortDate(today.value, value) : value,
+            title: value,
+        })),
+);
 const moveTargets = computed(() => OPEN_SECTIONS.filter((section) => section !== props.task.section));
 const hasWaiting = computed(() => props.task.metadata.some(([key]) => key === 'waiting'));
 const menuId = computed(() => `menu-${props.task.task_id}`);
@@ -145,7 +174,7 @@ function onMenuKey(event: KeyboardEvent) {
     <li
         :id="task.task_id"
         class="task"
-        :class="{ 'is-highlighted': highlighted, 'is-editable': etag !== null }"
+        :class="{ 'is-highlighted': highlighted, 'is-editable': etag !== null, [`is-arriving-${arriving}`]: arriving }"
         :aria-current="highlighted ? 'true' : undefined"
         :draggable="dragReady"
         @dragend="dragReady = false"
@@ -202,16 +231,16 @@ function onMenuKey(event: KeyboardEvent) {
                     <span v-if="task.checked" class="visually-hidden">Done:</span>
                     <span>{{ task.title }}</span>
                 </p>
-                <ul v-if="task.metadata.length" class="chips" aria-label="Details">
-                    <li
-                        v-for="([key, value], i) in task.metadata"
-                        :key="i"
-                        class="chip"
-                        :class="{ 'chip-danger': key === 'due' && task.overdue }"
-                    >
-                        <span class="p-caption"><span class="key">{{ key === 'due' && task.overdue ? 'overdue' : key }}</span> <span class="num">{{ value }}</span></span>
-                    </li>
-                </ul>
+                <div v-if="due || facts.length" class="facts" aria-label="Details">
+                    <span v-if="due" class="chip" :class="{ 'chip-danger': due.tone === 'danger', 'chip-warning': due.tone === 'warning' }" :title="task.due ?? undefined">
+                        <span class="p-label">{{ due.text }}</span>
+                    </span>
+                    <p v-if="facts.length" class="p-caption meta">
+                        <template v-for="(fact, i) in facts" :key="i">
+                            <span v-if="i" aria-hidden="true"> · </span><span :title="fact.title"><span class="key">{{ fact.key }}</span> {{ fact.value }}</span>
+                        </template>
+                    </p>
+                </div>
                 <p v-if="task.proof" class="p-caption proof"><span class="key">Proof:</span> {{ task.proof }}</p>
                 <p v-for="(note, i) in task.notes" :key="i" class="p-caption note"><span class="key">Note:</span> {{ note }}</p>
             </template>
@@ -292,6 +321,14 @@ function onMenuKey(event: KeyboardEvent) {
 
 <style scoped>
 .task {
+    --arrive: calc(min(var(--dur-large) * var(--dm), var(--cap)));
+    --settle: calc(min(var(--dur-reveal-l) * var(--dm), var(--cap)));
+
+    position: relative;
+    transition:
+        opacity var(--arrive) var(--ease-out),
+        transform var(--arrive) var(--ease-out),
+        background-color var(--settle) var(--ease-in-out);
     display: grid;
     grid-template-columns: 5ch minmax(0, 1fr);
     gap: var(--space-3);
@@ -321,15 +358,46 @@ function onMenuKey(event: KeyboardEvent) {
     touch-action: none;
 }
 
+/* Arriving from another section: offset toward where it came from (none under reduced motion, which
+   keeps only the fade), faded out and tinted. Removing the class transitions it into place. */
+.is-arriving-down,
+.is-arriving-up {
+    opacity: 0;
+    background-color: var(--accent-bg);
+    transition: none;
+}
+
+.is-arriving-down {
+    transform: translateY(calc(-1 * var(--dr)));
+}
+
+.is-arriving-up {
+    transform: translateY(var(--dr));
+}
+
 /* The selected task: the accent marks it, with a 2px bar that reaches 3:1 (SPEC 3.5 rule 2). */
 .is-highlighted {
     background: var(--accent-bg);
-    box-shadow: inset 2px 0 0 var(--accent-strong);
+}
+
+.is-highlighted::before,
+.is-drop-target::after {
+    content: '';
+    position: absolute;
+    background: var(--accent-strong);
+}
+
+.is-highlighted::before {
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 2px;
 }
 
 /* A task being dragged over: the bar shows where it will land. */
-.is-drop-target {
-    box-shadow: inset 0 2px 0 var(--accent-strong);
+.is-drop-target::after {
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: 2px;
 }
 
 .id {
@@ -355,6 +423,17 @@ function onMenuKey(event: KeyboardEvent) {
 
 .mark {
     color: var(--success-fg);
+}
+
+.facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+}
+
+.meta {
+    overflow-wrap: anywhere;
 }
 
 .proof,

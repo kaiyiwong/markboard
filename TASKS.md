@@ -11,6 +11,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T12 Product design pass: design system v1.3.0 with its style lint, the fills and loud dials, a key element on every page and the tick animation (done 2026-10-08, from Up next)
+  proof: npm run lint:css passes inside npm run build; check_page.py passes on all nine snapshots (contrast in light and dark, no sideways scroll at 320 to 1440, text spacing); tests pass on SQLite and MySQL
+  note: Kai found the pages read as words and lines; SPEC 14's character check failed (every dial quiet, no key element, the signature not visible)
 - [x] T9 Private-content check, then make the repo public (started 2026-10-08, done 2026-10-08, evidence docs/verify/T9.md, from In progress)
   proof: git log -p --all searched with the private word list (kept outside this repo) finds nothing, gitleaks finds no secrets in the history, and the GitHub repo is public with CI passing
   note: public since 2026-10-08 under the MIT license

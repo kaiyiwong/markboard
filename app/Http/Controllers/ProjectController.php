@@ -40,6 +40,7 @@ class ProjectController extends Controller
                         'tasks as up_next' => fn (Builder $tasks) => $tasks->where('section', Section::UpNext),
                         'tasks as in_progress' => fn (Builder $tasks) => $tasks->where('section', Section::InProgress),
                         'tasks as waiting_on' => fn (Builder $tasks) => $tasks->where('section', Section::WaitingOn),
+                        'tasks as done' => fn (Builder $tasks) => $tasks->where('section', Section::Done),
                     ])
                     ->withMin(['tasks as next_due' => fn (Builder $tasks) => $tasks->whereNot('section', Section::Done)], 'due')
                     ->with('sourceFiles')

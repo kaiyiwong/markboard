@@ -1,4 +1,4 @@
-/* design-system v1.2.0 | tokens.css
+/* design-system v1.3.0 | tokens.css
    All three tiers: primitive values, semantic roles and component sizes. Components use roles, never raw values. */
 :root{
   /* type: editorial roles, fluid from 360 to 1440 */

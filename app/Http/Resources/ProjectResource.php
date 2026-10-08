@@ -58,6 +58,7 @@ class ProjectResource extends JsonResource
                 Section::UpNext->value => (int) $this->resource->getAttribute('up_next'),
                 Section::InProgress->value => (int) $this->resource->getAttribute('in_progress'),
                 Section::WaitingOn->value => (int) $this->resource->getAttribute('waiting_on'),
+                Section::Done->value => (int) $this->resource->getAttribute('done'),
             ],
             'due' => match (true) {
                 ! is_string($nextDue) => null,

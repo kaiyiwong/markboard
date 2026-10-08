@@ -1,4 +1,4 @@
-/* design-system v1.2.0 | base.css
+/* design-system v1.3.0 | base.css
    Type roles, text trimming, stacks, grid, controls, composition, media, charts, CJK and high-contrast rules. */
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @property --u{syntax:"<length>";inherits:true;initial-value:0px}

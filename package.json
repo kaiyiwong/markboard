@@ -3,10 +3,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "npm run lint:css && vite build",
         "dev": "vite",
         "typecheck": "vue-tsc --noEmit",
-        "snapshot": "${PYTHON:-python3} tests/Snapshots/snapshot.py"
+        "snapshot": "${PYTHON:-python3} tests/Snapshots/snapshot.py",
+        "lint:css": "stylelint --config design-system/checks/lint/stylelint.config.mjs \"resources/**/*.{css,vue}\""
     },
     "devDependencies": {
         "@inertiajs/vue3": "^3.8.0",
@@ -14,6 +15,9 @@
         "@vitejs/plugin-vue": "^6.0.9",
         "concurrently": "^10.0.3",
         "laravel-vite-plugin": "^3.1",
+        "postcss-html": "^2.0.0",
+        "postcss-value-parser": "^4.2.0",
+        "stylelint": "^17.16.0",
         "typescript": "^6.0.3",
         "vite": "^8.0.0",
         "vue": "^3.5.43",

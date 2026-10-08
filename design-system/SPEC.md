@@ -1,4 +1,4 @@
-# Design system v1.2.0: spec
+# Design system v1.3.0: spec
 
 The rules every project starts from. Values live in the CSS files. This file says what they mean, where they apply and why. When the CSS and this file disagree, fix one of them; don't work around it.
 
@@ -15,6 +15,7 @@ The rules every project starts from. Values live in the CSS files. This file say
 | `base.css` | Type roles, trimming, stacks, grid, controls, composition, media, charts, Chinese and Japanese, high contrast |
 | `specimen/` | The test page. Open it after any change |
 | `checks/run.mjs` | Automated checks. `npm run check` |
+| `checks/lint/` | Stylelint config for projects: raw values and the font-size cap fail the build. Setup in README.md |
 
 Load order: `fonts.css`, `colors.css` (plus any extra scale files), `tokens.css`, `palettes.css`, `character.css`, `base.css`.
 
@@ -22,7 +23,7 @@ A project records only its choices in its DESIGN.md: system version, preset (edi
 
 ## 1. Principles
 
-1. Components use roles, never raw values. No hex codes or pixel values outside `tokens.css`.
+1. Components use roles, never raw values. No hex codes or pixel values outside `tokens.css`. The lint in `checks/lint/` enforces this; a special case keeps its value only with a written reason.
 2. Spacing belongs to the container. Elements don't carry margins; stacks and grids set the gaps.
 3. Text is measured from the letters. Text boxes are trimmed to cap height and baseline, so a gap is the visible gap.
 4. Color carries meaning. Neutral by default, accent for interaction and selection, status colors for status only.
@@ -197,6 +198,7 @@ One fixed set at every width. Line heights sit on the 4px grid.
 5. All-caps labels, if a project uses them, get +0.06em letter-spacing.
 6. Letter-spacing is a fixed value per role, never used to squeeze a word into a column.
 7. A label and the text that supports it differ in size and color, not weight alone: a field label is 14 in the default color; help text and counters are 12 muted. At 12px, 500 against 400 can't be seen.
+8. A component uses at most 3 font sizes. More sizes than that blur the hierarchy, and sizes 1 to 2px apart can't be told apart. A component is one file in single-file formats (Astro, Vue, Svelte, CSS modules), otherwise the first class in a selector. A special case, such as a type specimen, keeps a fourth size with a reason in a `stylelint-disable-next-line ds/font-size-count -- <reason>` comment.
 
 ### 4.6 Changing the main font
 

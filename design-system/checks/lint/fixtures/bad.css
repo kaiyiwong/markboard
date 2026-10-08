@@ -1,0 +1,17 @@
+/* Each rule below breaks the system; the .stat lines together go over the font-size cap. */
+.card { color: #333; }
+.card-b { background: white; }
+.card-c { border-color: rgb(0 0 0 / 10%); }
+.card-d { color: var(--slate-11); }
+.card-e { padding: 13px var(--space-4); }
+.card-f { margin-top: calc(var(--space-4) + 2px); }
+.card-g { gap: 1.5rem; }
+.card-h { border-radius: 6px; }
+.card-i { font-size: 13px; }
+.card-j { font-weight: 700; }
+.card-k { box-shadow: 0 2px 8px var(--scrim); }
+.stat { font-size: var(--text-body); }
+.stat .label { font-size: var(--text-small); }
+.stat .value { font-size: var(--text-stat); }
+.stat .unit { font-size: var(--text-meta); }
+.card-l { box-shadow: inset 0 0 4px var(--scrim); }
