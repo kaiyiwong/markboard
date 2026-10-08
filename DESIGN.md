@@ -1,6 +1,6 @@
 # DESIGN.md: Markboard
 
-Design system: **v1.2.0**, copied into `design-system/`. Every rule and value lives there, in `design-system/SPEC.md` and the CSS files. This file records only this project's choices and exceptions.
+Design system: **v1.3.0**, copied into `design-system/`. Every rule and value lives there, in `design-system/SPEC.md` and the CSS files. This file records only this project's choices and exceptions.
 
 ## Choices
 
@@ -20,14 +20,20 @@ How this project looks, beyond following the rules. See `design-system/SPEC.md` 
 
 | Dial | Value | How it's applied |
 |---|---|---|
-| Surface | lines | `<html data-surface="lines">` |
+| Surface | fills | `<html data-surface="fills">`: a tinted canvas with white surfaces, so each group (a summary, a section, a board) is one surface |
 | Shape | soft | `<html data-shape="soft">` |
-| Type | quiet | `<html data-type="quiet">` |
+| Type | loud | `<html data-type="loud">`: the key element at display size |
 | Color | quiet | `<html data-color="quiet">`; the accent only marks what you can act on: links, focus, the selected task, the primary button |
 
-Feel: A well-ruled ledger: dense, calm rows you can scan all day.
+Feel: A calm workbench: each page leads with the one number it's about, then the work in clear groups, quiet enough to keep open all day.
 
-Signature: the task row, with its ID, title, metadata chips and proof line, which ticks into Done.
+Key element per page: Projects, open tasks across active projects; Project, "2 of 6" done with a progress bar; Pipeline, open applications; Brief, the brief's own title.
+
+Signature: the task row, with its ID, title, due chip and plain-text facts, which ticks into Done: it lands at the top of Done from the direction it came, with a brief accent tint (any task that changes section does the same, including one an agent moved).
+
+Built here from the system's tokens, not yet in the system (candidates for it): the progress meter (`resources/js/Components/Progress.vue`, one series in `accent-strong` on a `bg-control` track) and the status dot on the Projects summary. Motion tokens come from the motion-tokens skill (`resources/css/motion/tokens.css`, tokens and levels only).
+
+History: v1.2.0 with surface `lines` and type `quiet` ("a well-ruled ledger") passed every check but read as words and lines, with no key element; T12 (2026-10-08) changed the two dials and the composition.
 
 ## Overrides
 
@@ -59,4 +65,5 @@ Project-specific only. System-wide rules are in SPEC.md.
 
 ## Gotchas
 
-[Add entries when something actually goes wrong in this project.]
+- A dial alone doesn't give a page character. With every dial quiet and no key element, the pages passed compliance and failed the character check (SPEC 14): set a key element per page and name where the signature shows.
+- Under fills, a field on the tinted canvas (the Projects filters) has little contrast with its fill; it stays identifiable by its label and fill (SPEC 3.5 rule 6), but fields read best on a white surface.

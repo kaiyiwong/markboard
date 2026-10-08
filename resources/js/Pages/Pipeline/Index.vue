@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { edit, refusal, useEditing, type EditResult } from '@/api';
 import ConflictPanel from '@/Components/ConflictPanel.vue';
 import FileErrors from '@/Components/FileErrors.vue';
 import Icon from '@/Components/Icon.vue';
 import PipelineRowForm from '@/Components/PipelineRowForm.vue';
+import { relativeDate, useToday } from '@/dates';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import type { Board, PipelineRow, Stage } from '@/types';
 
@@ -22,6 +23,15 @@ const unknown = (rows: PipelineRow[]) => rows.filter((row) => row.stage === null
 const label = (stage: string) => stage.charAt(0).toUpperCase() + stage.slice(1);
 const etagOf = (board: Board) => (board.file.editable ? board.file.etag : null);
 const allStages = () => [...props.stages.open, ...props.stages.closed];
+const today = useToday();
+const when = (date: string) => relativeDate(today.value, date);
+
+// The page's key element: open applications across every board, then the next action that's due.
+const summary = computed(() => {
+    const open = props.boards.flatMap((board) => board.rows.filter((row) => row.stage !== null && props.stages.open.includes(row.stage)));
+    const next = open.filter((row) => row.date !== null).sort((a, b) => a.date!.localeCompare(b.date!))[0] ?? null;
+    return { open: open.length, next };
+});
 
 // One form open at a time: a card being edited (project and row position), or a board's Add row.
 const open = ref<{ project: string; position: number | null } | null>(null);
@@ -70,15 +80,30 @@ function onDragEnd() {
 
 <template>
     <Head title="Pipeline" />
-    <div class="stack gap-8">
+    <div class="stack gap-6">
         <h1 class="p-headline">Pipeline</h1>
+
+        <section v-if="boards.length" class="panel summary" aria-labelledby="pipeline-key">
+            <div class="stack gap-3">
+                <p id="pipeline-key" class="p-label">Open applications</p>
+                <p class="p-key">{{ summary.open }}</p>
+            </div>
+            <div v-if="summary.next" class="stack gap-3">
+                <p class="p-label">Next action</p>
+                <p class="p-title">{{ summary.next.next_action }}</p>
+                <p class="p-caption">
+                    {{ summary.next.company }} ·
+                    <span :class="when(summary.next.date!).tone && `is-${when(summary.next.date!).tone}`">{{ when(summary.next.date!).text }}</span>
+                </p>
+            </div>
+        </section>
 
         <div v-if="!boards.length" class="stack gap-3">
             <h2 class="p-title">No pipelines yet</h2>
             <p class="p-body">A board appears here for every registered project whose folder has a pipeline.md.</p>
         </div>
 
-        <section v-for="board in boards" :key="board.project.id" class="stack gap-5" :aria-labelledby="`board-${board.project.id}`">
+        <section v-for="board in boards" :key="board.project.id" class="panel stack gap-5 board" :aria-labelledby="`board-${board.project.id}`">
             <h2 :id="`board-${board.project.id}`" class="p-title">
                 <Link :href="`/projects/${board.project.id}`" class="link-quiet">{{ board.project.name }}</Link>
             </h2>
@@ -99,7 +124,7 @@ function onDragEnd() {
                     @dragleave="over = null"
                     @drop.prevent="onDrop(board, stage)"
                 >
-                    <h3 class="p-label heading">{{ label(stage) }} <span class="num">{{ inStage(board.rows, stage).length }}</span></h3>
+                    <h3 class="p-label heading">{{ label(stage) }} <span class="num count">{{ inStage(board.rows, stage).length }}</span></h3>
                     <ul class="cards stack gap-3">
                         <li
                             v-for="row in inStage(board.rows, stage)"
@@ -128,7 +153,15 @@ function onDragEnd() {
                                 </p>
                                 <p class="p-caption">{{ row.role }}</p>
                                 <p class="p-body">{{ row.next_action }}</p>
-                                <p v-if="row.date" class="p-label num">{{ row.date }}</p>
+                                <div v-if="row.date" class="when">
+                                    <span
+                                        class="chip"
+                                        :class="{ 'chip-danger': when(row.date).tone === 'danger', 'chip-warning': when(row.date).tone === 'warning' }"
+                                        :title="row.date"
+                                    >
+                                        <span class="p-label">{{ when(row.date).text }}</span>
+                                    </span>
+                                </div>
                             </template>
                         </li>
                     </ul>
@@ -193,15 +226,33 @@ function onDragEnd() {
 </template>
 
 <style scoped>
-/* Four open stages: one column on a phone, two from 640, four from 1024 (spans of the page grid). */
-.columns {
-    row-gap: var(--space-5);
+.summary {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    align-items: start;
 }
 
+.is-danger {
+    color: var(--danger-fg-strong);
+}
+
+.is-warning {
+    color: var(--warning-fg-strong);
+}
+
+/* Four open stages: one column on a phone, two from 640, four from 1024 (spans of the page grid). */
+.columns {
+    row-gap: var(--space-4);
+}
+
+/* A lane: the canvas tint inside the white board, so the white cards stand out. */
 .column {
     grid-column: span 4;
     min-width: 0;
+    padding: var(--space-3);
     border-radius: var(--container-radius);
+    background: var(--bg-canvas);
 }
 
 @media (min-width: 1024px) {
@@ -218,7 +269,17 @@ function onDragEnd() {
 
 .heading {
     display: flex;
+    justify-content: space-between;
     gap: var(--space-2);
+    padding: var(--space-1) var(--space-1) 0;
+}
+
+.count {
+    color: var(--fg-muted);
+}
+
+.when {
+    display: flex;
 }
 
 .cards {

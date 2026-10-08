@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-accent="cyan" data-neutral="slate" data-surface="lines" data-shape="soft" data-type="quiet" data-color="quiet">
+<html lang="en" data-accent="cyan" data-neutral="slate" data-surface="fills" data-shape="soft" data-type="loud" data-color="quiet">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">

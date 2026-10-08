@@ -26,6 +26,7 @@ it('lists active projects in priority order, then paused ones', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('Projects/Index')
             ->where('hub.found', true)
+            ->where('today', '2026-10-07')
             ->where('registryErrors', [])
             ->where('results', null));
 
@@ -40,26 +41,26 @@ it('lists active projects in priority order, then paused ones', function () {
     ]);
 });
 
-it('gives each project its open-section counts, due badge and TASKS.md state', function () {
+it('gives each project its section counts, due badge and TASKS.md state', function () {
     $projects = collect(projectsOnPage())->keyBy('id');
 
     expect($projects['bramble-bakery'])
         ->name->toBe('Bramble Bakery')
         ->category->toBe('client')
         ->next_milestone->toBe('Online orders live')
-        ->counts->toBe(['Up next' => 3, 'In progress' => 1, 'Waiting on' => 1])
+        ->counts->toBe(['Up next' => 3, 'In progress' => 1, 'Waiting on' => 1, 'Done' => 1])
         ->due->toBe('overdue')
         ->tasks_file->toBe('ok')
         ->error_count->toBe(0);
 
     expect($projects['job-search'])->due->toBe('soon');
-    expect($projects['lantern'])->due->toBeNull()->counts->toBe(['Up next' => 2, 'In progress' => 1, 'Waiting on' => 1]);
+    expect($projects['lantern'])->due->toBeNull()->counts->toBe(['Up next' => 2, 'In progress' => 1, 'Waiting on' => 1, 'Done' => 2]);
 
     // Not migrated: one with format errors (read on a best-effort basis), one with no TASKS.md.
     expect($projects['muse-lab'])->tasks_file->toBe('errors')->error_count->toBe(5)
-        ->counts->toBe(['Up next' => 2, 'In progress' => 1, 'Waiting on' => 0]);
+        ->counts->toBe(['Up next' => 2, 'In progress' => 1, 'Waiting on' => 0, 'Done' => 0]);
     expect($projects['reading-list'])->tasks_file->toBe('missing')->folder_found->toBeTrue()
-        ->counts->toBe(['Up next' => 0, 'In progress' => 0, 'Waiting on' => 0]);
+        ->counts->toBe(['Up next' => 0, 'In progress' => 0, 'Waiting on' => 0, 'Done' => 0]);
 });
 
 it('ignores Done when choosing the due badge', function () {

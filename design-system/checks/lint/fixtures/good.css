@@ -1,0 +1,11 @@
+/* Passes: tokens, zero, %, auto, 1px borders and inset hairlines, breakpoints, transforms, blur, alpha masks. */
+.card { color: var(--fg-default); background: var(--bg-subtle); border: 1px solid var(--border-subtle); }
+.card { padding: var(--space-4) 0; margin: 0 auto; gap: var(--space-2); inset: 0; top: 50%; }
+.card { border-radius: var(--radius-2); font-weight: var(--weight-strong); box-shadow: var(--shadow-raised); }
+.card { transform: translateY(6px); backdrop-filter: blur(22px); color: color-mix(in srgb, var(--fg-default) 60%, transparent); }
+.card { font-size: var(--text-body); }
+.card .meta { font-size: var(--text-small); }
+@media (max-width: 639px) { .card .title { font-size: var(--text-title); } }
+h1 { font-size: var(--text-display); } h2 { font-size: var(--text-title); } h3 { font-size: var(--text-body); } h4 { font-size: var(--text-small); }
+.card { box-shadow: inset 0 -1px 0 var(--border-subtle), inset 1px 0 0 color-mix(in srgb, var(--fg-default) 24%, transparent); }
+.card { mask-image: linear-gradient(90deg, transparent, black 8%); inset: -1px; margin: -1px; }

@@ -17,7 +17,7 @@ Markboard is a local Laravel + Vue dashboard over plain-markdown project files: 
 - PHP 8.5, Laravel 13, Inertia 3, Vue 3 (`<script setup>`), TypeScript 6
 - MySQL 8.4 through Laravel Sail (Docker); in-memory SQLite for local test runs, MySQL in CI
 - Pest 5, Larastan (level 6), Pint, vue-tsc; GitHub Actions CI
-- Kai's design system v1.2.0 in `design-system/` with Vue scoped CSS (no Tailwind)
+- Kai's design system v1.3.0 in `design-system/` with Vue scoped CSS (no Tailwind); `npm run lint:css` (part of `npm run build`) fails on raw values
 - Runs on localhost only; no auth
 
 ---
@@ -65,7 +65,7 @@ These rules apply to every session. Violating them breaks prompt caching and inc
 - Claude never reads or edits the environment files, including the example template; they're on the sandbox deny list. Defaults go in `config/*.php` and `phpunit.xml`.
 - Local tests run on SQLite, CI on MySQL, and they differ (InnoDB indexes FULLTEXT rows only on commit; MySQL's JSON type sorts keys). Before a pull request, with Sail up, also run the suite on Sail's MySQL: `DB_CONNECTION=mysql DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=sail DB_PASSWORD=password php artisan test`.
 - Sail's MySQL container creates its user and database only on an empty volume. After changing the `DB_*` settings, run `sail down -v` (sync rebuilds the index from the files), or `migrate` fails with "Access denied for user 'sail'".
-- In Claude's sandbox: PHPStan's workers need `PHP_INI_SCAN_DIR=":$TMPDIR/phpini"` (an ini setting `opcache.lockfile_path` to `$TMPDIR`); npm needs `--cache "$TMPDIR/npm-cache"`; Docker isn't reachable, so Kai runs Sail.
+- In Claude's sandbox: PHPStan's workers need `PHP_INI_SCAN_DIR=":$TMPDIR/phpini"` (an ini setting `opcache.lockfile_path` to `$TMPDIR`); npm needs `--cache "$TMPDIR/npm-cache"`; Docker isn't reachable, so Kai runs Sail; Playwright's Chromium (python3.10 has it) launches only with `--single-process --no-zygote` and one page at a time, so screenshots and `check_page.py` run from patched copies, never by editing the repo's scripts.
 
 ---
 

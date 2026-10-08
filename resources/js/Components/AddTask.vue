@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 import { edit, fieldError, refusal, useEditing, type EditResult } from '@/api';
 import Icon from '@/Components/Icon.vue';
 
-// The "Add task" form at the bottom of Up next. It keeps the etag from the moment you start typing,
-// so a change on disk while you type is a conflict, not an overwrite.
+// "Add task" at the bottom of Up next: one row until it's clicked, so the tasks stay the heaviest thing
+// on the page. The form keeps the etag from the moment you start typing, so a change on disk while you
+// type is a conflict, not an overwrite.
 const props = defineProps<{ projectId: string; etag: string }>();
 
 const blank = () => ({ title: '', due: '', proof: '' });
@@ -13,6 +14,13 @@ const sentEtag = ref<string | null>(null);
 const editing = useEditing();
 const busy = ref(false);
 const result = ref<EditResult | null>(null);
+const expanded = ref(false);
+const titleEl = useTemplateRef<HTMLInputElement>('titleEl');
+
+function expand() {
+    expanded.value = true;
+    nextTick(() => titleEl.value?.focus());
+}
 
 function start() {
     if (!editing.value) {
@@ -33,6 +41,7 @@ async function submit() {
     if (result.value.ok || result.value.status === 412) {
         fields.value = blank();
         editing.value = false;
+        expanded.value = false;
     }
 }
 
@@ -40,15 +49,19 @@ function reset() {
     fields.value = blank();
     result.value = null;
     editing.value = false;
+    expanded.value = false;
 }
 </script>
 
 <template>
-    <form class="add stack gap-4" aria-label="Add task" @submit.prevent="submit" @focusin="start" @keydown.esc="reset">
+    <button v-if="!expanded" type="button" class="btn md btn-ghost hit add-open" @click="expand">
+        <Icon name="plus" /><span class="lbl">Add task</span>
+    </button>
+    <form v-else class="add stack gap-4" aria-label="Add task" @submit.prevent="submit" @focusin="start" @keydown.esc="reset">
         <div class="fields">
             <div class="field md title">
                 <label class="p-field" :for="`add-${projectId}-title`">New task</label>
-                <input :id="`add-${projectId}-title`" v-model="fields.title" class="input md" required :aria-invalid="!!fieldError(result, 'title')" />
+                <input :id="`add-${projectId}-title`" ref="titleEl" v-model="fields.title" class="input md" required :aria-invalid="!!fieldError(result, 'title')" />
                 <p v-if="fieldError(result, 'title')" class="p-caption msg"><Icon name="alert" /><span>{{ fieldError(result, 'title') }}</span></p>
             </div>
             <div class="field md">
@@ -64,7 +77,7 @@ function reset() {
         </div>
         <p v-if="refusal(result)" class="p-caption msg" role="alert"><Icon name="alert" /><span>{{ refusal(result) }}</span></p>
         <div class="actions md">
-            <button v-if="editing" type="button" class="btn md btn-secondary hit" @click="reset"><span class="lbl">Clear</span></button>
+            <button type="button" class="btn md btn-secondary hit" @click="reset"><span class="lbl">Cancel</span></button>
             <button type="submit" class="btn md btn-primary hit" :disabled="busy"><span class="lbl">Add task</span></button>
         </div>
     </form>
@@ -72,7 +85,12 @@ function reset() {
 
 <style scoped>
 .add {
-    padding-block: var(--space-4);
+    padding-block: var(--space-4) 0;
+}
+
+.add-open {
+    justify-self: start;
+    align-self: start;
 }
 
 .fields {
