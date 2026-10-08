@@ -13,6 +13,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T11 CI green on MySQL: three tests that passed on SQLite failed in CI (done 2026-10-08, evidence 964c57c, from Up next)
+  proof: the full suite passes on MySQL 8.4 (Sail's testing database) and on SQLite
+  note: a lock taken on the frozen clock had expired by the real one; MySQL's JSON type sorts keys; InnoDB indexes FULLTEXT rows only on commit
 - [x] T7 Demo hub and README: what it is, how to run it with Sail, architecture and design decisions (started 2026-10-07, done 2026-10-08, evidence docs/verify/T7.md, from Waiting on)
   proof: on a fresh clone, the README's commands bring up the app on localhost with the demo data, and the README states the AI assistance as decisions.md D24 describes; the parity test also runs on every demo file
   note: demo/ itself was built in T4 (decisions D32); T7 adds the app's demo copy, markboard:demo --reset and the README
