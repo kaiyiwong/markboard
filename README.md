@@ -138,3 +138,7 @@ The full list, with what each was weighed against, is in [docs/decisions.md](doc
 Markboard was built with [Claude Code](https://claude.com/claude-code) under a spec, review and verify workflow. The author set the design in a recorded review ([docs/decisions.md](docs/decisions.md)) and the spec was written from it and reviewed before any feature code ([docs/spec-review.md](docs/spec-review.md)). Each task was then built against its proof line in `TASKS.md`, checked by a separate verifier ([docs/verify/](docs/verify)), and reviewed by the author before merging.
 
 All the data in this repository is made up.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The fonts in `design-system/fonts/` keep their own SIL Open Font License.
