@@ -130,13 +130,28 @@ export interface NightTask {
     rounds: number;
 }
 
+export type NightResult = 'PASS' | 'FAIL' | 'INCONCLUSIVE';
+
+/** A `## Confirm:` block: things the verifier asks a human to check by eye, as rows of cells. */
+export interface NightConfirm {
+    title: string;
+    /** Column headings; empty when the block has none. */
+    columns: string[];
+    groups: { label: string; rows: string[][] }[];
+    note: string;
+}
+
 export interface NightVerdict {
-    result: 'PASS' | 'FAIL' | 'INCONCLUSIVE';
+    result: NightResult;
     commit: string;
+    /** One line saying what changed; empty when the verifier didn't write one. */
+    headline: string;
     summary: string;
-    items: { result: 'PASS' | 'FAIL' | 'INCONCLUSIVE'; item: string; evidence: string }[];
+    /** `short` and `says` are the check and its evidence in a few words; empty when not written. */
+    items: { result: NightResult; item: string; evidence: string; short: string; says: string }[];
     scope_problems: string[];
     look_at: string[];
+    confirm: NightConfirm[];
 }
 
 export interface NightFile {
@@ -162,6 +177,17 @@ export type NightBranch =
           truncated: boolean;
       };
 
+/** A project the night merged into whose main is ahead of its remote. Markboard never pushes. */
+export interface NightUnpushed {
+    project: string;
+    project_name: string;
+    base: string;
+    /** The remote branch it's compared with, as of the last fetch: its upstream, or origin/<base>. */
+    remote: string;
+    ahead: number;
+    command: string;
+}
+
 /** A task the night run left ready, with all a review needs. */
 export interface NightReview extends NightTask {
     verdict: NightVerdict | null;
@@ -182,7 +208,46 @@ export interface NightQuestion {
     missing: string | null;
     /** Earlier answers, as written. */
     answers: string | null;
+    /** How many questions `## MISSING` asks. */
+    count: number;
+    /** A short title and a line of context; empty when not written. */
+    headline: string;
+    context: string;
+    /** Each question with its choices; null when the order gives none (`missing` shows as written). */
+    asks: { ask: string; choices: string[]; why: string }[] | null;
 }
+
+/** A bullet of the triage note: the tasks it names, its text, and its indented `key: value` lines. */
+export interface TriageItem {
+    project: string;
+    tasks: string[];
+    text: string;
+    fields: Record<string, string>;
+}
+
+/** A task the triage suggests closing. `etag` is its TASKS.md's, for the tick; null when it can't be edited. */
+export interface QuickClose {
+    project: string;
+    project_name: string;
+    task: string;
+    short: string;
+    why: string;
+    etag: string | null;
+}
+
+/** The triage note's sections, when the chief of staff wrote their structure. */
+export interface TriageParts {
+    picked: TriageItem[];
+    carried: TriageItem[];
+    sent_back: TriageItem[];
+    passed_over: TriageItem[];
+    quick_closes: QuickClose[];
+    seen: TriageItem[];
+    held: TriageItem[];
+}
+
+/** How many of a night's tasks ended each way. */
+export type NightTally = Record<'ready' | 'blocked' | 'stuck' | 'skipped' | 'done', number>;
 
 export interface NightQueueItem {
     project: string;

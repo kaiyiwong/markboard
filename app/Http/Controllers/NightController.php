@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Markdown\Section;
 use App\Models\Project;
+use App\Models\Task;
 use App\Night\Costs;
 use App\Night\NightGit;
 use App\Night\Queue;
 use App\Night\StatusLog;
 use App\Night\StatusRow;
+use App\Night\Triage;
 use App\Night\Verdict;
 use App\Night\WorkOrder;
 use App\Sync\Hub;
@@ -49,18 +52,60 @@ class NightController extends Controller
             ));
         }
 
+        $triage = $night === null ? null : self::read($hub->ordersPath("triage-{$night}.md"));
+
         return Inertia::render('Night/Show', [
             'date' => $date,
             'night' => $night,
             'nights' => $nights,
+            'tallies' => array_combine($nights, array_map(fn (string $date): array => self::tally($log->night($date)), $nights)),
             'running' => is_file($hub->nightLockPath()),
             'stopped' => is_file($hub->ordersPath('STOP')),
             'usage' => $night === null ? 0.0 : Costs::forNight(self::read($hub->ordersPath('costs.tsv')) ?? '', $night),
             'tasks' => $groups,
             'questions' => self::questions($hub, $projects),
-            'triage' => $night === null ? null : self::markdown(self::read($hub->ordersPath("triage-{$night}.md"))),
+            'triage' => self::markdown($triage),
+            'triage_parts' => $triage === null ? null : self::triage($triage, $projects),
+            'triage_etag' => $triage === null ? null : hash('sha256', $triage),
             'queue' => self::queue($hub, $log, $projects),
+            'unpushed' => self::unpushed($rows, $projects),
         ]);
+    }
+
+    /**
+     * Each project the night merged into whose main is ahead of its remote: Markboard never pushes,
+     * so this is what's left for Kai to push [D40].
+     *
+     * @param  list<StatusRow>  $rows
+     * @param  array<string, Project>  $projects
+     * @return list<array{project: string, project_name: string, base: string, remote: string, ahead: int, command: string}>
+     */
+    private static function unpushed(array $rows, array $projects): array
+    {
+        $merged = array_unique(array_map(fn (StatusRow $row): string => $row->project, array_filter($rows, fn (StatusRow $row): bool => $row->outcome === 'merged')));
+        $unpushed = [];
+        foreach ($merged as $id) {
+            $project = $projects[$id] ?? null;
+            if ($project === null || ! $project->folder_found) {
+                continue;
+            }
+            $git = new NightGit($project->path);
+            $base = $git->isRepo() ? $git->baseBranch() : null;
+            $state = $base === null ? null : $git->unpushed($base);
+            if ($base === null || $state === null || $state['ahead'] === 0) {
+                continue;
+            }
+            $unpushed[] = [
+                'project' => $id,
+                'project_name' => $project->name,
+                'base' => $base,
+                'remote' => $state['remote'],
+                'ahead' => $state['ahead'],
+                'command' => "cd {$project->path} && git push",
+            ];
+        }
+
+        return $unpushed;
     }
 
     /**
@@ -93,10 +138,12 @@ class NightController extends Controller
             'verdict' => $parsed === null ? null : [
                 'result' => $parsed->result,
                 'commit' => $parsed->commit,
+                'headline' => $parsed->headline,
                 'summary' => $parsed->summary,
                 'items' => $parsed->items,
                 'scope_problems' => $parsed->scopeProblems,
                 'look_at' => $parsed->lookAt,
+                'confirm' => $parsed->confirm,
             ],
             'report' => self::markdown(self::read($hub->ordersPath("{$row->project}/{$row->task}.report.md"))),
             'branch' => self::branch($projects[$row->project] ?? null, $row->task),
@@ -156,6 +203,7 @@ class NightController extends Controller
                 continue;
             }
             $project = basename(dirname($path));
+            $asked = $order->questions();
             $questions[] = [
                 'project' => $project,
                 'project_name' => $projects[$project]->name ?? $project,
@@ -164,10 +212,71 @@ class NightController extends Controller
                 'etag' => hash('sha256', $text),
                 'missing' => self::markdown($order->sections['MISSING'] ?? null),
                 'answers' => $order->sections[WorkOrder::ANSWERS] ?? null,
+                'count' => $order->questionCount(),
+                'headline' => $asked['headline'] ?? '',
+                'context' => $asked['context'] ?? '',
+                'asks' => $asked['asks'] ?? null,
             ];
         }
 
         return $questions;
+    }
+
+    /**
+     * How many of a night's tasks ended each way, by the page's groups.
+     *
+     * @param  list<StatusRow>  $rows
+     * @return array<string, int>
+     */
+    private static function tally(array $rows): array
+    {
+        return array_map(
+            fn (array $outcomes): int => count(array_filter($rows, fn (StatusRow $row): bool => in_array($row->outcome, $outcomes, true))),
+            self::GROUPS,
+        );
+    }
+
+    /**
+     * The triage note's sections, when the chief of staff wrote their structure; null otherwise (the
+     * page shows the note as written). Each open quick close carries what Close needs to tick its
+     * task through the write path: the project's TASKS.md etag, or null when it can't be edited.
+     *
+     * @param  array<string, Project>  $projects
+     * @return array<string, list<array<string, mixed>>>|null
+     */
+    private static function triage(string $text, array $projects): ?array
+    {
+        $triage = Triage::parse($text);
+        if (! $triage->structured()) {
+            return null;
+        }
+        $parts = array_fill_keys(array_values(Triage::SECTIONS), []);
+        foreach ($triage->sections as $key => $items) {
+            $parts[$key] = $items;
+        }
+        $parts['quick_closes'] = [];
+        foreach ($triage->sections['quick_closes'] ?? [] as $item) {
+            $id = $item['tasks'][0] ?? null;
+            if ($id === null || isset($item['fields']['kept'])) {
+                continue;
+            }
+            $task = preg_match('/^T(\d+)$/', $id, $number) === 1 && $item['project'] !== ''
+                ? Task::with('sourceFile')->where('project_id', $item['project'])->where('number', (int) $number[1])->first()
+                : null;
+            if ($task?->section === Section::Done) {
+                continue;
+            }
+            $parts['quick_closes'][] = [
+                'project' => $item['project'],
+                'project_name' => $projects[$item['project']]->name ?? $item['project'],
+                'task' => $id,
+                'short' => $item['fields']['short'] ?? $item['text'],
+                'why' => $item['fields']['why'] ?? '',
+                'etag' => $task !== null && $task->sourceFile->editable ? $task->sourceFile->hash : null,
+            ];
+        }
+
+        return $parts;
     }
 
     /**

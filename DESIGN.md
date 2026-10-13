@@ -11,6 +11,7 @@ Design system: **v1.3.0**, copied into `design-system/`. Every rule and value li
 | Neutral | slate | `<html data-neutral="slate">` |
 | Voice font | off | No `data-voice` |
 | Main font | Inter | |
+| Code font | JetBrains Mono | Self-hosted in `resources/fonts/` (latin, variable weight, OFL); `--font-mono` in `resources/css/app.css` |
 | Languages | en | `lang="en"` on `<html>` |
 | Dark mode | follows OS, with toggle | Class on `<html>` |
 
@@ -27,11 +28,11 @@ How this project looks, beyond following the rules. See `design-system/SPEC.md` 
 
 Feel: A calm workbench: each page leads with the one number it's about, then the work in clear groups, quiet enough to keep open all day.
 
-Key element per page: Projects, open tasks across active projects; Project, "2 of 6" done with a progress bar; Pipeline, open applications; Brief, the brief's day ("Thursday, Oct 8"), with each section on its own surface and its count.
+Key element per page: Projects, open tasks across active projects; Project, "2 of 6" done with a progress bar; Pipeline, open applications; Brief, the brief's day ("Thursday, Oct 8"), with each section on its own surface and its count; Night, "3 waiting on you", with one agenda row per thing that waits, each linking to its card.
 
 Signature: the task row, with its ID, title, due chip and plain-text facts, which ticks into Done: it lands at the top of Done from the direction it came, with a brief accent tint (any task that changes section does the same, including one an agent moved).
 
-Built here from the system's tokens, not yet in the system (candidates for it): the progress meter (`resources/js/Components/Progress.vue`, one series in `accent-strong` on a `bg-control` track) and the status dot on the Projects summary. Motion tokens come from the motion-tokens skill (`resources/css/motion/tokens.css`, tokens and levels only).
+Built here from the system's tokens, not yet in the system (candidates for it): the Night page's agenda rows (dot, ID, title, toned note), the lines-added bar, the "Looks right" tick and the choice chips (radios as chips), the progress meter (`resources/js/Components/Progress.vue`, one series in `accent-strong` on a `bg-control` track) and the status dot on the Projects summary. Motion tokens come from the motion-tokens skill (`resources/css/motion/tokens.css`, tokens and levels only).
 
 History: v1.2.0 with surface `lines` and type `quiet` ("a well-ruled ledger") passed every check but read as words and lines, with no key element; T12 (2026-10-08) changed the two dials and the composition.
 
@@ -41,7 +42,9 @@ Values or rules this project changes from the system. Each needs a reason. An ov
 
 | Token or rule | Project value | Reason |
 |---|---|---|
-| (none) | | |
+| `--font-mono` | JetBrains Mono, then the system monos | Kai's Night mocks (2026-10-13): IDs, paths, SHAs and diff counts read as one designed face, not Menlo |
+| `--accent-solid` (and hover, active) | `#0f5d70`, halfway from cyan 11 to 12, in both themes | The mocks' deeper teal button; a hex as in `palettes.css`, set on `:root[data-accent]` to outrank the palette |
+| `--bg-canvas` under fills, light mode | `--neutral-3` (dark keeps `--neutral-1`) | White surfaces stand off the canvas as in the mocks (`#edf0f4`). Accent text on the canvas drops to 4.19:1, so the header's current tab and the Project page's way back use `--accent-fg-strong` |
 
 ## Font checklist
 

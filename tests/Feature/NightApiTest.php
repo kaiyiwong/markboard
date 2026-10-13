@@ -1,5 +1,7 @@
 <?php
 
+use App\Markdown\Section;
+use App\Models\Task;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
@@ -19,12 +21,13 @@ function git(string $repo, string ...$args): string
 }
 
 /**
- * A project repo on main with a night/T20 branch in a worktree beside it, registered in the temp
- * hub as `nightly`, with a `ready` status row for T20. Returns the repo path and the branch head.
+ * A project repo on main with a night branch (night/T20 by default) in a worktree beside it,
+ * registered in the temp hub as `nightly`, with a `ready` status row for the task. Its TASKS.md has
+ * T20 in Up next. Returns the repo path and the branch head.
  *
  * @return array{string, string}
  */
-function nightRepo(string $hub, string $branchFile = 'feature.txt', string $branchText = "night work\n"): array
+function nightRepo(string $hub, string $branchFile = 'feature.txt', string $branchText = "night work\n", string $task = 'T20'): array
 {
     $repo = dirname($hub).'/'.basename($hub).'-nightly';
     File::ensureDirectoryExists($repo);
@@ -32,19 +35,19 @@ function nightRepo(string $hub, string $branchFile = 'feature.txt', string $bran
     foreach (['user.name' => 'Sam Rivera', 'user.email' => 'sam@example.com', 'core.hooksPath' => '/dev/null', 'commit.gpgsign' => 'false'] as $key => $value) {
         git($repo, 'config', $key, $value);
     }
-    File::put($repo.'/TASKS.md', "# Nightly tasks\n\n## Up next\n\n## In progress\n\n## Waiting on\n\n## Done\n");
+    File::put($repo.'/TASKS.md', "# Nightly tasks\n\n## Up next\n- [ ] T20 The night's work\n- [ ] T21 Something else\n\n## In progress\n\n## Waiting on\n\n## Done\n");
     File::put($repo.'/shared.txt', "line one\n");
     git($repo, 'add', '-A');
     git($repo, 'commit', '-q', '-m', 'first');
-    git($repo, 'worktree', 'add', '-q', '-b', 'night/T20', $repo.'-night-T20', 'main');
-    File::put($repo.'-night-T20/'.$branchFile, $branchText);
-    git($repo.'-night-T20', 'add', '-A');
-    git($repo.'-night-T20', 'commit', '-q', '-m', 'T20: the night\'s work');
+    git($repo, 'worktree', 'add', '-q', '-b', "night/{$task}", "{$repo}-night-{$task}", 'main');
+    File::put("{$repo}-night-{$task}/{$branchFile}", $branchText);
+    git("{$repo}-night-{$task}", 'add', '-A');
+    git("{$repo}-night-{$task}", 'commit', '-q', '-m', "{$task}: the night's work");
 
     File::append($hub.'/projects.md', "| nightly | Nightly | {$repo} | product | active | Ship | |\n");
-    File::append($hub.'/orders/status.tsv', "nightly\tT20\tready\t2026-10-06 23:50\t".substr(git($repo, 'rev-parse', 'night/T20'), 0, 7)."\tverify passed\n");
+    File::append($hub.'/orders/status.tsv', "nightly\t{$task}\tready\t2026-10-06 23:50\t".substr(git($repo, 'rev-parse', "night/{$task}"), 0, 7)."\tverify passed\n");
 
-    return [$repo, git($repo, 'rev-parse', 'night/T20')];
+    return [$repo, git($repo, 'rev-parse', "night/{$task}")];
 }
 
 afterEach(function () {
@@ -93,6 +96,41 @@ describe('answers', function () {
     });
 });
 
+describe('keep', function () {
+    $url = '/api/v1/night/triage/2026-10-06/keep';
+
+    it('writes a kept line under the quick close and nothing else', function () use ($url) {
+        $path = $this->hub.'/orders/triage-2026-10-06.md';
+        $before = File::get($path);
+        $this->travelTo('2026-10-07 09:00:00');
+
+        $this->postJson($url, ['project' => 'tidepool', 'task' => 'T4'], ifMatch($path))
+            ->assertOk()->assertJsonPath('data.kept', '2026-10-07')->assertHeader('ETag', '"'.hash_file('sha256', $path).'"');
+        expect(File::get($path))->toBe(str_replace("crab.ogg`.\n", "crab.ogg`.\n  kept: 2026-10-07\n", $before));
+    });
+
+    it('refuses a stale etag with 412 and the note\'s current etag', function () use ($url) {
+        $path = $this->hub.'/orders/triage-2026-10-06.md';
+
+        $this->postJson($url, ['project' => 'tidepool', 'task' => 'T4'], ['If-Match' => '"stale"'])
+            ->assertStatus(412)->assertJsonPath('etag', hash_file('sha256', $path));
+    });
+
+    it('answers 409 for a task with no open quick close, and 404 for a night with no note', function () use ($url) {
+        $path = $this->hub.'/orders/triage-2026-10-06.md';
+        $this->postJson($url, ['project' => 'tidepool', 'task' => 'T4'], ifMatch($path))->assertOk();
+
+        $this->postJson($url, ['project' => 'tidepool', 'task' => 'T4'], ifMatch($path))->assertStatus(409);
+        $this->postJson($url, ['project' => 'lantern', 'task' => 'T12'], ifMatch($path))->assertStatus(409);
+        $this->postJson('/api/v1/night/triage/2026-10-05/keep', ['project' => 'tidepool', 'task' => 'T4'], ['If-Match' => '"x"'])->assertNotFound();
+    });
+
+    it('validates the project and task', function () use ($url) {
+        $this->postJson($url, ['project' => '../x', 'task' => ''], ifMatch($this->hub.'/orders/triage-2026-10-06.md'))
+            ->assertStatus(422)->assertJsonValidationErrors(['project', 'task']);
+    });
+});
+
 describe('stop', function () {
     it('creates and deletes orders/STOP', function () {
         $this->putJson('/api/v1/night/stop', ['stop' => true])->assertOk()->assertJsonPath('data.stopped', true);
@@ -116,11 +154,95 @@ describe('merge', function () {
             ->assertJsonPath('data.outcome', 'merged');
 
         expect(File::get($repo.'/feature.txt'))->toBe("night work\n")
-            ->and(git($repo, 'log', '-1', '--format=%s'))->toBe("Merge branch 'night/T20'")
+            ->and(git($repo, 'log', '-1', '--format=%s'))->toBe('done T20: merge night/T20')
             ->and(git($repo, 'branch', '--list', 'night/T20'))->toBe('')
             ->and(File::isDirectory($repo.'-night-T20'))->toBeFalse()
             ->and(File::get($this->hub.'/orders/status.tsv'))->toContain("nightly\tT20\tmerged\t")
             ->and(File::get($this->hub.'/orders/status.tsv'))->toContain($response->json('data.commit'));
+    });
+
+    it('ticks the task in TASKS.md inside the merge commit, with the branch head as evidence [D40]', function () {
+        [$repo, $head] = nightRepo($this->hub);
+        $today = now(config()->string('markboard.timezone'))->format('Y-m-d');
+        $short = substr($head, 0, 7);
+
+        $this->postJson('/api/v1/night/branches/nightly/T20/merge', ['head' => $head])
+            ->assertOk()
+            ->assertJsonPath('data.ticked', true)
+            ->assertJsonPath('data.tick', 'ticked T20 in TASKS.md');
+
+        expect(File::get($repo.'/TASKS.md'))->toBe("# Nightly tasks\n\n## Up next\n- [ ] T21 Something else\n\n## In progress\n\n## Waiting on\n\n## Done\n- [x] T20 The night's work (done {$today}, evidence night/T20 {$short}, from Up next)\n")
+            ->and(git($repo, 'status', '--porcelain'))->toBe('')
+            ->and(git($repo, 'show', '--format=', '--name-only', 'HEAD'))->toBe('TASKS.md')
+            ->and(Task::where('project_id', 'nightly')->where('number', 20)->sole()->section)->toBe(Section::Done)
+            ->and(File::get($this->hub.'/orders/status.tsv'))->toContain('merged into main from Markboard; ticked T20 in TASKS.md');
+    });
+
+    it('still merges a task that isn\'t a TASKS.md ID (a slice), and says it wasn\'t ticked', function () {
+        [$repo, $head] = nightRepo($this->hub, task: '0048-action-errors');
+        $before = File::get($repo.'/TASKS.md');
+
+        $this->postJson('/api/v1/night/branches/nightly/0048-action-errors/merge', ['head' => $head])
+            ->assertOk()
+            ->assertJsonPath('data.ticked', false)
+            ->assertJsonPath('data.tick', fn (string $note) => str_starts_with($note, "not ticked: 0048-action-errors isn't a task ID in TASKS.md"));
+        expect(File::get($repo.'/TASKS.md'))->toBe($before)
+            ->and(git($repo, 'log', '-1', '--format=%s'))->toBe("Merge branch 'night/0048-action-errors'");
+    });
+
+    it('still merges a task that isn\'t in TASKS.md, and says why it wasn\'t ticked', function () {
+        [$repo, $head] = nightRepo($this->hub, task: 'T30');
+        $this->postJson('/api/v1/night/branches/nightly/T30/merge', ['head' => $head])
+            ->assertOk()
+            ->assertJsonPath('data.ticked', false)
+            ->assertJsonPath('data.tick', fn (string $note) => str_starts_with($note, 'not ticked: ') && str_contains($note, 'T30'));
+        expect(git($repo, 'status', '--porcelain'))->toBe('')
+            ->and(File::get($this->hub.'/orders/status.tsv'))->toContain("nightly\tT30\tmerged\t");
+    });
+
+    it('aborts a merge whose commit fails (a hook), puts the tick back, and changes nothing', function () {
+        [$repo, $head] = nightRepo($this->hub);
+        $hooks = $repo.'-hooks';
+        File::ensureDirectoryExists($hooks);
+        File::put($hooks.'/commit-msg', "#!/bin/sh\necho 'no thanks' >&2\nexit 1\n");
+        chmod($hooks.'/commit-msg', 0755);
+        git($repo, 'config', 'core.hooksPath', $hooks);
+        $mainHead = git($repo, 'rev-parse', 'main');
+
+        $this->postJson('/api/v1/night/branches/nightly/T20/merge', ['head' => $head])
+            ->assertStatus(409)
+            ->assertJsonPath('message', fn (string $message) => str_contains($message, 'no thanks') && str_contains($message, 'nothing changed'));
+        expect(git($repo, 'rev-parse', 'main'))->toBe($mainHead)
+            ->and(git($repo, 'status', '--porcelain'))->toBe('')
+            ->and(File::get($repo.'/TASKS.md'))->toContain('- [ ] T20 ')
+            ->and(Task::where('project_id', 'nightly')->where('number', 20)->sole()->section)->toBe(Section::UpNext)
+            ->and(git($repo, 'branch', '--list', 'night/T20'))->not->toBe('')
+            ->and(File::get($this->hub.'/orders/status.tsv'))->not->toContain("nightly\tT20\tmerged");
+    });
+
+    it('says how far main is ahead of its remote, and the page lists it to push', function () {
+        [$repo, $head] = nightRepo($this->hub);
+        $remote = $repo.'-remote.git';
+        git(dirname($repo), 'init', '-q', '--bare', $remote);
+        git($repo, 'remote', 'add', 'origin', $remote);
+        git($repo, 'push', '-q', '-u', 'origin', 'main');
+        expect($this->get('/night')->inertiaProps('unpushed'))->toBe([]);
+
+        $this->postJson('/api/v1/night/branches/nightly/T20/merge', ['head' => $head])
+            ->assertOk()
+            ->assertJsonPath('data.unpushed', ['remote' => 'origin/main', 'ahead' => 2]);
+
+        expect($this->get('/night')->inertiaProps('unpushed'))->toBe([[
+            'project' => 'nightly', 'project_name' => 'Nightly', 'base' => 'main', 'remote' => 'origin/main', 'ahead' => 2, 'command' => "cd {$repo} && git push",
+        ]]);
+        git($repo, 'push', '-q');
+        expect($this->get('/night')->inertiaProps('unpushed'))->toBe([]);
+    });
+
+    it('has nothing to push for a repo with no remote', function () {
+        [, $head] = nightRepo($this->hub);
+        $this->postJson('/api/v1/night/branches/nightly/T20/merge', ['head' => $head])->assertJsonPath('data.unpushed', null);
+        expect($this->get('/night')->inertiaProps('unpushed'))->toBe([]);
     });
 
     it('takes the short head the page showed', function () {

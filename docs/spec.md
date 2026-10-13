@@ -320,38 +320,45 @@ From the hub's `orders/` folder:
   - The night of D runs from D 21:00 to D+1 21:00. A task's latest row in that window is its state.
 - **`costs.tsv`**: one row per session. A header line names the columns; `time` and `api_equiv_usd` are used. On the plan login nothing is billed: it's what the tokens would cost at API prices.
 - **`<project>/<task>.md`**: the work order. Its `# ` title, its `status:` line, its `## ` fields, and its `## MISSING` and `## KAI'S ANSWERS` sections.
-- **`<project>/<task>.verdict.md`**: line 1 PASS, FAIL or INCONCLUSIVE, line 2 the commit judged, then the summary, `## Items` (`- RESULT: item (evidence)`), `## Scope problems` and `## Look at`.
+  - `## MISSING` may give its questions choices [D37]: a `headline:` line and a `context:` line, then numbered questions, each with `- choice` lines and a `why:` line indented under it. Without any choices, the questions show as written.
+- **`<project>/<task>.verdict.md`**: line 1 PASS, FAIL or INCONCLUSIVE, line 2 the commit judged, then the summary, `## Items` (`- RESULT: item (evidence)`), `## Scope problems` and `## Look at`. Optional [D37]:
+  - `## Headline`: one line saying what changed.
+  - `short:` and `says:` lines indented under an item: the check and its evidence in a few words.
+  - `## Confirm: <title>` blocks of things to check by eye: a `columns: a | b` line, `### group` headings, `- a | b` rows and a `note:` line.
 - **`<project>/<task>.report.md`**: the builder's report (markdown, line 1 `STATUS: done|blocked`).
-- **`triage-<date>.md`** (the chief of staff's note), **`queue.txt`** (`<project> <task> [model] [effort]` lines) and **`STOP`**.
+- **`triage-<date>.md`**: the chief of staff's note. Its sections `## Picked`, `## Carried over`, `## Sent back to Kai`, `## Passed over`, `## Quick closes`, `## Seen, not a task` and `## Held` hold bullets naming tasks (`- **fieldnotes T3**: …`, `- T4, T11: …`). Optional `key: value` lines indented under a bullet [D37]: `short:` and `run:` on picked and carried-over tasks, `reason:` on passed-over ones, `short:` and `why:` on quick closes, and the `kept: <date>` line Markboard writes [D38]. Without any of them, the note shows as written.
+- **`queue.txt`** (`<project> <task> [model] [effort]` lines) and **`STOP`**.
 - The hub's **`.run/night.lock`**, which means a run is going now.
 
 From the project's repo (its registry path), with git: the commits `main..night/<task>` and the diff `main...night/<task>` (up to 400 KB; anything longer is cut and says so). If the branch is gone (merged, discarded, or in the demo), the page says so.
 
 ### Page
 
-`Night/Show` at `/night` (the latest night with rows) and `/night/{date}` (404 if that night has no rows). The page leads with how many tasks are ready for review, then:
-- **Ready for review:** one surface per task. It shows:
-  - the work order's title and the runner's reason;
-  - the verdict, with each acceptance item, any scope problems and "Look at";
-  - the commits, and the diff (per file, collapsed until opened);
-  - the builder's report, collapsed;
-  - **Merge** and **Discard**.
-- **Waiting on Kai:** each `needs-kai` order, with its questions and an answer form. Then blocked tasks, with their reasons.
-- **Stuck:** stuck and failed tasks, with their reasons.
-- **Didn't run:** skipped tasks, with their reasons.
-- **Done tonight:** tasks merged or discarded that night.
-- The triage note, tonight's queue, whether a run is going now, the night's plan usage (not billed), a **Skip tonight** switch, and past nights listed beside the page.
+`Night/Show` at `/night` (the latest night with rows) and `/night/{date}` (404 if that night has no rows). The page leads with how many things wait on Kai, listed one row each with a link to its card: tasks to review, questions, blocked builds, quick closes and projects to push. Then:
+- **Review and merge:** one surface per ready task. It shows:
+  - the verdict's headline (or the work order's title), its status, the files changed, whether it stayed in scope, and lines added and removed;
+  - the things to check by eye (`## Confirm:` rows and "Look at"), each with a "Looks right" tick kept in the browser [D39];
+  - the checks, collapsed (open when one didn't pass): short names in a grid, or the long items as rows;
+  - the changes, collapsed: files by area with their diffs, then the commits;
+  - the builder's report in a dialog, the commit, model and cost, and **Merge** and **Discard**.
+- **Questions for you:** each `needs-kai` order, with its questions (as choices when the order gives them) and its answers. Then blocked tasks, with their reasons.
+- **Quick closes:** the triage's open quick closes, each with **Close** and **Keep** [D38].
+- **Not pushed yet:** each project the night merged into whose `main` is ahead of its remote, as of the last fetch, with its `git push` command [D40].
+- **The rest of the night:** stuck and failed, skipped, and merged or discarded tasks, with their reasons.
+- **Triage:** what was picked and carried over, what was sent back, and what was passed over by reason; or the note as written.
+- Beside the page: tonight's queue, whether a run is going now, a **Skip tonight** switch, and past nights, each with a pip per thing it left and the night's plan usage (not billed).
 
 ### Actions
 
 | Method and path | Does |
 |---|---|
 | `PUT /api/v1/night/orders/{project}/{task}/answers` | Writes `answers` (text, up to 20,000 characters) as the order's `## KAI'S ANSWERS` section, replacing an earlier one. `If-Match` is the order file's hash; the rest of the file keeps its bytes. Only for an order with `status: needs-kai` (409 otherwise). |
-| `POST /api/v1/night/branches/{project}/{task}/merge` | Merges `night/<task>` into `main` in the project's main checkout, with `--no-ff`, then removes the worktree and the branch, and appends a `merged` row [D36] |
+| `POST /api/v1/night/branches/{project}/{task}/merge` | Merges `night/<task>` into `main` in the project's main checkout, with `--no-ff`, then removes the worktree and the branch, and appends a `merged` row [D36]. When the task is a `T<n>` in the project's TASKS.md, it's ticked (evidence `night/<task> <head>`) in the merge commit itself, `done <task>: merge night/<task>`; otherwise the merge goes ahead untouched and the row says why [D40]. Answers `ticked`, `tick` (the note) and `unpushed` (`{remote, ahead}`, or null with no remote). Nothing is pushed. |
 | `POST /api/v1/night/branches/{project}/{task}/discard` | Removes the worktree and the branch, and appends a `discarded` row |
+| `POST /api/v1/night/triage/{date}/keep` | Writes a `kept: <date>` line under the `project` and `task`'s quick close in `triage-<date>.md`, after its other indented lines [D38]. `If-Match` is the note's hash; the rest of the file keeps its bytes. `404` with no note for that night; `409` with no open quick close for that task. A quick close's **Close** is the task's tick (`POST /api/v1/projects/{project}/tasks/{task}/tick`). |
 | `PUT /api/v1/night/stop` | `stop: true` creates `orders/STOP` (the next run starts nothing); `false` deletes it |
 
-- **Answers** follow the write path's lock, the hash check at read and again before replacing, and the atomic temp-and-rename. A stale `If-Match` gets `412` with the order's current etag. Nothing is recorded as a conflict: the page just shows the current order.
+- **Answers and Keep** follow the write path's lock, the hash check at read and again before replacing, and the atomic temp-and-rename. A stale `If-Match` gets `412` with the file's current etag. Nothing is recorded as a conflict: the page just shows the current file.
 - **Merge and Discard** take `head`, the branch commit the page showed [D35]. They answer:
   - `404`: no such project, or no `night/<task>` branch;
   - `412`: the branch head isn't `head`;

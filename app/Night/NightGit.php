@@ -2,6 +2,7 @@
 
 namespace App\Night;
 
+use Closure;
 use Symfony\Component\Process\Process;
 
 /**
@@ -107,21 +108,50 @@ final readonly class NightGit
     }
 
     /**
-     * Merges the branch into the checked-out branch with a merge commit. On a conflict the merge is
-     * aborted, so the checkout is as it was, and the conflicting files are returned.
+     * Merges the branch into the checked-out branch with a merge commit. Before the commit,
+     * `$beforeCommit` may change files in the checkout; it returns a commit message and the files to
+     * add, so they land in the merge commit itself. On a conflict, or a commit that fails (a hook),
+     * the merge is aborted, so the checkout is as it was.
      *
+     * @param  Closure(): array{message: ?string, add: list<string>}  $beforeCommit
      * @return array{ok: true, commit: string}|array{ok: false, conflicts: list<string>, message: string}
      */
-    public function merge(string $branch): array
+    public function merge(string $branch, Closure $beforeCommit): array
     {
-        $merge = $this->run(['merge', '--no-ff', '--no-edit', $branch]);
-        if ($merge->isSuccessful()) {
-            return ['ok' => true, 'commit' => trim($this->run(['rev-parse', '--short', 'HEAD'])->getOutput())];
-        }
-        $conflicts = array_values(array_filter(explode("\n", $this->run(['diff', '--name-only', '--diff-filter=U'])->getOutput())));
-        $this->run(['merge', '--abort']);
+        $merge = $this->run(['merge', '--no-ff', '--no-commit', $branch]);
+        if (! $merge->isSuccessful()) {
+            $conflicts = array_values(array_filter(explode("\n", $this->run(['diff', '--name-only', '--diff-filter=U'])->getOutput())));
+            $this->run(['merge', '--abort']);
 
-        return ['ok' => false, 'conflicts' => $conflicts, 'message' => trim($merge->getErrorOutput()."\n".$merge->getOutput())];
+            return ['ok' => false, 'conflicts' => $conflicts, 'message' => trim($merge->getErrorOutput()."\n".$merge->getOutput())];
+        }
+        ['message' => $message, 'add' => $add] = $beforeCommit();
+        if ($add !== []) {
+            $this->run(['add', '--', ...$add]);
+        }
+        $commit = $this->run($message === null ? ['commit', '--no-edit'] : ['commit', '-m', $message]);
+        if (! $commit->isSuccessful()) {
+            $this->run(['merge', '--abort']);
+
+            return ['ok' => false, 'conflicts' => [], 'message' => trim($commit->getErrorOutput()."\n".$commit->getOutput())];
+        }
+
+        return ['ok' => true, 'commit' => trim($this->run(['rev-parse', '--short', 'HEAD'])->getOutput())];
+    }
+
+    /**
+     * How far the branch is ahead of its remote: its upstream, or `origin/<branch>`. Null with no
+     * remote branch to compare with. Read from the last fetch; nothing is fetched.
+     *
+     * @return array{remote: string, ahead: int}|null
+     */
+    public function unpushed(string $branch): ?array
+    {
+        $upstream = $this->run(['rev-parse', '--abbrev-ref', '--symbolic-full-name', "{$branch}@{upstream}"]);
+        $remote = $upstream->isSuccessful() ? trim($upstream->getOutput()) : "origin/{$branch}";
+        $count = $this->run(['rev-list', '--count', "refs/remotes/{$remote}..refs/heads/{$branch}"]);
+
+        return $count->isSuccessful() ? ['remote' => $remote, 'ahead' => (int) trim($count->getOutput())] : null;
     }
 
     /** Takes the task's worktree and branch away; `force` also deletes a branch that wasn't merged. */

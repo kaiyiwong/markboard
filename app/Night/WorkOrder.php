@@ -6,6 +6,10 @@ namespace App\Night;
  * A work order (`orders/<project>/<task>.md`): what the chief of staff hands a builder, or, with
  * `status: needs-kai`, the questions it needs Kai to answer first. Kai's answers go in a
  * `## KAI'S ANSWERS` section, which the next triage reads.
+ *
+ * `## MISSING` may give each question its choices (docs/spec.md, Night): a `headline:` and a
+ * `context:` line, then numbered questions, each with `- choice` lines and a `why:` line indented
+ * under it. Without choices it's shown as written.
  */
 final readonly class WorkOrder
 {
@@ -38,6 +42,40 @@ final readonly class WorkOrder
         }
 
         return new self($title, $status, array_map('trim', $sections));
+    }
+
+    /**
+     * The questions in `## MISSING` with their choices, or null when none has any (shown as written).
+     *
+     * @return array{headline: string, context: string, asks: list<array{ask: string, choices: list<string>, why: string}>}|null
+     */
+    public function questions(): ?array
+    {
+        $headline = $context = '';
+        $asks = [];
+        foreach (preg_split('/\r\n|\n|\r/', $this->sections['MISSING'] ?? '') ?: [] as $line) {
+            if (preg_match('/^headline: *(.+?)\s*$/', $line, $match) === 1) {
+                $headline = $match[1];
+            } elseif (preg_match('/^context: *(.+?)\s*$/', $line, $match) === 1) {
+                $context = $match[1];
+            } elseif (preg_match('/^\d+\. +(.+?)\s*$/', $line, $match) === 1) {
+                $asks[] = ['ask' => $match[1], 'choices' => [], 'why' => ''];
+            } elseif ($asks !== [] && preg_match('/^\s+- +(.+?)\s*$/', $line, $match) === 1) {
+                $asks[array_key_last($asks)]['choices'][] = $match[1];
+            } elseif ($asks !== [] && preg_match('/^\s+why: *(.+?)\s*$/', $line, $match) === 1) {
+                $asks[array_key_last($asks)]['why'] = $match[1];
+            }
+        }
+
+        return array_any($asks, fn (array $ask): bool => $ask['choices'] !== [])
+            ? ['headline' => $headline, 'context' => $context, 'asks' => $asks]
+            : null;
+    }
+
+    /** How many questions `## MISSING` asks: its numbered lines. */
+    public function questionCount(): int
+    {
+        return preg_match_all('/^\d+\. /m', $this->sections['MISSING'] ?? '');
     }
 
     public function needsKai(): bool

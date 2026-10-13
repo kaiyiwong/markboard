@@ -10,6 +10,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 - [ ] T15 Night page: see the hub's night run, answer the chief of staff's questions, merge or discard night branches, skip a night (started 2026-10-13)
   proof: unit tests for the night parsers; feature tests for the page's props on the demo night, each API action and every status code in docs/spec.md's Night section, merge and discard on a temp git repo (clean, dirty, conflicting, moved head); the full suite, lint, analyse, typecheck and build pass
   note: decisions round 4 (D33 to D36). The hub's runner treats merged and discarded as final
+  note: 2026-10-13 Kai found the first build's hierarchy unclear (every review card fully open, the actions at the bottom); the page now leads with what waits on him and each review card folds its evidence
+  note: 2026-10-13 rebuilt to Kai's mocks (decisions round 5, D37 to D39): optional short fields from the verifier and chief of staff with the long text as fallback, questions with choices, quick closes (Close ticks, Keep writes kept:), structured triage, JetBrains Mono and a deeper teal. The hub's verifier and chief-of-staff prompts write them (hub T49)
+  note: 2026-10-13 Merge ticks a `T<n>` task inside the merge commit and the page lists projects whose main isn't pushed (D40)
 
 ## Waiting on
 

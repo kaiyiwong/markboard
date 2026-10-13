@@ -135,9 +135,10 @@ function setTheme(value: Theme) {
     text-decoration: none;
 }
 
-/* The current page gets the tab's marker: accent text and a 2px bar under it. */
+/* The current page gets the tab's marker: accent text and a 2px bar under it. The strong role, as
+   accent-fg on the tinted canvas is under 4.5:1. */
 .tab[aria-current='page'] {
-    color: var(--accent-fg);
+    color: var(--accent-fg-strong);
 }
 
 .tab[aria-current='page']::before {

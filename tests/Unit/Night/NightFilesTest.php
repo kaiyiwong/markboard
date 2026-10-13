@@ -4,6 +4,7 @@ use App\Night\Costs;
 use App\Night\Queue;
 use App\Night\StatusLog;
 use App\Night\StatusRow;
+use App\Night\Triage;
 use App\Night\Verdict;
 use App\Night\WorkOrder;
 
@@ -107,6 +108,72 @@ describe('WorkOrder', function () {
     });
 });
 
+describe('WorkOrder questions', function () {
+    it('reads a headline, context and each question with its choices and why', function () {
+        $order = WorkOrder::parse(implode("\n", [
+            '# shop T6: Pickup times', '', 'status: needs-kai', '', '## MISSING',
+            'headline: Pickup times', 'context: The form is built.',
+            '1. Which slots?', '   - Morning', '   - Every 30 minutes', '   why: The brief and the email disagree.',
+            '2. Same day?', '   - Yes', '',
+        ]));
+
+        expect($order->questions())->toBe([
+            'headline' => 'Pickup times',
+            'context' => 'The form is built.',
+            'asks' => [
+                ['ask' => 'Which slots?', 'choices' => ['Morning', 'Every 30 minutes'], 'why' => 'The brief and the email disagree.'],
+                ['ask' => 'Same day?', 'choices' => ['Yes'], 'why' => ''],
+            ],
+        ])->and($order->questionCount())->toBe(2);
+    });
+
+    it('gives no structure for questions with no choices, so they show as written', function () {
+        $order = WorkOrder::parse("# x\n\nstatus: needs-kai\n\n## MISSING\n1. **Which slots?** The brief disagrees.\n2. **Same day?** Blocks ACCEPTANCE.\n");
+
+        expect($order->questions())->toBeNull()->and($order->questionCount())->toBe(2);
+    });
+});
+
+describe('Triage', function () {
+    $note = implode("\n", [
+        '# Triage, 2026-10-06', '', 'One project.', '',
+        '## Picked', '- **lantern T12**: the CSV export.', '  short: Export to CSV', '  run: sonnet · high', '',
+        '## Sent back to Kai', '- **T6** Pickup times: which slots?', '',
+        '## Passed over', '- T4, T11: in progress.', '  reason: Already in progress', '- None of the rest.', '',
+        '## Quick closes', '- **tidepool T4**: looks superseded.', '  short: Sound for the crab enemies', '  why: Nothing reads it.',
+        '- **tidepool T3**: looks done.', '',
+        '## Held', '- None.', '',
+    ]);
+
+    it('reads each section\'s tasks, text and indented fields', function () use ($note) {
+        $triage = Triage::parse($note);
+
+        expect($triage->sections['picked'])->toBe([['project' => 'lantern', 'tasks' => ['T12'], 'text' => 'the CSV export.', 'fields' => ['short' => 'Export to CSV', 'run' => 'sonnet · high']]])
+            ->and($triage->sections['sent_back'][0])->toMatchArray(['project' => '', 'tasks' => ['T6'], 'text' => 'Pickup times: which slots?'])
+            ->and($triage->sections['passed_over'][0])->toMatchArray(['tasks' => ['T4', 'T11'], 'text' => 'in progress.', 'fields' => ['reason' => 'Already in progress']])
+            ->and($triage->sections['passed_over'][1])->toMatchArray(['tasks' => [], 'text' => 'None of the rest.'])
+            ->and($triage->sections['quick_closes'])->toHaveCount(2)
+            ->and($triage->structured())->toBeTrue()
+            ->and(Triage::parse("## Picked\n- **lantern T1**: a task.\n")->structured())->toBeFalse();
+    });
+
+    it('keeps a quick close with one line after its fields, every other byte unchanged', function () use ($note) {
+        $kept = Triage::withKept($note, 'tidepool', 'T4', '2026-10-13');
+
+        expect($kept)->toBe(str_replace("  why: Nothing reads it.\n", "  why: Nothing reads it.\n  kept: 2026-10-13\n", $note))
+            ->and(Triage::withKept($note, 'tidepool', 'T3', '2026-10-13'))->toBe(str_replace("- **tidepool T3**: looks done.\n", "- **tidepool T3**: looks done.\n  kept: 2026-10-13\n", $note))
+            ->and(Triage::withKept((string) $kept, 'tidepool', 'T4', '2026-10-14'))->toBeNull()
+            ->and(Triage::withKept($note, 'lantern', 'T12', '2026-10-13'))->toBeNull()
+            ->and(Triage::withKept($note, 'other', 'T4', '2026-10-13'))->toBeNull();
+    });
+
+    it('keeps CRLF line endings and a last line with no newline', function () {
+        $note = "## Quick closes\r\n- **tidepool T1**: looks done.";
+
+        expect(Triage::withKept($note, 'tidepool', 'T1', '2026-10-13'))->toBe("## Quick closes\r\n- **tidepool T1**: looks done.\r\n  kept: 2026-10-13\r\n");
+    });
+});
+
 describe('Verdict', function () {
     it('reads the result, commit, summary, items with their evidence, scope problems and what to look at', function () {
         $verdict = Verdict::parse(implode("\n", [
@@ -122,12 +189,46 @@ describe('Verdict', function () {
             ->and($verdict->commit)->toBe('7c3d9e2')
             ->and($verdict->summary)->toBe('Two problems.')
             ->and($verdict->items)->toBe([
-                ['result' => 'PASS', 'item' => '1. Rows in order', 'evidence' => 'the test checks 3 rows'],
-                ['result' => 'FAIL', 'item' => '2. Quoting', 'evidence' => 'a title like "Salt, Fat (Acid)" (with parens) breaks'],
-                ['result' => 'INCONCLUSIVE', 'item' => '3. Looks right with no evidence', 'evidence' => ''],
+                ['result' => 'PASS', 'item' => '1. Rows in order', 'evidence' => 'the test checks 3 rows', 'short' => '', 'says' => ''],
+                ['result' => 'FAIL', 'item' => '2. Quoting', 'evidence' => 'a title like "Salt, Fat (Acid)" (with parens) breaks', 'short' => '', 'says' => ''],
+                ['result' => 'INCONCLUSIVE', 'item' => '3. Looks right with no evidence', 'evidence' => '', 'short' => '', 'says' => ''],
             ])
             ->and($verdict->scopeProblems)->toBe(['src/db.ts changed'])
-            ->and($verdict->lookAt)->toBe(['the quoting rule']);
+            ->and($verdict->lookAt)->toBe(['the quoting rule'])
+            ->and($verdict->headline)->toBe('')
+            ->and($verdict->confirm)->toBe([]);
+    });
+
+    it('reads the optional headline, short names and evidence, and the blocks to confirm by eye', function () {
+        $verdict = Verdict::parse(implode("\n", [
+            'PASS', '7c3d9e2', '', 'All pass.', '', '## Headline', '', 'Reading lists export to CSV', 'a second line is ignored', '',
+            '## Items',
+            '- PASS: 1. Rows in order (the test checks 3 rows)',
+            '  short: Rows in order',
+            '  says: 3 books in, 3 rows out',
+            '- PASS: 2. Quoting (round-trips)',
+            '', '## Confirm: Check the quoting', 'columns: In the list | In the CSV',
+            '- Plain | Plain',
+            '### Commas', '- Salt, Fat | "Salt, Fat"', '- A | B | C',
+            'note: Plain titles are written as they are.',
+            '', '## Confirm: Check the label', '- Export reading list',
+        ]));
+
+        expect($verdict->headline)->toBe('Reading lists export to CSV')
+            ->and($verdict->items[0])->toMatchArray(['item' => '1. Rows in order', 'short' => 'Rows in order', 'says' => '3 books in, 3 rows out'])
+            ->and($verdict->items[1])->toMatchArray(['short' => '', 'says' => ''])
+            ->and($verdict->confirm)->toBe([
+                [
+                    'title' => 'Check the quoting',
+                    'columns' => ['In the list', 'In the CSV'],
+                    'groups' => [
+                        ['label' => '', 'rows' => [['Plain', 'Plain']]],
+                        ['label' => 'Commas', 'rows' => [['Salt, Fat', '"Salt, Fat"'], ['A', 'B', 'C']]],
+                    ],
+                    'note' => 'Plain titles are written as they are.',
+                ],
+                ['title' => 'Check the label', 'columns' => [], 'groups' => [['label' => '', 'rows' => [['Export reading list']]]], 'note' => ''],
+            ]);
     });
 
     it('reads anything it can\'t make out as INCONCLUSIVE', function () {

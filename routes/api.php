@@ -38,5 +38,6 @@ Route::prefix('night')->name('api.night.')->group(function () {
     Route::put('orders/{project}/{order}/answers', [NightController::class, 'answers'])->name('answers');
     Route::post('branches/{project}/{order}/merge', [NightController::class, 'merge'])->name('merge');
     Route::post('branches/{project}/{order}/discard', [NightController::class, 'discard'])->name('discard');
+    Route::post('triage/{date}/keep', [NightController::class, 'keep'])->where('date', '\d{4}-\d{2}-\d{2}')->name('keep');
     Route::put('stop', [NightController::class, 'stop'])->name('stop');
 });

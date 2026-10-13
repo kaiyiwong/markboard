@@ -65,7 +65,7 @@ A hub can run agents overnight. A chief of staff picks tasks and writes work ord
 - what waits on you, with the chief of staff's questions;
 - what got stuck, and what didn't run.
 
-From the page you can merge a branch into `main`, discard it, answer the questions (they go into the work order for the next run), or skip the next run. A merge needs a clean main checkout and never resolves a conflict: if it can't merge cleanly, it aborts and shows the command to run by hand. Set `MARKBOARD_TIMEZONE` to the hub's local time, because nights run 21:00 to 21:00 by the hub's clock. The demo hub has a made-up night ([docs/spec.md](docs/spec.md), Night).
+From the page you can merge a branch into `main`, discard it, answer the questions (they go into the work order for the next run), or skip the next run. A merge needs a clean main checkout and never resolves a conflict: if it can't merge cleanly, it aborts and shows the command to run by hand. It ticks the task in the project's TASKS.md inside the merge commit, and never pushes: the page lists each project whose `main` is ahead of its remote, with the `git push` command. Set `MARKBOARD_TIMEZONE` to the hub's local time, because nights run 21:00 to 21:00 by the hub's clock. The demo hub has a made-up night ([docs/spec.md](docs/spec.md), Night).
 
 ## Checks
 
@@ -150,4 +150,4 @@ All the data in this repository is made up.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The fonts in `design-system/fonts/` keep their own SIL Open Font License.
+MIT, see [LICENSE](LICENSE). The fonts in `design-system/fonts/` and `resources/fonts/` keep their own SIL Open Font License.

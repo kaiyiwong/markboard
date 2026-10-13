@@ -32,7 +32,10 @@ it('shows the latest night, its tasks grouped by what they need, and the night\'
         ->and($ready['rounds'])->toBe(2)
         ->and($ready['verdict']['result'])->toBe('PASS')
         ->and($ready['verdict']['items'])->toHaveCount(3)
-        ->and($ready['verdict']['look_at'][0])->toContain('src/export/csv.ts')
+        ->and($ready['verdict']['look_at'][0])->toContain('The button\'s label')
+        ->and($ready['verdict']['headline'])->toBe('Reading lists export to CSV')
+        ->and($ready['verdict']['items'][0]['short'])->toBe('Rows in list order')
+        ->and($ready['verdict']['confirm'][0]['groups'])->toHaveCount(2)
         ->and($ready['report'])->toContain('<h2>What changed</h2>')
         ->and($ready['branch'])->toBe(['name' => 'night/T12', 'state' => 'no-repo']);
     expect($tasks['stuck'][0])->not->toHaveKey('verdict');
@@ -44,7 +47,10 @@ it('lists the orders that wait on Kai with their questions and the etag an answe
     expect($questions)->toHaveCount(1)
         ->and($questions[0]['project'])->toBe('bramble-bakery')
         ->and($questions[0]['task'])->toBe('T6')
-        ->and($questions[0]['missing'])->toContain('<strong>Which slots?</strong>')
+        ->and($questions[0]['missing'])->toContain('Which pickup slots')
+        ->and($questions[0]['headline'])->toBe('Pickup times on the order form')
+        ->and($questions[0]['count'])->toBe(2)
+        ->and($questions[0]['asks'][1]['choices'])->toBe(['Yes, until noon', 'Yes, until 2 hours before closing', 'No, tomorrow at the earliest'])
         ->and($questions[0]['answers'])->toBeNull()
         ->and($questions[0]['etag'])->toBe(hash_file('sha256', $this->hub.'/orders/bramble-bakery/T6.md'));
 });
@@ -58,6 +64,40 @@ it('shows the triage note, the queue with each line\'s last outcome, and past ni
     $earlier = $this->get('/night/2026-10-05')->assertOk();
     expect($earlier->inertiaProps('night'))->toBe('2026-10-05')
         ->and(array_column($earlier->inertiaProps('tasks.done'), 'outcome'))->toBe(['merged']);
+});
+
+it('lays out a structured triage note, with each open quick close and the etag Close ticks it with', function () {
+    $page = $this->get('/night');
+    $parts = $page->inertiaProps('triage_parts');
+
+    expect(array_column($parts['picked'], 'tasks'))->toBe([['T3'], ['T2']])
+        ->and($parts['carried'][0]['fields']['short'])->toBe('Export to CSV')
+        ->and(array_column(array_column($parts['passed_over'], 'fields'), 'reason'))->toBe(['Needs keys or data', 'Already in progress', 'Not yet'])
+        ->and(array_map(fn (array $close): string => "{$close['project']} {$close['task']}", $parts['quick_closes']))->toBe(['fieldnotes T2', 'tidepool T4'])
+        ->and($parts['quick_closes'][0]['short'])->toBe('Case study page for the kiln project')
+        ->and($parts['quick_closes'][0]['etag'])->toBe(hash_file('sha256', $this->hub.'/projects/fieldnotes/TASKS.md'))
+        ->and($page->inertiaProps('triage_etag'))->toBe(hash_file('sha256', $this->hub.'/orders/triage-2026-10-06.md'));
+});
+
+it('drops a quick close once its task is in Done or Kai kept it', function () {
+    $this->postJson('/api/v1/projects/fieldnotes/tasks/T2/tick', [], ifMatch($this->hub.'/projects/fieldnotes/TASKS.md'))->assertOk();
+    File::put($this->hub.'/orders/triage-2026-10-06.md', str_replace("crab.ogg`.\n", "crab.ogg`.\n  kept: 2026-10-07\n", File::get($this->hub.'/orders/triage-2026-10-06.md')));
+
+    expect($this->get('/night')->inertiaProps('triage_parts.quick_closes'))->toBe([]);
+});
+
+it('shows a triage note with none of the structure as written', function () {
+    File::put($this->hub.'/orders/triage-2026-10-06.md', "# Triage\n\n## Picked\n- **fieldnotes T3**: the grid.\n");
+
+    $page = $this->get('/night');
+    expect($page->inertiaProps('triage_parts'))->toBeNull()->and($page->inertiaProps('triage'))->toContain('<h2>Picked</h2>');
+});
+
+it('tallies each night\'s tasks by how they ended', function () {
+    expect($this->get('/night')->inertiaProps('tallies'))->toBe([
+        '2026-10-06' => ['ready' => 1, 'blocked' => 0, 'stuck' => 1, 'skipped' => 1, 'done' => 0],
+        '2026-10-05' => ['ready' => 0, 'blocked' => 0, 'stuck' => 0, 'skipped' => 0, 'done' => 1],
+    ]);
 });
 
 it('says whether a run is going and whether tonight is skipped', function () {

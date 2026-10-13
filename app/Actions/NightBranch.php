@@ -8,22 +8,31 @@ use App\Night\StatusLog;
 use App\Night\StatusRow;
 use App\Sync\Hub;
 use App\Sync\HubSync;
+use App\Sync\SourceKind;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * Merge and Discard on a night branch (docs/spec.md, Night, Actions). Both are guarded by the branch
  * head the page showed [D35], and both end with a status row, so the hub's runner never builds
- * the task again.
+ * the task again. Merge also ticks the task, in the merge commit [D40].
  */
 final readonly class NightBranch
 {
     public function __construct(
         private Hub $hub,
         private HubSync $sync,
+        private WriteFile $write,
     ) {}
 
-    /** Merges the branch into main with a merge commit, then removes its worktree and branch [D36]. */
+    /**
+     * Merges the branch into main with a merge commit, then removes its worktree and branch [D36].
+     * The task is ticked in the project's TASKS.md inside the same merge commit [D40], and the
+     * answer says how far main is ahead of its remote, since nothing is pushed from here.
+     */
     public function merge(Project $project, string $task, string $head): JsonResponse
     {
         $git = $this->checked($project, $task, $head);
@@ -37,14 +46,76 @@ final readonly class NightBranch
         $uncommitted = $git->uncommitted();
         abort_unless($uncommitted === [], 409, 'The main checkout has uncommitted changes ('.implode(', ', array_slice($uncommitted, 0, 8)).(count($uncommitted) > 8 ? ', …' : '').'). Commit them first, or merge by hand: '.$command);
 
-        $merged = $git->merge(NightGit::branch($task));
+        $tick = null;
+        $merged = $git->merge(NightGit::branch($task), function () use ($project, $task, $head, &$tick): array {
+            $tick = $this->tick($project, $task, $head);
+
+            return $tick['ticked']
+                ? ['message' => "done {$task}: merge ".NightGit::branch($task), 'add' => ['TASKS.md']]
+                : ['message' => null, 'add' => []];
+        });
         if (! $merged['ok']) {
-            abort(409, 'The merge conflicts'.($merged['conflicts'] === [] ? '' : ' in '.implode(', ', $merged['conflicts'])).", so it was aborted and nothing changed. Merge by hand: {$command}");
+            if ($tick['ticked'] ?? false) {
+                $this->resync($project); // the abort put TASKS.md back
+            }
+            abort(409, ($merged['conflicts'] === [] ? "The merge couldn't be committed ({$merged['message']})" : 'The merge conflicts in '.implode(', ', $merged['conflicts'])).", so it was aborted and nothing changed. Merge by hand: {$command}");
         }
         $git->removeBranch($task, force: false);
-        $this->append($project->id, $task, 'merged', $merged['commit'], "merged into {$base} from Markboard");
+        $this->append($project->id, $task, 'merged', $merged['commit'], "merged into {$base} from Markboard; {$tick['note']}");
 
-        return response()->json(['data' => ['project' => $project->id, 'task' => $task, 'outcome' => 'merged', 'commit' => $merged['commit']]]);
+        return response()->json(['data' => [
+            'project' => $project->id,
+            'task' => $task,
+            'outcome' => 'merged',
+            'commit' => $merged['commit'],
+            'ticked' => $tick['ticked'],
+            'tick' => $tick['note'],
+            'unpushed' => $git->unpushed($base),
+        ]]);
+    }
+
+    /**
+     * Ticks the task in the project's TASKS.md through the write path, with the branch head as its
+     * evidence. Only a night task that is a whole TASKS.md task (`T<n>`) can be ticked; anything
+     * else, or a refusal, leaves the file alone and says why, and the merge goes ahead.
+     *
+     * @return array{ticked: bool, note: string}
+     */
+    private function tick(Project $project, string $task, string $head): array
+    {
+        if (preg_match('/^T(\d+)$/', $task, $number) !== 1) {
+            return ['ticked' => false, 'note' => "not ticked: {$task} isn't a task ID in TASKS.md, so tick it yourself when the whole task is done"];
+        }
+        $bytes = @file_get_contents($project->path.'/TASKS.md');
+        if ($bytes === false) {
+            return ['ticked' => false, 'note' => 'not ticked: the project has no TASKS.md'];
+        }
+        try {
+            $this->write->write($project, new TickTask((int) $number[1], NightGit::branch($task).' '.substr($head, 0, 7)), hash('sha256', $bytes));
+        } catch (Throwable $e) {
+            $why = match (true) {
+                $e instanceof HttpResponseException => (string) (json_decode((string) $e->getResponse()->getContent(), true)['message'] ?? 'refused'),
+                $e instanceof ValidationException => (string) collect($e->errors())->flatten()->first(),
+                default => $e->getMessage(),
+            };
+
+            return ['ticked' => false, 'note' => 'not ticked: '.rtrim(preg_replace('/\s+/', ' ', $why) ?? '', '.')];
+        }
+
+        return ['ticked' => true, 'note' => "ticked {$task} in TASKS.md"];
+    }
+
+    /** Re-indexes TASKS.md after an aborted merge put back the version before the tick. */
+    private function resync(Project $project): void
+    {
+        $path = $project->path.'/TASKS.md';
+        $lock = $this->sync->lock($path);
+        $lock->block(3);
+        try {
+            $this->sync->syncLocked(SourceKind::Tasks, $path, $project->id);
+        } finally {
+            $lock->release();
+        }
     }
 
     /** Removes the worktree and the branch, unmerged work and all. */
