@@ -58,6 +58,15 @@ MARKBOARD_TIMEZONE=Europe/London                # defines "today" for the dates 
 
 Then run `./vendor/bin/sail up -d` to mount the folder. The folder is mounted at the same path inside the container, so the registry's absolute paths work unchanged. Every `TASKS.md` write must pass the hub's own `scripts/check-tasks.py`; a hub without one refuses every task edit (the demo uses the copy in `resources/checker/`).
 
+### The night run
+
+A hub can run agents overnight. A chief of staff picks tasks and writes work orders, builders build them on `night/<task>` branches beside each project, and a verifier judges each branch. They record what they did in the hub's `orders/` folder. The **Night** page (`/night`) shows a night as a reviewer needs it:
+- what's ready, with the verifier's verdict on each acceptance item, the commits, the diff and the builder's report;
+- what waits on you, with the chief of staff's questions;
+- what got stuck, and what didn't run.
+
+From the page you can merge a branch into `main`, discard it, answer the questions (they go into the work order for the next run), or skip the next run. A merge needs a clean main checkout and never resolves a conflict: if it can't merge cleanly, it aborts and shows the command to run by hand. Set `MARKBOARD_TIMEZONE` to the hub's local time, because nights run 21:00 to 21:00 by the hub's clock. The demo hub has a made-up night ([docs/spec.md](docs/spec.md), Night).
+
 ## Checks
 
 The tests need PHP 8.5, Composer and Python 3, and no Docker or environment file: they run on in-memory SQLite locally and on MySQL in CI.

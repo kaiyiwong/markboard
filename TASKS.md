@@ -7,6 +7,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: the Pest browser test ticks a task in the UI and finds the change in the temp hub's TASKS.md, locally and in CI (Chromium installed in the workflow)
 
 ## In progress
+- [ ] T15 Night page: see the hub's night run, answer the chief of staff's questions, merge or discard night branches, skip a night (started 2026-10-13)
+  proof: unit tests for the night parsers; feature tests for the page's props on the demo night, each API action and every status code in docs/spec.md's Night section, merge and discard on a temp git repo (clean, dirty, conflicting, moved head); the full suite, lint, analyse, typecheck and build pass
+  note: decisions round 4 (D33 to D36). The hub's runner treats merged and discarded as final
 
 ## Waiting on
 

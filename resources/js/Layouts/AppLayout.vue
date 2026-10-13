@@ -10,6 +10,7 @@ const nav = [
     { href: '/', label: 'Projects', match: (url: string) => url === '/' || url.startsWith('/?') || url.startsWith('/projects') },
     { href: '/pipeline', label: 'Pipeline', match: (url: string) => url.startsWith('/pipeline') },
     { href: '/brief', label: 'Brief', match: (url: string) => url.startsWith('/brief') },
+    { href: '/night', label: 'Night', match: (url: string) => url.startsWith('/night') },
 ];
 
 // The files change under the page (agents and scripts edit them), so the page reloads its props

@@ -67,3 +67,16 @@ The first spec review (`docs/spec-review.md`, 31 issues) found four places where
 
 31. **Commits carry no Claude attribution line**, replacing the commit part of [D24]. Kai's global rule for every project forbids it (deploy hosts reject such commits). The README still states the AI assistance, as D24 describes; commits before T4 keep theirs.
 32. **`demo/` is built in T4**, refining [D21]: T4's sync tests and T5's page tests both run on a temp copy of it. T7 keeps the README, the app's demo copy with `markboard:demo --reset`, and the parity run over the demo files.
+
+## Round 4, 2026-10-13 (the Night page, T15)
+
+The hub now runs agents overnight. A chief of staff picks tasks and writes work orders, builders build them on `night/<task>` branches, and verifiers check them. The record lands in the hub's `orders/` folder. Kai: "we should make it as easy as it is for me to see what happen, review and update, that's the whole point of building it."
+
+33. **Markboard shows the night run and lets Kai act on it.** This widens "What it is not" and "Out of scope" in a few named places:
+    - Markboard writes an answer section into a work order and appends a row to `orders/status.tsv`.
+    - It creates and deletes `orders/STOP` to skip a night.
+    - It runs git in a registered project's repo, on `night/*` branches only: merge, or remove the worktree and branch.
+    - It still starts no agent or script, and still never creates, deletes or renames a TASKS.md or pipeline.md.
+34. **Night data is read from the files on each request, not indexed,** like the brief. It's a few small files that change once a night, and there's nothing in it to search.
+35. **A git action is guarded by the branch head the page showed,** sent as `head`, instead of `If-Match`. Git state isn't one file's hash. If the branch has moved since the page showed it, the action is refused with `412`, and nothing changes.
+36. **Merge needs a clean main checkout and never resolves anything.** If the project's main checkout has uncommitted changes, isn't on `main`, or the merge conflicts, Markboard aborts and refuses with `409`. It names the files and shows the command to run by hand. It never stashes, resets or pushes.

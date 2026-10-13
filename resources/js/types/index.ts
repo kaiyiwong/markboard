@@ -110,3 +110,86 @@ export interface Conflict {
     /** Null when the version the user edited is no longer stored. */
     diff: DiffLine[] | null;
 }
+
+// The night run (docs/spec.md, Night; NightController).
+
+export type NightOutcome = 'ready' | 'blocked' | 'failed' | 'stuck' | 'skipped' | 'merged' | 'discarded';
+
+/** One task of a night: its latest status row, with its work order's title. */
+export interface NightTask {
+    project: string;
+    project_name: string;
+    task: string;
+    /** The work order's `# ` title; null when the order is gone. */
+    title: string | null;
+    outcome: NightOutcome;
+    /** YYYY-MM-DD HH:MM, the hub's local time. */
+    time: string;
+    commit: string;
+    reason: string;
+    rounds: number;
+}
+
+export interface NightVerdict {
+    result: 'PASS' | 'FAIL' | 'INCONCLUSIVE';
+    commit: string;
+    summary: string;
+    items: { result: 'PASS' | 'FAIL' | 'INCONCLUSIVE'; item: string; evidence: string }[];
+    scope_problems: string[];
+    look_at: string[];
+}
+
+export interface NightFile {
+    path: string;
+    /** Null for a binary file. */
+    added: number | null;
+    removed: number | null;
+    patch: string;
+}
+
+/** The night branch, or why it can't be shown (gone: merged or discarded; no-repo: the project isn't a git repo). */
+export type NightBranch =
+    | { name: string; state: 'gone' | 'no-repo' | 'no-project' }
+    | {
+          name: string;
+          state: 'present';
+          /** Merge and Discard send it back, so a branch that moved since is refused. */
+          head: string;
+          base: string;
+          worktree: string;
+          commits: { sha: string; subject: string }[];
+          files: NightFile[];
+          truncated: boolean;
+      };
+
+/** A task the night run left ready, with all a review needs. */
+export interface NightReview extends NightTask {
+    verdict: NightVerdict | null;
+    /** The builder's report, rendered on the server. */
+    report: string | null;
+    branch: NightBranch;
+}
+
+/** A work order that waits on Kai. */
+export interface NightQuestion {
+    project: string;
+    project_name: string;
+    task: string;
+    title: string | null;
+    /** The order file's etag: an answer sends it as If-Match. */
+    etag: string;
+    /** The `## MISSING` questions, rendered on the server. */
+    missing: string | null;
+    /** Earlier answers, as written. */
+    answers: string | null;
+}
+
+export interface NightQueueItem {
+    project: string;
+    project_name: string;
+    task: string;
+    model: string;
+    effort: string;
+    /** The task's latest outcome, if it has run. */
+    last: NightOutcome | null;
+}
