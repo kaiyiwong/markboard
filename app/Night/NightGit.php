@@ -6,8 +6,8 @@ use Closure;
 use Symfony\Component\Process\Process;
 
 /**
- * Git on one project's repo, for its night branches (`night/<task>`, built in a worktree beside the
- * project folder). safe.directory lets the Sail container act on a repo the host user owns.
+ * Git on one project's repo, for its night branches (`night/<task>`, built in a worktree in the
+ * hub's night folder). safe.directory lets the Sail container act on a repo the host user owns.
  */
 final readonly class NightGit
 {
@@ -16,17 +16,17 @@ final readonly class NightGit
     /** The longest diff the page gets; anything longer is cut and says so. */
     public const int MAX_DIFF_BYTES = 400_000;
 
-    public function __construct(public string $repo) {}
+    public function __construct(public string $repo, public string $worktrees) {}
 
     public static function branch(string $task): string
     {
         return "night/{$task}";
     }
 
-    /** Where the hub's runner puts a task's worktree: beside the project, named after it. */
+    /** Where the hub's runner puts a task's worktree (run-night.py, worktree_path()). */
     public function worktreePath(string $task): string
     {
-        return dirname($this->repo).'/'.basename($this->repo).'-night-'.$task;
+        return $this->worktrees.'/'.basename($this->repo).'-'.$task;
     }
 
     public function isRepo(): bool

@@ -68,7 +68,7 @@ class NightController extends Controller
             'triage_parts' => $triage === null ? null : self::triage($triage, $projects),
             'triage_etag' => $triage === null ? null : hash('sha256', $triage),
             'queue' => self::queue($hub, $log, $projects),
-            'unpushed' => self::unpushed($rows, $projects),
+            'unpushed' => self::unpushed($hub, $rows, $projects),
         ]);
     }
 
@@ -80,7 +80,7 @@ class NightController extends Controller
      * @param  array<string, Project>  $projects
      * @return list<array{project: string, project_name: string, base: string, remote: string, ahead: int, command: string}>
      */
-    private static function unpushed(array $rows, array $projects): array
+    private static function unpushed(Hub $hub, array $rows, array $projects): array
     {
         $merged = array_unique(array_map(fn (StatusRow $row): string => $row->project, array_filter($rows, fn (StatusRow $row): bool => $row->outcome === 'merged')));
         $unpushed = [];
@@ -89,7 +89,7 @@ class NightController extends Controller
             if ($project === null || ! $project->folder_found) {
                 continue;
             }
-            $git = new NightGit($project->path);
+            $git = new NightGit($project->path, $hub->nightWorktreesPath());
             $base = $git->isRepo() ? $git->baseBranch() : null;
             $state = $base === null ? null : $git->unpushed($base);
             if ($base === null || $state === null || $state['ahead'] === 0) {
@@ -146,7 +146,7 @@ class NightController extends Controller
                 'confirm' => $parsed->confirm,
             ],
             'report' => self::markdown(self::read($hub->ordersPath("{$row->project}/{$row->task}.report.md"))),
-            'branch' => self::branch($projects[$row->project] ?? null, $row->task),
+            'branch' => self::branch($hub, $projects[$row->project] ?? null, $row->task),
         ];
     }
 
@@ -156,13 +156,13 @@ class NightController extends Controller
      *
      * @return array<string, mixed>
      */
-    private static function branch(?Project $project, string $task): array
+    private static function branch(Hub $hub, ?Project $project, string $task): array
     {
         $name = NightGit::branch($task);
         if ($project === null || ! $project->folder_found) {
             return ['name' => $name, 'state' => 'no-project'];
         }
-        $git = new NightGit($project->path);
+        $git = new NightGit($project->path, $hub->nightWorktreesPath());
         if (! $git->isRepo()) {
             return ['name' => $name, 'state' => 'no-repo'];
         }

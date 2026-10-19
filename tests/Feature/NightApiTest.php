@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Process;
 /*
 | The Night page's actions (docs/spec.md, Night, Actions). Answers and STOP run on the temp demo
 | hub. Merge and Discard need a real repo: each test builds one with a night branch in a worktree
-| beside it, as the hub's runner leaves them, and registers it in the temp hub.
+| in the night folder beside the hub, as the hub's runner leaves them, and registers it in the temp hub.
 */
 
 /** Runs git in a test repo, with its own identity and no global hooks. */
@@ -21,7 +21,7 @@ function git(string $repo, string ...$args): string
 }
 
 /**
- * A project repo on main with a night branch (night/T20 by default) in a worktree beside it,
+ * A project repo on main with a night branch (night/T20 by default) in a worktree in the night folder,
  * registered in the temp hub as `nightly`, with a `ready` status row for the task. Its TASKS.md has
  * T20 in Up next. Returns the repo path and the branch head.
  *
@@ -39,10 +39,11 @@ function nightRepo(string $hub, string $branchFile = 'feature.txt', string $bran
     File::put($repo.'/shared.txt', "line one\n");
     git($repo, 'add', '-A');
     git($repo, 'commit', '-q', '-m', 'first');
-    git($repo, 'worktree', 'add', '-q', '-b', "night/{$task}", "{$repo}-night-{$task}", 'main');
-    File::put("{$repo}-night-{$task}/{$branchFile}", $branchText);
-    git("{$repo}-night-{$task}", 'add', '-A');
-    git("{$repo}-night-{$task}", 'commit', '-q', '-m', "{$task}: the night's work");
+    $worktree = nightWorktree($hub, $repo, $task);
+    git($repo, 'worktree', 'add', '-q', '-b', "night/{$task}", $worktree, 'main');
+    File::put("{$worktree}/{$branchFile}", $branchText);
+    git($worktree, 'add', '-A');
+    git($worktree, 'commit', '-q', '-m', "{$task}: the night's work");
 
     File::append($hub.'/projects.md', "| nightly | Nightly | {$repo} | product | active | Ship | |\n");
     File::append($hub.'/orders/status.tsv', "nightly\t{$task}\tready\t2026-10-06 23:50\t".substr(git($repo, 'rev-parse', "night/{$task}"), 0, 7)."\tverify passed\n");
@@ -50,8 +51,15 @@ function nightRepo(string $hub, string $branchFile = 'feature.txt', string $bran
     return [$repo, git($repo, 'rev-parse', "night/{$task}")];
 }
 
+/** Where the hub's runner puts a task's worktree: <hub's parent>/.night/<project folder>-<task>. */
+function nightWorktree(string $hub, string $repo, string $task = 'T20'): string
+{
+    return dirname($hub).'/.night/'.basename($repo).'-'.$task;
+}
+
 afterEach(function () {
-    foreach (glob(dirname($this->hub).'/'.basename($this->hub).'-nightly*') ?: [] as $folder) {
+    $prefix = basename($this->hub).'-nightly';
+    foreach ([...glob(dirname($this->hub)."/{$prefix}*") ?: [], ...glob(dirname($this->hub)."/.night/{$prefix}*") ?: []] as $folder) {
         File::deleteDirectory($folder);
     }
 });
@@ -156,7 +164,7 @@ describe('merge', function () {
         expect(File::get($repo.'/feature.txt'))->toBe("night work\n")
             ->and(git($repo, 'log', '-1', '--format=%s'))->toBe('done T20: merge night/T20')
             ->and(git($repo, 'branch', '--list', 'night/T20'))->toBe('')
-            ->and(File::isDirectory($repo.'-night-T20'))->toBeFalse()
+            ->and(File::isDirectory(nightWorktree($this->hub, $repo)))->toBeFalse()
             ->and(File::get($this->hub.'/orders/status.tsv'))->toContain("nightly\tT20\tmerged\t")
             ->and(File::get($this->hub.'/orders/status.tsv'))->toContain($response->json('data.commit'));
     });
@@ -252,9 +260,9 @@ describe('merge', function () {
 
     it('refuses a branch that moved since the page showed it (412), and changes nothing', function () {
         [$repo, $head] = nightRepo($this->hub);
-        File::put($repo.'-night-T20/more.txt', "more\n");
-        git($repo.'-night-T20', 'add', '-A');
-        git($repo.'-night-T20', 'commit', '-q', '-m', 'T20: more');
+        File::put(nightWorktree($this->hub, $repo).'/more.txt', "more\n");
+        git(nightWorktree($this->hub, $repo), 'add', '-A');
+        git(nightWorktree($this->hub, $repo), 'commit', '-q', '-m', 'T20: more');
 
         $this->postJson('/api/v1/night/branches/nightly/T20/merge', ['head' => $head])
             ->assertStatus(412)
@@ -312,7 +320,7 @@ describe('discard', function () {
             ->assertJsonPath('data.outcome', 'discarded');
 
         expect(git($repo, 'branch', '--list', 'night/T20'))->toBe('')
-            ->and(File::isDirectory($repo.'-night-T20'))->toBeFalse()
+            ->and(File::isDirectory(nightWorktree($this->hub, $repo)))->toBeFalse()
             ->and(File::exists($repo.'/feature.txt'))->toBeFalse()
             ->and(File::get($this->hub.'/orders/status.tsv'))->toContain("nightly\tT20\tdiscarded\t");
     });

@@ -17,6 +17,8 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T17 Night worktrees live in `<hub's parent>/.night/<project>-<task>`, matching the hub's runner (hub T62) (done 2026-10-19)
+  proof: tests/Unit/Night/NightGitTest.php asserts the path, and the Night API's merge and discard tests remove a worktree made there
 - [x] T16 Mark design-system/ as vendored in .gitattributes, so the hub's size check (hub T60) skips the copied design system (done 2026-10-19)
   proof: `git check-attr linguist-vendored -- design-system/colors/all.css` reads set
 - [x] T14 Brief page as a product page: one surface per section with its count, project and task tags as links, the day as its title (done 2026-10-08, from Up next)

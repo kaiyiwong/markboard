@@ -132,7 +132,7 @@ final readonly class NightBranch
     /** The branch exists (404), and is still where the page showed it (412). */
     private function checked(Project $project, string $task, string $head): NightGit
     {
-        $git = new NightGit($project->path);
+        $git = new NightGit($project->path, $this->hub->nightWorktreesPath());
         $branch = NightGit::branch($task);
         $now = $project->folder_found && $git->isRepo() ? $git->head($branch) : null;
         abort_if($now === null, 404, "There's no {$branch} branch in {$project->name}.");

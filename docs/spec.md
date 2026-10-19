@@ -310,7 +310,7 @@ The UI uses the design system in `design-system/` with the choices in `DESIGN.md
 
 ## Night
 
-The hub runs agents overnight (the hub's docs/spec.md, "Chief of staff"). A chief of staff picks tasks and writes a work order for each. A builder builds each one on a `night/<task>` branch in its own worktree beside the project. The runner checks the result, and a verifier judges it. The Night page shows a night and lets Kai act on it [D33]. Its files are read on each request, not indexed [D34].
+The hub runs agents overnight (the hub's docs/spec.md, "Chief of staff"). A chief of staff picks tasks and writes a work order for each. A builder builds each one on a `night/<task>` branch in its own worktree in a hidden `.night` folder beside the hub (`.night/<project>-<task>`). The runner checks the result, and a verifier judges it. The Night page shows a night and lets Kai act on it [D33]. Its files are read on each request, not indexed [D34].
 
 ### What it reads
 
