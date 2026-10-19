@@ -17,6 +17,8 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T16 Mark design-system/ as vendored in .gitattributes, so the hub's size check (hub T60) skips the copied design system (done 2026-10-19)
+  proof: `git check-attr linguist-vendored -- design-system/colors/all.css` reads set
 - [x] T14 Brief page as a product page: one surface per section with its count, project and task tags as links, the day as its title (done 2026-10-08, from Up next)
   proof: unit tests for the Brief parser and BriefLinks; the Brief page test; check_page.py passes on both Brief pages; tests pass on SQLite and MySQL
   note: Kai found the Brief still read as a document; checked against his real TODAY.md (40 lines, 9 sections, several empty)
