@@ -39,6 +39,24 @@ final readonly class Hub
         return $date === null ? $this->path.'/TODAY.md' : $this->path."/briefs/{$date}.md";
     }
 
+    /** The night run's record: work orders, reports, verdicts, status.tsv, costs.tsv (docs/spec.md, Night). */
+    public function ordersPath(string $file = ''): string
+    {
+        return $this->path.'/orders'.($file === '' ? '' : '/'.$file);
+    }
+
+    /** Where the hub's runner puts every project's night worktrees: a hidden folder beside the hub. */
+    public function nightWorktreesPath(): string
+    {
+        return dirname($this->path).'/.night';
+    }
+
+    /** Present while a night run is going. */
+    public function nightLockPath(): string
+    {
+        return $this->path.'/.run/night.lock';
+    }
+
     /**
      * The dates of the past briefs, newest first.
      *

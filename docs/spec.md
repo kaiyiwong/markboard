@@ -13,7 +13,7 @@ The files are the source of truth. AI agents, scripts and editors keep changing 
 - Not a store of its own. Nothing is typed into the database. The index tables can be dropped and rebuilt from the files at any time; the only other tables are history (`file_versions`, `conflicts`).
 - Not multi-user. One person, on their own machine, on localhost, with no auth.
 - Not an editor for the registry, priorities or the brief. Those are read-only here.
-- Never creates, deletes or renames a file. It only rewrites existing TASKS.md and pipeline.md files.
+- Never creates, deletes or renames a file. It only rewrites existing TASKS.md and pipeline.md files. The exception is the night run's files and branches (see Night [D33]).
 
 ## Configuration
 
@@ -32,6 +32,8 @@ The files are the source of truth. AI agents, scripts and editors keep changing 
 | `TODAY.md` | Today's brief | reads |
 | `briefs/YYYY-MM-DD.md` | Past briefs | reads |
 | `scripts/check-tasks.py` | The TASKS.md format checker | runs before every TASKS.md write |
+| `orders/` | The night run's record: work orders, reports, verdicts, `status.tsv`, `costs.tsv`, triage notes, `queue.txt`, `STOP` | reads; writes answers, status rows and `STOP` (see Night) |
+| `.run/night.lock` | Present while a night run is going | reads |
 
 Each registered project's folder holds a `TASKS.md`, and may hold a `pipeline.md`. Those are the only files Markboard writes.
 
@@ -291,6 +293,7 @@ Inertia renders these pages. Every page's props include the `etag` of each file 
 | `Projects/Index` | `/` | Active projects in priority order, then paused, then done (collapsed); malformed and duplicate registry rows listed at the end. Filters by category and status. Each row: name, category, status, next milestone, Up next / In progress / Waiting on counts, an overdue or due-within-7-days badge, or "not migrated" (with "no TASKS.md" or the error count) or "folder not found". A search box finds tasks across projects; results link to the task. |
 | `Projects/Show` | `/projects/{project}` and `/projects/{project}/tasks/{task}` | The tasks by section in file order, with metadata, proof and notes. The task route scrolls to and highlights that task. Open conflicts above the tasks. A file that isn't editable is shown read-only, with its errors and line numbers. |
 | `Pipeline/Index` | `/pipeline` | One board per registered project that has a `pipeline.md`, each titled with its project: open stages as columns, closed stages collapsed. Open conflicts above each board. |
+| `Night/Show` | `/night` and `/night/{date}` | The night run: see Night. |
 | `Brief/Show` | `/brief` and `/brief/{date}` | `TODAY.md` (or `briefs/{date}.md`) as its day and one surface per `##` section with its item count, with past briefs listed beside it (today's own dated copy left out). `{date}` must match `\d{4}-\d{2}-\d{2}` and the file must exist (404 otherwise). With no `TODAY.md`, the page says there's no brief yet and still lists past ones. |
 
 **Brief rendering** [D15]: `app/Markdown/Brief` splits the brief into its `#` title, the text before the first `##` heading, and its `##` sections (a `#` line inside a code fence is not a heading). Each part is rendered with `Str::markdown()`, with `html_input` set to `escape` and `allow_unsafe_links` off, after `BriefLinks` turns each tag of a registered project into links: `[project-id]` to `/projects/{project}`, shown by the project's name, and a task ID right after it (`[project-id] T12`) to `/projects/{project}/tasks/T12`. Tags of unregistered projects, and checkboxes like `[x]`, stay text. Raw HTML in a brief shows as text.
@@ -305,12 +308,72 @@ Inertia renders these pages. Every page's props include the `etag` of each file 
 
 The UI uses the design system in `design-system/` with the choices in `DESIGN.md`.
 
+## Night
+
+The hub runs agents overnight (the hub's docs/spec.md, "Chief of staff"). A chief of staff picks tasks and writes a work order for each. A builder builds each one on a `night/<task>` branch in its own worktree in a hidden `.night` folder beside the hub (`.night/<project>-<task>`). The runner checks the result, and a verifier judges it. The Night page shows a night and lets Kai act on it [D33]. Its files are read on each request, not indexed [D34].
+
+### What it reads
+
+From the hub's `orders/` folder:
+- **`status.tsv`**: one row per task per run, tab-separated: project, task, outcome, `YYYY-MM-DD HH:MM`, commit, reason.
+  - Outcomes: `ready`, `blocked`, `failed`, `stuck` and `skipped` from the runner; `merged` and `discarded` from Markboard.
+  - The night of D runs from D 21:00 to D+1 21:00. A task's latest row in that window is its state.
+- **`costs.tsv`**: one row per session. A header line names the columns; `time` and `api_equiv_usd` are used. On the plan login nothing is billed: it's what the tokens would cost at API prices.
+- **`<project>/<task>.md`**: the work order. Its `# ` title, its `status:` line, its `## ` fields, and its `## MISSING` and `## KAI'S ANSWERS` sections.
+  - `## MISSING` may give its questions choices [D37]: a `headline:` line and a `context:` line, then numbered questions, each with `- choice` lines and a `why:` line indented under it. Without any choices, the questions show as written.
+- **`<project>/<task>.verdict.md`**: line 1 PASS, FAIL or INCONCLUSIVE, line 2 the commit judged, then the summary, `## Items` (`- RESULT: item (evidence)`), `## Scope problems` and `## Look at`. Optional [D37]:
+  - `## Headline`: one line saying what changed.
+  - `short:` and `says:` lines indented under an item: the check and its evidence in a few words.
+  - `## Confirm: <title>` blocks of things to check by eye: a `columns: a | b` line, `### group` headings, `- a | b` rows and a `note:` line.
+- **`<project>/<task>.report.md`**: the builder's report (markdown, line 1 `STATUS: done|blocked`).
+- **`triage-<date>.md`**: the chief of staff's note. Its sections `## Picked`, `## Carried over`, `## Sent back to Kai`, `## Passed over`, `## Quick closes`, `## Seen, not a task` and `## Held` hold bullets naming tasks (`- **fieldnotes T3**: …`, `- T4, T11: …`). Optional `key: value` lines indented under a bullet [D37]: `short:` and `run:` on picked and carried-over tasks, `reason:` on passed-over ones, `short:` and `why:` on quick closes, and the `kept: <date>` line Markboard writes [D38]. Without any of them, the note shows as written.
+- **`queue.txt`** (`<project> <task> [model] [effort]` lines) and **`STOP`**.
+- The hub's **`.run/night.lock`**, which means a run is going now.
+
+From the project's repo (its registry path), with git: the commits `main..night/<task>` and the diff `main...night/<task>` (up to 400 KB; anything longer is cut and says so). If the branch is gone (merged, discarded, or in the demo), the page says so.
+
+### Page
+
+`Night/Show` at `/night` (the latest night with rows) and `/night/{date}` (404 if that night has no rows). The page leads with how many things wait on Kai, listed one row each with a link to its card: tasks to review, questions, blocked builds, quick closes and projects to push. Then:
+- **Review and merge:** one surface per ready task. It shows:
+  - the verdict's headline (or the work order's title), its status, the files changed, whether it stayed in scope, and lines added and removed;
+  - the things to check by eye (`## Confirm:` rows and "Look at"), each with a "Looks right" tick kept in the browser [D39];
+  - the checks, collapsed (open when one didn't pass): short names in a grid, or the long items as rows;
+  - the changes, collapsed: files by area with their diffs, then the commits;
+  - the builder's report in a dialog, the commit, model and cost, and **Merge** and **Discard**.
+- **Questions for you:** each `needs-kai` order, with its questions (as choices when the order gives them) and its answers. Then blocked tasks, with their reasons.
+- **Quick closes:** the triage's open quick closes, each with **Close** and **Keep** [D38].
+- **Not pushed yet:** each project the night merged into whose `main` is ahead of its remote, as of the last fetch, with its `git push` command [D40].
+- **The rest of the night:** stuck and failed, skipped, and merged or discarded tasks, with their reasons.
+- **Triage:** what was picked and carried over, what was sent back, and what was passed over by reason; or the note as written.
+- Beside the page: tonight's queue, whether a run is going now, a **Skip tonight** switch, and past nights, each with a pip per thing it left and the night's plan usage (not billed).
+
+### Actions
+
+| Method and path | Does |
+|---|---|
+| `PUT /api/v1/night/orders/{project}/{task}/answers` | Writes `answers` (text, up to 20,000 characters) as the order's `## KAI'S ANSWERS` section, replacing an earlier one. `If-Match` is the order file's hash; the rest of the file keeps its bytes. Only for an order with `status: needs-kai` (409 otherwise). |
+| `POST /api/v1/night/branches/{project}/{task}/merge` | Merges `night/<task>` into `main` in the project's main checkout, with `--no-ff`, then removes the worktree and the branch, and appends a `merged` row [D36]. When the task is a `T<n>` in the project's TASKS.md, it's ticked (evidence `night/<task> <head>`) in the merge commit itself, `done <task>: merge night/<task>`; otherwise the merge goes ahead untouched and the row says why [D40]. Answers `ticked`, `tick` (the note) and `unpushed` (`{remote, ahead}`, or null with no remote). Nothing is pushed. |
+| `POST /api/v1/night/branches/{project}/{task}/discard` | Removes the worktree and the branch, and appends a `discarded` row |
+| `POST /api/v1/night/triage/{date}/keep` | Writes a `kept: <date>` line under the `project` and `task`'s quick close in `triage-<date>.md`, after its other indented lines [D38]. `If-Match` is the note's hash; the rest of the file keeps its bytes. `404` with no note for that night; `409` with no open quick close for that task. A quick close's **Close** is the task's tick (`POST /api/v1/projects/{project}/tasks/{task}/tick`). |
+| `PUT /api/v1/night/stop` | `stop: true` creates `orders/STOP` (the next run starts nothing); `false` deletes it |
+
+- **Answers and Keep** follow the write path's lock, the hash check at read and again before replacing, and the atomic temp-and-rename. A stale `If-Match` gets `412` with the file's current etag. Nothing is recorded as a conflict: the page just shows the current file.
+- **Merge and Discard** take `head`, the branch commit the page showed [D35]. They answer:
+  - `404`: no such project, or no `night/<task>` branch;
+  - `412`: the branch head isn't `head`;
+  - `409`: merging a task whose latest row isn't `ready`; or the main checkout has uncommitted changes, isn't on `main`, or the merge conflicts. The merge is aborted first, and the message names the files.
+  - `200`: `{data: {project, task, outcome, commit}}`.
+- Git runs as `git -c safe.directory=* -C <path>`, so the container may act on a repo owned by the host user, with a 60-second timeout. A merge commit uses the repo's own `user.name` and `user.email`.
+- The hub's runner treats `merged` and `discarded` as final, so it never runs that task again.
+
 ## Demo hub
 
 `demo/` holds a made-up hub [D21]:
 - `projects.md` with relative paths and seven projects: an own site, a client project with an overdue and a due-soon task, a job project with `pipeline.md` (fictional companies in every open stage and one closed), a product with tasks in every section (a cancelled one in Done, and a blank line between a task and its proof), a paused game, a gen-AI project whose TASKS.md has format errors, and a project with no TASKS.md.
 - `priorities.md`, `TODAY.md` and two dated briefs in `briefs/`.
 - `.markboard-demo`, the marker that makes it demo-kind. No `scripts/` folder, so the bundled checker is used.
+- `orders/`, a made-up night run (T15). One task is ready, with its verdict and report; one needs Kai, with questions; one is stuck; one was skipped. There is a merged one from an earlier night, a triage note, a queue, and costs. The demo projects aren't git repos, so the ready task's card says its branch isn't there; feature tests build a temp git repo to merge and discard.
 
 With `MARKBOARD_HUB_PATH` unset, the app copies `demo/` to `storage/app/demo-hub/` (ignored by git) on first use and works on the copy, so editing the demo never changes tracked files. `php artisan markboard:demo --reset` replaces the copy.
 
@@ -339,4 +402,4 @@ With `MARKBOARD_HUB_PATH` unset, the app copies `demo/` to `storage/app/demo-hub
 - Auth, multiple users and any hosted deployment
 - A board view of project phases and an ideas view
 - Pushing changes over WebSockets [D12]
-- Starting agents or scripts from the app
+- Starting agents or scripts from the app. The Night page acts only on what a run left: answers, merge, discard and STOP [D33].

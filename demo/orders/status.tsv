@@ -1,0 +1,5 @@
+lantern	T10	ready	2026-10-05 23:40	4f1c2aa	verify passed on 4f1c2aa; verifier PASS (sonnet); usage worth $1.10 at API prices over 1 round(s), not billed (orders/costs.tsv)
+lantern	T10	merged	2026-10-06 08:15	9b0e7d1	merged into main from Markboard
+lantern	T12	ready	2026-10-06 23:18	7c3d9e2	verify passed on 7c3d9e2; verifier PASS (sonnet); usage worth $3.40 at API prices over 2 round(s), not billed (orders/costs.tsv)
+fieldnotes	T3	stuck	2026-10-07 00:40	2a8b6f0	the verifier failed 3 rounds, last on 2a8b6f0
+muse-lab	T2	skipped	2026-10-07 01:05		verify fails on main before the build (exit 1, log logs/2026-10-06-night/muse-lab-T2.baseline.log)

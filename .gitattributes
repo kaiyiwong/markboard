@@ -9,6 +9,8 @@
 # Parser fixtures are byte-exact test data (CRLF, lone CR, no final newline): never normalise them.
 /tests/Fixtures/** -text
 
+/design-system/** linguist-vendored
+
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore

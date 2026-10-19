@@ -7,10 +7,20 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: the Pest browser test ticks a task in the UI and finds the change in the temp hub's TASKS.md, locally and in CI (Chromium installed in the workflow)
 
 ## In progress
+- [ ] T15 Night page: see the hub's night run, answer the chief of staff's questions, merge or discard night branches, skip a night (started 2026-10-13)
+  proof: unit tests for the night parsers; feature tests for the page's props on the demo night, each API action and every status code in docs/spec.md's Night section, merge and discard on a temp git repo (clean, dirty, conflicting, moved head); the full suite, lint, analyse, typecheck and build pass
+  note: decisions round 4 (D33 to D36). The hub's runner treats merged and discarded as final
+  note: 2026-10-13 Kai found the first build's hierarchy unclear (every review card fully open, the actions at the bottom); the page now leads with what waits on him and each review card folds its evidence
+  note: 2026-10-13 rebuilt to Kai's mocks (decisions round 5, D37 to D39): optional short fields from the verifier and chief of staff with the long text as fallback, questions with choices, quick closes (Close ticks, Keep writes kept:), structured triage, JetBrains Mono and a deeper teal. The hub's verifier and chief-of-staff prompts write them (hub T49)
+  note: 2026-10-13 Merge ticks a `T<n>` task inside the merge commit and the page lists projects whose main isn't pushed (D40)
 
 ## Waiting on
 
 ## Done
+- [x] T17 Night worktrees live in `<hub's parent>/.night/<project>-<task>`, matching the hub's runner (hub T62) (done 2026-10-19)
+  proof: tests/Unit/Night/NightGitTest.php asserts the path, and the Night API's merge and discard tests remove a worktree made there
+- [x] T16 Mark design-system/ as vendored in .gitattributes, so the hub's size check (hub T60) skips the copied design system (done 2026-10-19)
+  proof: `git check-attr linguist-vendored -- design-system/colors/all.css` reads set
 - [x] T14 Brief page as a product page: one surface per section with its count, project and task tags as links, the day as its title (done 2026-10-08, from Up next)
   proof: unit tests for the Brief parser and BriefLinks; the Brief page test; check_page.py passes on both Brief pages; tests pass on SQLite and MySQL
   note: Kai found the Brief still read as a document; checked against his real TODAY.md (40 lines, 9 sections, several empty)

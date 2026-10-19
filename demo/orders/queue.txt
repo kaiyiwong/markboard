@@ -1,0 +1,5 @@
+# Night run queue: one line per task, `<project-id> <task-id> [model] [effort]` (defaults opus, high).
+lantern T12 opus high
+fieldnotes T3 opus high
+muse-lab T2 sonnet high
+lantern T15 sonnet high

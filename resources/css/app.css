@@ -1,5 +1,43 @@
 /* Project styles: overrides and shared components only. Every value comes from design-system tokens (DESIGN.md). */
 
+/* JetBrains Mono for code: IDs, paths, SHAs and diff counts (DESIGN.md, Overrides). Self-hosted,
+   latin only, one variable file for every weight. */
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    /* stylelint-disable-next-line ds/token-values -- a font-face descriptor: the weights the file holds */
+    font-weight: 100 800;
+    font-display: swap;
+    src: url('../fonts/jetbrains-mono-latin-wght.woff2') format('woff2');
+}
+
+:root {
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* On :root[data-accent], to outrank the palette's own [data-accent] rule. */
+:root[data-accent] {
+    /* A deeper cyan for the filled button, halfway from cyan 11 to 12 (DESIGN.md, Overrides). A hex,
+       as palettes.css sets the solid: it's the same in both themes. */
+    /* stylelint-disable color-no-hex, color-named -- the solid is theme-independent, as in palettes.css */
+    --accent-solid: #0f5d70;
+    --accent-solid-hover: color-mix(in srgb, var(--accent-solid) 88%, black);
+    --accent-solid-active: color-mix(in srgb, var(--accent-solid) 80%, black);
+    /* stylelint-enable color-no-hex, color-named */
+}
+
+/* A deeper canvas in light mode, so white surfaces stand off it (DESIGN.md, Overrides). Dark mode
+   keeps the fills dial's canvas. */
+:root[data-surface='fills']:not(.dark) {
+    --bg-canvas: var(--neutral-3);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root[data-surface='fills']:not(.light) {
+        --bg-canvas: var(--neutral-1);
+    }
+}
+
 /* Links are something you can act on, so they take the accent (DESIGN.md, Character: color quiet). */
 a {
     color: var(--accent-fg);
@@ -80,6 +118,29 @@ a {
 
 .ledger > li:first-child {
     border-top: 1px solid var(--border-subtle);
+}
+
+/* A disclosure: a <details> whose summary is a row with a chevron (.turn) that turns when open. */
+.disclosure > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    cursor: pointer;
+    list-style: none;
+}
+
+.disclosure > summary::-webkit-details-marker {
+    display: none;
+}
+
+.disclosure > summary > .turn {
+    color: var(--fg-muted);
+    transform: rotate(-90deg);
+}
+
+.disclosure[open] > summary > .turn {
+    transform: none;
 }
 
 /* Text for screen readers only. */

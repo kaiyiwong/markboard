@@ -1,0 +1,10 @@
+time	project	task	role	round	model	effort	api_equiv_usd	input	cache_read	output	turns	duration_ms
+2026-10-05 22:04	hub	triage	chief-of-staff	1	opus	high	1.90	48	1800000	21000	40	280000
+2026-10-05 23:30	lantern	T10	builder	1	sonnet	high	0.95	60	900000	9000	30	500000
+2026-10-05 23:40	lantern	T10	verifier	1	sonnet	high	0.15	20	120000	2000	6	60000
+2026-10-06 22:05	hub	triage	chief-of-staff	1	opus	high	2.10	52	2100000	26000	46	300000
+2026-10-06 22:50	lantern	T12	builder	1	opus	high	1.60	70	1500000	15000	48	1500000
+2026-10-06 23:00	lantern	T12	verifier	1	sonnet	high	0.12	20	110000	1800	5	50000
+2026-10-06 23:12	lantern	T12	builder	2	opus	high	1.55	66	1400000	14000	44	700000
+2026-10-06 23:18	lantern	T12	verifier	2	sonnet	high	0.13	20	115000	1900	5	52000
+2026-10-07 00:30	fieldnotes	T3	builder	3	opus	high	1.20	55	1200000	12000	40	900000

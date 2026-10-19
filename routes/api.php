@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ConflictController;
+use App\Http\Controllers\Api\V1\NightController;
 use App\Http\Controllers\Api\V1\PipelineRowController;
 use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -27,3 +28,16 @@ Route::prefix('projects/{project}')->name('api.')->group(function () {
 
 Route::post('conflicts/{conflict}/apply', [ConflictController::class, 'apply'])->name('api.conflicts.apply');
 Route::post('conflicts/{conflict}/discard', [ConflictController::class, 'discard'])->name('api.conflicts.discard');
+
+/*
+| The night run (docs/spec.md, Night). {order} is a night task ID as the runner wrote it (T0085,
+| 0048-action-errors): a file name in orders/<project>/, so it can never hold a slash or start with a dot.
+*/
+Route::prefix('night')->name('api.night.')->group(function () {
+    Route::pattern('order', '[A-Za-z0-9][A-Za-z0-9._-]{0,99}');
+    Route::put('orders/{project}/{order}/answers', [NightController::class, 'answers'])->name('answers');
+    Route::post('branches/{project}/{order}/merge', [NightController::class, 'merge'])->name('merge');
+    Route::post('branches/{project}/{order}/discard', [NightController::class, 'discard'])->name('discard');
+    Route::post('triage/{date}/keep', [NightController::class, 'keep'])->where('date', '\d{4}-\d{2}-\d{2}')->name('keep');
+    Route::put('stop', [NightController::class, 'stop'])->name('stop');
+});

@@ -110,7 +110,7 @@ function onDragEnd() {
     <Head :title="project.name" />
     <div class="stack gap-6">
         <div class="stack gap-3">
-            <p class="p-label"><Link href="/" class="link-quiet">Projects</Link></p>
+            <p class="p-label"><Link href="/" class="link-quiet crumb">Projects</Link></p>
             <h1 class="p-headline">{{ project.name }}</h1>
             <p class="p-caption">
                 {{ project.category }} · {{ project.status }}<template v-if="project.next_milestone"> · Next: {{ project.next_milestone }}</template>
@@ -181,6 +181,11 @@ function onDragEnd() {
 </template>
 
 <style scoped>
+/* The way back sits on the tinted canvas, where accent-fg is under 4.5:1: the strong role. */
+.crumb {
+    color: var(--accent-fg-strong);
+}
+
 .heading {
     display: flex;
     align-items: center;

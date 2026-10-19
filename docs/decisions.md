@@ -67,3 +67,27 @@ The first spec review (`docs/spec-review.md`, 31 issues) found four places where
 
 31. **Commits carry no Claude attribution line**, replacing the commit part of [D24]. Kai's global rule for every project forbids it (deploy hosts reject such commits). The README still states the AI assistance, as D24 describes; commits before T4 keep theirs.
 32. **`demo/` is built in T4**, refining [D21]: T4's sync tests and T5's page tests both run on a temp copy of it. T7 keeps the README, the app's demo copy with `markboard:demo --reset`, and the parity run over the demo files.
+
+## Round 4, 2026-10-13 (the Night page, T15)
+
+The hub now runs agents overnight. A chief of staff picks tasks and writes work orders, builders build them on `night/<task>` branches, and verifiers check them. The record lands in the hub's `orders/` folder. Kai: "we should make it as easy as it is for me to see what happen, review and update, that's the whole point of building it."
+
+33. **Markboard shows the night run and lets Kai act on it.** This widens "What it is not" and "Out of scope" in a few named places:
+    - Markboard writes an answer section into a work order and appends a row to `orders/status.tsv`.
+    - It creates and deletes `orders/STOP` to skip a night.
+    - It runs git in a registered project's repo, on `night/*` branches only: merge, or remove the worktree and branch.
+    - It still starts no agent or script, and still never creates, deletes or renames a TASKS.md or pipeline.md.
+34. **Night data is read from the files on each request, not indexed,** like the brief. It's a few small files that change once a night, and there's nothing in it to search.
+35. **A git action is guarded by the branch head the page showed,** sent as `head`, instead of `If-Match`. Git state isn't one file's hash. If the branch has moved since the page showed it, the action is refused with `412`, and nothing changes.
+36. **Merge needs a clean main checkout and never resolves anything.** If the project's main checkout has uncommitted changes, isn't on `main`, or the merge conflicts, Markboard aborts and refuses with `409`. It names the files and shows the command to run by hand. It never stashes, resets or pushes.
+
+## Round 5, 2026-10-13 (the Night page as a daily tool)
+
+Kai found the first Night page hard to act on: every review card fully open, long sentences everywhere, the actions at the bottom. He drew mocks of short, scannable cards: a headline, short check names, term pairs to tick, questions with choices, quick closes.
+
+37. **The agents write the short text; Markboard never makes it up.** The verdict, the work order's `## MISSING` and the triage note get optional structure: a headline, a short name and a few words of evidence per check, `## Confirm:` blocks of rows to check by eye, choices and a "why" per question, short names, runs and reasons in triage, and `## Quick closes`. Markboard reads it and falls back to the long text when it's missing. It doesn't shorten text itself, since that would need a model call, and the app makes none.
+38. **Close ticks, Keep notes.** A quick close's Close ticks the task through the existing write path (the project's TASKS.md etag, the check script, the round trip), so it lands in Done like a tick on the Project page. Keep writes one `kept: <date>` line under the item in the triage note, through the same lock and double hash check as an answer, so the next triage stops suggesting it. A quick close leaves the page once its task is in Done or it's kept.
+39. **"Looks right" ticks stay in the browser.** They're a reviewer's notes while deciding, not hub data, so they go in local storage keyed by the branch head (a branch that moves starts unticked), and Merge doesn't depend on them.
+40. **Merge ticks the task and leaves the push to Kai.** Kai asked whether Merge was the right step, and whether it should work like poteto's, whose agents push their own branches and open PRs. A pushed branch of a client project builds a preview on that client's production database, so night branches stay local and pushing `main` stays Kai's step. Two gaps closed instead:
+    - **The tick goes in the merge commit.** Merge runs `git merge --no-ff --no-commit`, ticks the task through the write path (with the branch head as evidence), adds TASKS.md, and commits as `done <task>: merge night/<task>`. TASKS.md then never sits uncommitted in the main checkout, where it would block the next merge. Only a night task that is a whole TASKS.md task (`T<n>`) is ticked. A slice, a task the file doesn't have, or a file that can't be edited is merged without a tick, and the status row says why. A commit that fails (a hook) aborts the merge and puts the tick back.
+    - **What isn't pushed shows on the page.** Each project the night merged into whose `main` is ahead of its remote (its upstream, or `origin/main`, as of the last fetch) is listed with its `git push` command, and counts as waiting on Kai. Markboard never fetches or pushes.
