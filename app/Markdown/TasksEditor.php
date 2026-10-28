@@ -115,6 +115,17 @@ final readonly class TasksEditor
         return $this->toTopOf($file, $block, $block->line->withMetadata($metadata), $to);
     }
 
+    /** Kai answered it: to the top of Up next, no longer `waiting` on anyone since a date. */
+    public function answer(TasksFile $file, int $number): string
+    {
+        $block = $this->openTask($file, $number, 'answered');
+        if ($block->section === Section::UpNext) {
+            throw new EditRefused("{$block->line->id} is already in Up next.");
+        }
+
+        return $this->toTopOf($file, $block, $block->line->withMetadata($block->line->metadata->without('waiting', 'since')), Section::UpNext);
+    }
+
     /** To a 0-based position among its section's tasks. */
     public function reorder(TasksFile $file, int $number, int $position): string
     {

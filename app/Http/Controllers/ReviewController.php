@@ -19,12 +19,13 @@ class ReviewController extends Controller
 
     /**
      * Every task in an active project waiting on Kai, in priority order, each with its review card
-     * when it has one. Cards aren't indexed: they are read from the project on each request.
+     * when it has one and its TASKS.md etag, read with the task. Cards aren't indexed: they are read
+     * from the project on each request.
      */
     public function show(): Response
     {
         $tasks = DB::transaction(fn () => Task::query()
-            ->with('project')
+            ->with(['project', 'sourceFile'])
             ->join('projects', 'projects.id', '=', 'tasks.project_id')
             ->where('projects.status', 'active')
             ->where('tasks.section', Section::WaitingOn)
@@ -62,6 +63,7 @@ class ReviewController extends Controller
             'project' => ['id' => $project->id, 'name' => $project->name],
             'task' => (new TaskResource($task))->resolve(),
             'since' => $task->since?->toDateString(),
+            'etag' => $task->sourceFile->editable ? $task->sourceFile->hash : null,
             'card' => $card === null || $card->errors !== [] ? null : [
                 'question' => $card->question,
                 'answer' => $card->answer,

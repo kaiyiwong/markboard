@@ -40,6 +40,7 @@ it('lists every task waiting on Kai in active projects, in priority order', func
     expect(array_keys($items))->toBe(['fieldnotes T4', 'fieldnotes T5', 'bramble-bakery T7', 'job-search T5'])
         ->and($items['fieldnotes T4']['project'])->toBe(['id' => 'fieldnotes', 'name' => 'Fieldnotes'])
         ->and($items['fieldnotes T4']['since'])->toBe('2026-10-06')
+        ->and($items['fieldnotes T4']['etag'])->toBe(hash_file('sha256', $this->hub.'/projects/fieldnotes/TASKS.md'))
         ->and($items['fieldnotes T4']['task']['title'])->toBe('Pick the case study header');
 });
 

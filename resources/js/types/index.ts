@@ -69,6 +69,8 @@ export interface ReviewItem {
     project: { id: string; name: string };
     task: Task;
     since: string | null;
+    /** The project's TASKS.md etag, for an answer's If-Match; null when the file can't be edited. */
+    etag: string | null;
     /** Null when the task has no card, or its card has errors. */
     card: {
         question: string;

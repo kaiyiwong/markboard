@@ -1,12 +1,50 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { edit, fieldError, refusal, useEditing, type EditResult } from '@/api';
 import type { ReviewItem } from '@/types';
 
 // One task waiting on Kai. With a card: its question, then the images to judge from (each option
 // for a pick, old then new for an approve) and the answers. Without one: the task as written.
-// The answer buttons are inert until the answer actions land (Markboard T18, step 3).
+// Every answer is one write to the project's TASKS.md (docs/spec.md, Review); the note goes with it.
 const props = defineProps<{ item: ReviewItem }>();
+
+type Answer = 'pick' | 'choose' | 'approve' | 'redo' | 'reply' | 'done' | 'drop';
+
+const note = ref('');
+const busy = ref(false);
+const result = ref<EditResult | null>(null);
+const typing = useEditing();
+watch(note, (text) => (typing.value = text.trim() !== ''));
+const off = computed(() => busy.value || props.item.etag === null);
+
+async function send(answer: Answer, value: string | null = null) {
+    busy.value = true;
+    result.value = await edit('POST', `/api/v1/review/${props.item.project.id}/${props.item.task.task_id}/answer`, props.item.etag, {
+        answer,
+        value,
+        note: note.value.trim() === '' ? null : note.value,
+    });
+    busy.value = false;
+    if (result.value.ok) {
+        note.value = '';
+    }
+}
+
+/** Why the answer didn't go through. A changed file reloads the page, so it can be tried again. */
+const problem = computed(() => {
+    const r = result.value;
+    if (props.item.etag === null) {
+        return "This project's TASKS.md isn't in the strict format, so Markboard can't write the answer.";
+    }
+    if (!r || r.ok) {
+        return null;
+    }
+    if (r.status === 412) {
+        return 'TASKS.md changed since the page showed it. The page has the current one now: try again.';
+    }
+    return fieldError(r, 'note') ?? fieldError(r, 'value') ?? fieldError(r, 'answer') ?? refusal(r);
+});
 
 const card = computed(() => props.item.card);
 const since = computed(() =>
@@ -36,7 +74,7 @@ const taskLink = computed(() => `/projects/${props.item.project.id}/tasks/${prop
                 </a>
                 <div class="option-foot">
                     <span class="p-body">{{ image.label }}</span>
-                    <button type="button" class="btn btn-secondary md hit" disabled>
+                    <button type="button" class="btn btn-secondary md hit" :disabled="off" @click="send('pick', image.label)">
                         <span class="lbl">Pick {{ i + 1 }}</span>
                     </button>
                 </div>
@@ -62,7 +100,7 @@ const taskLink = computed(() => `/projects/${props.item.project.id}/tasks/${prop
                 </li>
             </ul>
             <div class="choices">
-                <button v-for="choice in card.choices" :key="choice" type="button" class="btn btn-secondary md hit" disabled>
+                <button v-for="choice in card.choices" :key="choice" type="button" class="btn btn-secondary md hit" :disabled="off" @click="send('choose', choice)">
                     <span class="lbl">{{ choice }}</span>
                 </button>
             </div>
@@ -80,17 +118,21 @@ const taskLink = computed(() => `/projects/${props.item.project.id}/tasks/${prop
 
         <footer class="stack gap-4 foot">
             <div v-if="card?.answer === 'approve'" class="choices">
-                <button type="button" class="btn btn-primary md hit" disabled><span class="lbl">Approve</span></button>
-                <button type="button" class="btn btn-secondary md hit" disabled><span class="lbl">Redo</span></button>
+                <button type="button" class="btn btn-primary md hit" :disabled="off" @click="send('approve')"><span class="lbl">Approve</span></button>
+                <button type="button" class="btn btn-secondary md hit" :disabled="off" @click="send('redo')"><span class="lbl">Redo</span></button>
             </div>
             <label class="field">
                 <span class="field-head p-caption">Note</span>
-                <textarea class="input" rows="2" disabled />
+                <textarea v-model="note" class="input" rows="2" :disabled="off" />
             </label>
             <div class="choices">
-                <button type="button" class="btn btn-ghost md hit" disabled><span class="lbl">Done</span></button>
-                <button type="button" class="btn btn-ghost md hit" disabled><span class="lbl">Drop</span></button>
+                <button type="button" class="btn md hit" :class="card ? 'btn-secondary' : 'btn-primary'" :disabled="off || note.trim() === ''" @click="send('reply')">
+                    <span class="lbl">Send</span>
+                </button>
+                <button type="button" class="btn btn-ghost md hit" :disabled="off" @click="send('done')"><span class="lbl">Done</span></button>
+                <button type="button" class="btn btn-ghost md hit" :disabled="off" @click="send('drop')"><span class="lbl">Drop</span></button>
             </div>
+            <p v-if="problem" class="p-caption problem" role="alert">{{ problem }}</p>
         </footer>
     </article>
 </template>
@@ -152,6 +194,10 @@ const taskLink = computed(() => `/projects/${props.item.project.id}/tasks/${prop
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3);
+}
+
+.problem {
+    color: var(--danger-fg-strong);
 }
 
 .errors {
