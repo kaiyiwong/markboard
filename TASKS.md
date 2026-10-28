@@ -17,6 +17,10 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T18 Review page: every task waiting on Kai across projects as one card at a time, with its review card's question and images, answered with Pick, Approve, Redo, a choice, Done or Drop (started 2026-10-28, done 2026-10-28, evidence tests/Feature/ReviewApiTest.php and tests/Feature/ReviewPageTest.php, from In progress)
+  proof: feature tests for the page's props on the demo hub (a task with a card of each kind, a task with no card, a bad card shown as text), each answer action writing the right TASKS.md lines and deleting the card, the image route refusing paths outside a registered project; the full suite, lint, analyse, typecheck and build pass
+  note: card format in the hub's docs/spec.md, Review cards (hub T66). Answers: Pick, Approve, Redo and a choice add `note: Kai <date>: <answer>` (plus Kai's note) and move the task to Up next without `waiting` and `since`; Send writes the note alone; Done ticks; Drop cancels. Spec: docs/spec.md, Review
+  note: step 1 (read-only page) 2026-10-28, Kai judged the first screen right; step 3 the same day: the `answer` operation (one write through the write path, so a stale page records a conflict), POST /api/v1/review/{project}/{task}/answer, the card deleted after the write. 505 tests pass (one skipped), Pint, Larastan and typecheck pass; the build ran to a scratch folder in the sandbox
 - [x] T17 Night worktrees live in `<hub's parent>/.night/<project>-<task>`, matching the hub's runner (hub T62) (done 2026-10-19)
   proof: tests/Unit/Night/NightGitTest.php asserts the path, and the Night API's merge and discard tests remove a worktree made there
 - [x] T16 Mark design-system/ as vendored in .gitattributes, so the hub's size check (hub T60) skips the copied design system (done 2026-10-19)

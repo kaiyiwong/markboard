@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\ConflictController;
 use App\Http\Controllers\Api\V1\NightController;
 use App\Http\Controllers\Api\V1\PipelineRowController;
+use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,8 @@ Route::prefix('projects/{project}')->name('api.')->group(function () {
     Route::post('pipeline/rows', [PipelineRowController::class, 'store'])->name('pipeline.store');
     Route::patch('pipeline/rows/{row}', [PipelineRowController::class, 'update'])->whereNumber('row')->name('pipeline.update');
 });
+
+Route::post('review/{project}/{task}/answer', [ReviewController::class, 'answer'])->name('api.review.answer');
 
 Route::post('conflicts/{conflict}/apply', [ConflictController::class, 'apply'])->name('api.conflicts.apply');
 Route::post('conflicts/{conflict}/discard', [ConflictController::class, 'discard'])->name('api.conflicts.discard');

@@ -9,6 +9,7 @@
 
 ## Waiting on
 - [ ] T2 Tailspin take-home feedback (waiting Tailspin, since 2026-10-06)
+- [ ] T5 Accept the Northwind interview date (waiting Kai, since 2026-10-06)
 
 ## Done
 - [x] T1 Refresh the CV (done 2026-09-30, from Up next)

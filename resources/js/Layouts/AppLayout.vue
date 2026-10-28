@@ -9,6 +9,7 @@ const page = usePage<SharedProps>();
 const nav = [
     { href: '/', label: 'Projects', match: (url: string) => url === '/' || url.startsWith('/?') || url.startsWith('/projects') },
     { href: '/pipeline', label: 'Pipeline', match: (url: string) => url.startsWith('/pipeline') },
+    { href: '/review', label: 'Review', match: (url: string) => url.startsWith('/review') },
     { href: '/brief', label: 'Brief', match: (url: string) => url.startsWith('/brief') },
     { href: '/night', label: 'Night', match: (url: string) => url.startsWith('/night') },
 ];

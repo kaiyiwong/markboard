@@ -1,0 +1,9 @@
+{
+  "question": "Which header for the kiln case study?",
+  "answer": "pick",
+  "images": [
+    { "label": "1 Photo first", "path": "designs/header-1.png" },
+    { "label": "2 Title first", "path": "designs/header-2.png" },
+    { "label": "3 Split", "path": "designs/header-3.png" }
+  ]
+}

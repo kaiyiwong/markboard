@@ -1,0 +1,8 @@
+{
+  "question": "Ship the new order page?",
+  "answer": "approve",
+  "images": [
+    { "label": "Before", "path": "designs/order-before.png" },
+    { "label": "After", "path": "designs/order-after.png" }
+  ]
+}

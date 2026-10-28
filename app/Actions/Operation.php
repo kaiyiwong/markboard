@@ -14,6 +14,7 @@ enum Operation: string
     case TickTask = 'tick';
     case CancelTask = 'cancel';
     case UndoTask = 'undo';
+    case AnswerTask = 'answer';
     case AddPipelineRow = 'add-row';
     case EditPipelineRow = 'edit-row';
 
@@ -32,6 +33,7 @@ enum Operation: string
             self::TickTask => TickTask::class,
             self::CancelTask => CancelTask::class,
             self::UndoTask => UndoTask::class,
+            self::AnswerTask => AnswerTask::class,
             self::AddPipelineRow => AddPipelineRow::class,
             self::EditPipelineRow => EditPipelineRow::class,
         };

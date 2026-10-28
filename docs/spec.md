@@ -294,6 +294,7 @@ Inertia renders these pages. Every page's props include the `etag` of each file 
 | `Projects/Show` | `/projects/{project}` and `/projects/{project}/tasks/{task}` | The tasks by section in file order, with metadata, proof and notes. The task route scrolls to and highlights that task. Open conflicts above the tasks. A file that isn't editable is shown read-only, with its errors and line numbers. |
 | `Pipeline/Index` | `/pipeline` | One board per registered project that has a `pipeline.md`, each titled with its project: open stages as columns, closed stages collapsed. Open conflicts above each board. |
 | `Night/Show` | `/night` and `/night/{date}` | The night run: see Night. |
+| `Review/Show` | `/review` | Every task waiting on Kai, one card at a time: see Review. |
 | `Brief/Show` | `/brief` and `/brief/{date}` | `TODAY.md` (or `briefs/{date}.md`) as its day and one surface per `##` section with its item count, with past briefs listed beside it (today's own dated copy left out). `{date}` must match `\d{4}-\d{2}-\d{2}` and the file must exist (404 otherwise). With no `TODAY.md`, the page says there's no brief yet and still lists past ones. |
 
 **Brief rendering** [D15]: `app/Markdown/Brief` splits the brief into its `#` title, the text before the first `##` heading, and its `##` sections (a `#` line inside a code fence is not a heading). Each part is rendered with `Str::markdown()`, with `html_input` set to `escape` and `allow_unsafe_links` off, after `BriefLinks` turns each tag of a registered project into links: `[project-id]` to `/projects/{project}`, shown by the project's name, and a task ID right after it (`[project-id] T12`) to `/projects/{project}/tasks/T12`. Tags of unregistered projects, and checkboxes like `[x]`, stay text. Raw HTML in a brief shows as text.
@@ -366,6 +367,27 @@ From the project's repo (its registry path), with git: the commits `main..night/
   - `200`: `{data: {project, task, outcome, commit}}`.
 - Git runs as `git -c safe.directory=* -C <path>`, so the container may act on a repo owned by the host user, with a 60-second timeout. A merge commit uses the repo's own `user.name` and `user.email`.
 - The hub's runner treats `merged` and `discarded` as final, so it never runs that task again.
+
+## Review
+
+The Review page lists every task in an active project that waits on Kai (`waiting` is Kai, Kai Wong, Kaiyi or Kaiyi Wong, in any case), in priority order then file order, one card at a time with the whole queue beside it (T18). A session that parks a task for Kai writes its review card, `<project>/review/<task>.json`; the format and its rules are the hub's (its docs/spec.md, "review/<task>.json"). Cards are read on each request, not indexed. A card with errors shows the task as text, with the errors; so does a task with no card.
+
+- **Pages:** `GET /review`, and `GET /review/{project}/{task}/images/{n}`, which sends image `n` of the card after checking the card again (404 if the card is missing, has errors, or has no image `n`).
+- **Answer:** `POST /api/v1/review/{project}/{task}/answer` with `If-Match` (the project's TASKS.md hash), `answer`, `value` and `note`. It is one edit through the write path (operation `answer`, so a stale `If-Match` records a conflict like any edit):
+
+| `answer` | Needs | Writes to TASKS.md |
+|---|---|---|
+| `pick` | a card whose `answer` is `pick`; `value` one of its image labels | `note: Kai <date>: picked <value>`, task to the top of Up next |
+| `choose` | a `choose` card; `value` one of its choices | `note: Kai <date>: chose <value>`, to Up next |
+| `approve` | an `approve` card | `note: Kai <date>: approved`, to Up next |
+| `redo` | an `approve` card | `note: Kai <date>: redo`, to Up next |
+| `reply` | `note` | `note: Kai <date>: <note>`, to Up next |
+| `done` | nothing | the task ticked, with a note line first if `note` is given |
+| `drop` | nothing | the task cancelled, with a note line first if `note` is given |
+
+- `note` (optional except for `reply`) follows the note rules and is added after the answer: `note: Kai <date>: picked 2 Loud; <note>`. The whole line is at most 500 characters.
+- After the write succeeds the card file is deleted. If the write is refused, the card stays.
+- `422`: an unknown `answer`, a `value` that isn't on the card, a missing `note` for `reply`, or a move the task can't take (it is already in Up next). `409`: an answer that needs a card when the task has none, or its card has errors or is of another kind. The other codes are the write path's.
 
 ## Demo hub
 

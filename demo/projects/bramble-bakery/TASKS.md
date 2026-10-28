@@ -13,6 +13,7 @@ Client contact: the owner, by email. Invoices go out on the last Friday of the m
   note: payment provider sandbox keys are in the client's vault
 
 ## Waiting on
+- [ ] T7 New order page (waiting Kai, since 2026-10-05)
 - [ ] T2 Final logo files (waiting the designer, since 2026-09-30)
 
 ## Done
