@@ -48,7 +48,7 @@ it('gives each project its section counts, due badge and TASKS.md state', functi
         ->name->toBe('Bramble Bakery')
         ->category->toBe('client')
         ->next_milestone->toBe('Online orders live')
-        ->counts->toBe(['Up next' => 3, 'In progress' => 1, 'Waiting on' => 1, 'Done' => 1])
+        ->counts->toBe(['Up next' => 3, 'In progress' => 1, 'Waiting on' => 2, 'Done' => 1])
         ->due->toBe('overdue')
         ->tasks_file->toBe('ok')
         ->error_count->toBe(0);

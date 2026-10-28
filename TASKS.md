@@ -7,6 +7,10 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   proof: the Pest browser test ticks a task in the UI and finds the change in the temp hub's TASKS.md, locally and in CI (Chromium installed in the workflow)
 
 ## In progress
+- [ ] T18 Review page: every task waiting on Kai across projects as one card at a time, with its review card's question and images, answered with Pick, Approve, Redo, a choice, Done or Drop (started 2026-10-28)
+  proof: feature tests for the page's props on the demo hub (a task with a card of each kind, a task with no card, a bad card shown as text), each answer action writing the right TASKS.md lines and deleting the card, the image route refusing paths outside a registered project; the full suite, lint, analyse, typecheck and build pass
+  note: card format in the hub's docs/spec.md, Review cards (hub T66). Steps: read-only page first, Kai judges the first screen, then the answer actions. Answers: Pick, Approve, Redo and a choice add `note: Kai <date>: <answer>` (plus Kai's note) and move the task to Up next; Done ticks; Drop cancels
+  note: step 1 (read-only page) built 2026-10-28: app/Review/ReviewCard.php reads a card with the hub's rules and messages, ReviewController serves /review and each card image (re-checked, 404 otherwise), Review/Show.vue plus Components/ReviewCard.vue, a Review tab. Demo: Fieldnotes T4 (pick), T5 (no card), Bramble Bakery T7 (approve), Job search T5 (choose). Unit and feature tests pass; typecheck and CSS lint pass. Answer buttons are drawn but disabled. Next: Kai judges the first screen, then step 3, the answer actions
 - [ ] T15 Night page: see the hub's night run, answer the chief of staff's questions, merge or discard night branches, skip a night (started 2026-10-13)
   proof: unit tests for the night parsers; feature tests for the page's props on the demo night, each API action and every status code in docs/spec.md's Night section, merge and discard on a temp git repo (clean, dirty, conflicting, moved head); the full suite, lint, analyse, typecheck and build pass
   note: decisions round 4 (D33 to D36). The hub's runner treats merged and discarded as final

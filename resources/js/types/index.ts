@@ -64,6 +64,21 @@ export interface Task {
     line_end: number;
 }
 
+/** A task waiting on Kai, with its review card (the hub's docs/spec.md, "review/<task>.json"). */
+export interface ReviewItem {
+    project: { id: string; name: string };
+    task: Task;
+    since: string | null;
+    /** Null when the task has no card, or its card has errors. */
+    card: {
+        question: string;
+        answer: 'pick' | 'approve' | 'choose';
+        images: { label: string; url: string }[];
+        choices: string[];
+    } | null;
+    card_errors: string[];
+}
+
 export interface SearchResult {
     project_id: string;
     project_name: string;
