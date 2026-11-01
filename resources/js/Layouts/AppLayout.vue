@@ -8,6 +8,7 @@ const page = usePage<SharedProps>();
 
 const nav = [
     { href: '/', label: 'Projects', match: (url: string) => url === '/' || url.startsWith('/?') || url.startsWith('/projects') },
+    { href: '/tasks', label: 'Tasks', match: (url: string) => url.startsWith('/tasks') },
     { href: '/pipeline', label: 'Pipeline', match: (url: string) => url.startsWith('/pipeline') },
     { href: '/review', label: 'Review', match: (url: string) => url.startsWith('/review') },
     { href: '/brief', label: 'Brief', match: (url: string) => url.startsWith('/brief') },
@@ -126,7 +127,8 @@ function setTheme(value: Theme) {
 
 .tabs-list {
     display: flex;
-    gap: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
     margin: 0;
     padding: 0;
     list-style: none;

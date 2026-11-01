@@ -14,9 +14,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReviewController extends Controller
 {
-    /** `waiting` values that mean Kai himself: the hub's KAI_NAMES (its scripts/check-review.py). */
-    public const array KAI = ['kai', 'kai wong', 'kaiyi', 'kaiyi wong'];
-
     /**
      * Every task in an active project waiting on Kai, in priority order, each with its review card
      * when it has one and its TASKS.md etag, read with the task. Cards aren't indexed: they are read
@@ -29,7 +26,7 @@ class ReviewController extends Controller
             ->join('projects', 'projects.id', '=', 'tasks.project_id')
             ->where('projects.status', 'active')
             ->where('tasks.section', Section::WaitingOn)
-            ->whereIn(DB::raw('lower(tasks.waiting)'), self::KAI)
+            ->whereIn(DB::raw('lower(tasks.waiting)'), Task::KAI)
             ->orderBy('projects.category_rank')
             ->orderBy('projects.registry_order')
             ->orderBy('tasks.position')

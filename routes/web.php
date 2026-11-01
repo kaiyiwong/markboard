@@ -5,6 +5,7 @@ use App\Http\Controllers\NightController;
 use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\TaskListController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProjectController::class, 'index'])->name('projects.index');
@@ -12,6 +13,7 @@ Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('pro
 Route::get('/projects/{project}/tasks/{task}', [ProjectController::class, 'show'])
     ->where('task', 'T[0-9]+')
     ->name('projects.task');
+Route::get('/tasks', TaskListController::class)->name('tasks.index');
 Route::get('/pipeline', PipelineController::class)->name('pipeline.index');
 Route::get('/brief', [BriefController::class, 'show'])->name('brief.today');
 Route::get('/brief/{date}', [BriefController::class, 'show'])

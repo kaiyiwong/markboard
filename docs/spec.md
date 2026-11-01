@@ -295,6 +295,7 @@ Inertia renders these pages. Every page's props include the `etag` of each file 
 | `Pipeline/Index` | `/pipeline` | One board per registered project that has a `pipeline.md`, each titled with its project: open stages as columns, closed stages collapsed. Open conflicts above each board. |
 | `Night/Show` | `/night` and `/night/{date}` | The night run: see Night. |
 | `Review/Show` | `/review` | Every task waiting on Kai, one card at a time: see Review. |
+| `Tasks/Index` | `/tasks` | Every open task in active projects as one list, worked from the keyboard: see Tasks. |
 | `Brief/Show` | `/brief` and `/brief/{date}` | `TODAY.md` (or `briefs/{date}.md`) as its day and one surface per `##` section with its item count, with past briefs listed beside it (today's own dated copy left out). `{date}` must match `\d{4}-\d{2}-\d{2}` and the file must exist (404 otherwise). With no `TODAY.md`, the page says there's no brief yet and still lists past ones. |
 
 **Brief rendering** [D15]: `app/Markdown/Brief` splits the brief into its `#` title, the text before the first `##` heading, and its `##` sections (a `#` line inside a code fence is not a heading). Each part is rendered with `Str::markdown()`, with `html_input` set to `escape` and `allow_unsafe_links` off, after `BriefLinks` turns each tag of a registered project into links: `[project-id]` to `/projects/{project}`, shown by the project's name, and a task ID right after it (`[project-id] T12`) to `/projects/{project}/tasks/T12`. Tags of unregistered projects, and checkboxes like `[x]`, stay text. Raw HTML in a brief shows as text.
@@ -367,6 +368,29 @@ From the project's repo (its registry path), with git: the commits `main..night/
   - `200`: `{data: {project, task, outcome, commit}}`.
 - Git runs as `git -c safe.directory=* -C <path>`, so the container may act on a repo owned by the host user, with a 60-second timeout. A merge commit uses the repo's own `user.name` and `user.email`.
 - The hub's runner treats `merged` and `discarded` as final, so it never runs that task again.
+
+## Tasks
+
+The Tasks page lists every open task in an active project as one list, so Kai can see and work all his projects without opening each one (T19). Tasks come from the index, like every page.
+
+- **Groups**, in this order: Waiting on you (in Waiting on, with `waiting` one of Kai's names, as on Review), In progress, Up next, Waiting on others. A group with no tasks isn't shown.
+- **Order inside a group:** Waiting on by `since` and In progress by `started`, oldest first; tasks without that date come after those. Up next, and ties, follow priority order (category rank, then registry order), then file order.
+- **Row:** the project's name, the task ID, the title, and one fact on the right: the due label when the task has `due` (toned as on the Project page), otherwise its age in days from `since` or `started`, toned warning from 14 days.
+- **Filters**, in the browser: a project select, each option with its count, and a text box matching the title, ID and project name.
+- **Head:** the number waiting on you, with the open total beside it.
+- **Keys** (ignored while typing in a field):
+
+| Key | Does |
+|---|---|
+| `j` or `↓`, `k` or `↑` | Select the next or previous task |
+| `Enter` | Open the task on its Project page (`/projects/{project}/tasks/{task}`) |
+| `x` | Tick the selected task |
+| `m` | Open Move to beside the selected row: `u` Up next, `i` In progress, `w` Waiting on you (`waiting Kai`), `o` Waiting on someone else (asks who). `Esc` closes it. |
+| `z` | Undo the last tick made on this page, while that task is still in Done with `from` |
+| `/` | Focus the text filter; `Esc` or `Enter` leaves it |
+
+- Every edit goes through the API with the etag of that project's TASKS.md, read with the page's props. One edit runs at a time: keys that edit wait until the page has reloaded after the last one. A task whose file isn't editable can be selected and opened, not edited.
+- A refused edit shows its message in the status line under the list; a `412` links to the task's Project page, where the conflict shows.
 
 ## Review
 
