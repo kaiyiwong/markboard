@@ -28,7 +28,7 @@ How this project looks, beyond following the rules. See `design-system/SPEC.md` 
 
 Feel: A calm workbench: each page leads with the one number it's about, then the work in clear groups, quiet enough to keep open all day.
 
-Key element per page: Projects, open tasks across active projects; Project, "2 of 6" done with a progress bar; Pipeline, open applications; Brief, the brief's day ("Thursday, Oct 8"), with each section on its own surface and its count; Night, "3 waiting on you", with one agenda row per thing that waits, each linking to its card.
+Key element per page: Projects, open tasks across active projects; Project, "2 of 6" done with a progress bar; Pipeline, open applications; Brief, the brief's day ("Thursday, Oct 8"), with each section on its own surface and its count; Night, "3 waiting on you", with one agenda row per thing that waits, each linking to its card; Tasks, "11 waiting on you", with the open total beside it.
 
 Signature: the task row, with its ID, title, due chip and plain-text facts, which ticks into Done: it lands at the top of Done from the direction it came, with a brief accent tint (any task that changes section does the same, including one an agent moved).
 

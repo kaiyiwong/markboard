@@ -30,6 +30,7 @@ PAGES = {
     'project-errors': '/projects/muse-lab',
     'project-no-tasks': '/projects/reading-list',
     'pipeline': '/pipeline',
+    'tasks': '/tasks',
     'brief': '/brief',
     'brief-past': '/brief/2026-10-05',
 }

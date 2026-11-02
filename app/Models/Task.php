@@ -18,6 +18,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Unguarded]
 class Task extends Model
 {
+    /** `waiting` values that mean Kai himself, lowercased: the hub's KAI_NAMES (its scripts/check-review.py). */
+    public const array KAI = ['kai', 'kai wong', 'kaiyi', 'kaiyi wong'];
+
     /** @return BelongsTo<Project, $this> */
     public function project(): BelongsTo
     {

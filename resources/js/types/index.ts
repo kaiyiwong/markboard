@@ -275,3 +275,22 @@ export interface NightQueueItem {
     /** The task's latest outcome, if it has run. */
     last: NightOutcome | null;
 }
+
+/** The Tasks page's groups, in the order they show (TaskListController::GROUPS). */
+export type TaskGroup = 'waiting-you' | 'in-progress' | 'up-next' | 'waiting-others';
+
+/** A task on the Tasks page. */
+export interface TaskListItem {
+    project_id: string;
+    group: TaskGroup;
+    task: Task;
+    /** `since` in Waiting on, `started` in In progress; the date its age counts from. */
+    age_from: string | null;
+}
+
+/** A project on the Tasks page, with its TASKS.md etag (null when the file can't be edited). */
+export interface TaskListProject {
+    id: string;
+    name: string;
+    etag: string | null;
+}
