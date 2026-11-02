@@ -25,7 +25,7 @@ function errorFixtures(): array
         'no table' => ['error-no-table.md', [[0, 'no table with the columns company, role, stage, next action, date']], [], 0],
         'no separator' => ['error-no-separator.md', [[3, 'no separator line under the table header']], [], 1],
         'wrong cell count' => ['error-cell-count.md', [[5, 'row has 4 cells, the header has 5'], [6, 'row has 6 cells, the header has 5']], [], 1],
-        'unknown stage' => ['error-stage.md', [[5, 'stage "ghosted" is not one of applied, screening, interviewing, offer, accepted, rejected, withdrawn, closed']], [], 1],
+        'unknown stage' => ['error-stage.md', [[5, 'stage "ghosted" is not one of applied, screening, interviewing, waiting, offer, accepted, rejected, withdrawn, closed']], [], 1],
         'bad dates' => ['error-date.md', [[5, 'bad date: 2026-02-30'], [6, 'bad date: 9 Oct']], [], 2],
         'invalid UTF-8' => ['error-invalid-utf8.md', [], [[5, 'not valid UTF-8']], 1],
         'a lone \r' => ['error-line-break.md', [], [[3, 'line break U+000D: only \n and \r\n line breaks can be edited']], 1],

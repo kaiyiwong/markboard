@@ -10,6 +10,7 @@ enum Stage: string
     case Applied = 'applied';
     case Screening = 'screening';
     case Interviewing = 'interviewing';
+    case Waiting = 'waiting';
     case Offer = 'offer';
     case Accepted = 'accepted';
     case Rejected = 'rejected';
@@ -18,6 +19,6 @@ enum Stage: string
 
     public function isOpen(): bool
     {
-        return in_array($this, [self::Applied, self::Screening, self::Interviewing, self::Offer], true);
+        return in_array($this, [self::Applied, self::Screening, self::Interviewing, self::Waiting, self::Offer], true);
     }
 }

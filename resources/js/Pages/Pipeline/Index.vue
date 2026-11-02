@@ -29,7 +29,7 @@ const when = (date: string) => relativeDate(today.value, date);
 // The page's key element: open applications across every board, then the next action that's due.
 const summary = computed(() => {
     const open = props.boards.flatMap((board) => board.rows.filter((row) => row.stage !== null && props.stages.open.includes(row.stage)));
-    const next = open.filter((row) => row.date !== null).sort((a, b) => a.date!.localeCompare(b.date!))[0] ?? null;
+    const next = open.filter((row) => row.date !== null && row.stage !== 'waiting').sort((a, b) => a.date!.localeCompare(b.date!))[0] ?? null;
     return { open: open.length, next };
 });
 
@@ -113,7 +113,7 @@ function onDragEnd() {
                 <Icon name="alert" /><span>{{ refusal(dropResult.result) }}</span>
             </p>
 
-            <div class="grid columns">
+            <div class="grid columns" :style="{ '--lanes': stages.open.length }">
                 <section
                     v-for="stage in stages.open"
                     :key="stage"
@@ -241,7 +241,7 @@ function onDragEnd() {
     color: var(--warning-fg-strong);
 }
 
-/* Four open stages: one column on a phone, two from 640, four from 1024 (spans of the page grid). */
+/* One lane per row on a phone, two from 640 (spans of the page grid), every open stage in one row from 1024. */
 .columns {
     row-gap: var(--space-4);
 }
@@ -256,8 +256,12 @@ function onDragEnd() {
 }
 
 @media (min-width: 1024px) {
+    .columns {
+        --cols: var(--lanes);
+    }
+
     .column {
-        grid-column: span 3;
+        grid-column: span 1;
     }
 }
 

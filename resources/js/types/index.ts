@@ -2,7 +2,7 @@
 
 export type SectionName = 'Up next' | 'In progress' | 'Waiting on' | 'Done';
 
-export type Stage = 'applied' | 'screening' | 'interviewing' | 'offer' | 'accepted' | 'rejected' | 'withdrawn' | 'closed';
+export type Stage = 'applied' | 'screening' | 'interviewing' | 'waiting' | 'offer' | 'accepted' | 'rejected' | 'withdrawn' | 'closed';
 
 /** A format error, at its 1-based line (0 for the file as a whole). */
 export interface FormatError {

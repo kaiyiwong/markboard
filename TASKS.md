@@ -17,6 +17,9 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
 ## Waiting on
 
 ## Done
+- [x] T20 Pipeline stage `waiting`: an open row whose next move is theirs, with its own lane, never the page's next action (done 2026-11-02)
+  proof: the page, sync, parser and API tests cover the demo's waiting row and the new stage list; the full suite, lint, analyse, typecheck and build pass
+  note: Kai, 2026-11-02: a row stuck in Interviewing after the interview sat in the hub's Top today every day. The hub keeps waiting rows out of Top today (hub T233). At desktop width the lanes take one grid column per open stage, since five don't divide the 12-column grid
 - [x] T18 Review page: every task waiting on Kai across projects as one card at a time, with its review card's question and images, answered with Pick, Approve, Redo, a choice, Done or Drop (started 2026-10-28, done 2026-10-28, evidence tests/Feature/ReviewApiTest.php and tests/Feature/ReviewPageTest.php, from In progress)
   proof: feature tests for the page's props on the demo hub (a task with a card of each kind, a task with no card, a bad card shown as text), each answer action writing the right TASKS.md lines and deleting the card, the image route refusing paths outside a registered project; the full suite, lint, analyse, typecheck and build pass
   note: card format in the hub's docs/spec.md, Review cards (hub T66). Answers: Pick, Approve, Redo and a choice add `note: Kai <date>: <answer>` (plus Kai's note) and move the task to Up next without `waiting` and `since`; Send writes the note alone; Done ticks; Drop cancels. Spec: docs/spec.md, Review
