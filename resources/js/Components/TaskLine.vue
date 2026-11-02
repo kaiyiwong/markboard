@@ -105,6 +105,7 @@ const fact = computed(() => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-box: normal;
 }
 
 .id {
