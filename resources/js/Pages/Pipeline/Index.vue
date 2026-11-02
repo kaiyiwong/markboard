@@ -124,7 +124,7 @@ function onDragEnd() {
                     @dragleave="over = null"
                     @drop.prevent="onDrop(board, stage)"
                 >
-                    <h3 class="p-label heading">{{ label(stage) }} <span class="num count">{{ inStage(board.rows, stage).length }}</span></h3>
+                    <h3 class="p-label heading inset">{{ label(stage) }} <span class="num count">{{ inStage(board.rows, stage).length }}</span></h3>
                     <ul class="cards stack gap-3">
                         <li
                             v-for="row in inStage(board.rows, stage)"
@@ -165,7 +165,7 @@ function onDragEnd() {
                             </template>
                         </li>
                     </ul>
-                    <p v-if="!inStage(board.rows, stage).length" class="p-caption">Nothing {{ stage }}.</p>
+                    <p v-if="!inStage(board.rows, stage).length" class="p-caption inset">Nothing {{ stage }}.</p>
                 </section>
             </div>
 
@@ -271,7 +271,11 @@ function onDragEnd() {
     display: flex;
     justify-content: space-between;
     gap: var(--space-2);
-    padding: var(--space-1) var(--space-1) 0;
+    padding-block-start: var(--space-1);
+}
+
+.inset {
+    padding-inline: var(--space-4);
 }
 
 .count {
