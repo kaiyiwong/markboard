@@ -13,14 +13,13 @@ Build tasks for Markboard. Spec: docs/spec.md. Decisions: docs/decisions.md.
   note: 2026-10-13 Kai found the first build's hierarchy unclear (every review card fully open, the actions at the bottom); the page now leads with what waits on him and each review card folds its evidence
   note: 2026-10-13 rebuilt to Kai's mocks (decisions round 5, D37 to D39): optional short fields from the verifier and chief of staff with the long text as fallback, questions with choices, quick closes (Close ticks, Keep writes kept:), structured triage, JetBrains Mono and a deeper teal. The hub's verifier and chief-of-staff prompts write them (hub T49)
   note: 2026-10-13 Merge ticks a `T<n>` task inside the merge commit and the page lists projects whose main isn't pushed (D40)
-- [ ] T21 Every page snapshot passes check_page.py's near-miss and font-size checks, added after T12 (started 2026-11-02)
-  proof: check_page.py prints "all checks passed" for every snapshot in tests/Snapshots/snapshot.py on the demo hub; npm run lint:css and the full suite pass
-  note: 2026-11-02 fixed on branch t21/near-misses: Projects summary names at the title size (3 sizes) and a wider dot gap; tile chips above the progress bar, lined up with the tally; task rows inset like their section heading, checkbox at the start; pipeline lane headings inset like the card text; Past briefs label inset like its links; brief sections in a grid, side by side at one height. The 320px sideways scroll on every page is the header tabs, fixed on t19/tasks (T19)
-  note: Left: Kai's look at the before and after shots
 
 ## Waiting on
 
 ## Done
+- [x] T21 Every page snapshot passes check_page.py's near-miss and font-size checks, added after T12 (started 2026-11-02, done 2026-11-02, evidence PR #16, from In progress)
+  proof: check_page.py prints "all checks passed" for every snapshot in tests/Snapshots/snapshot.py on the demo hub; npm run lint:css and the full suite pass
+  note: 2026-11-02 Projects summary names at the title size (3 sizes) and a wider dot gap; tile chips above the progress bar, lined up with the tally; task rows inset like their section heading, checkbox at the start; pipeline lane headings inset like the card text; Past briefs label inset like its links; brief sections in a grid, side by side at one height. The 320px sideways scroll on every page is the header tabs, fixed on t19/tasks (T19). Kai approved the before and after shots
 - [x] T18 Review page: every task waiting on Kai across projects as one card at a time, with its review card's question and images, answered with Pick, Approve, Redo, a choice, Done or Drop (started 2026-10-28, done 2026-10-28, evidence tests/Feature/ReviewApiTest.php and tests/Feature/ReviewPageTest.php, from In progress)
   proof: feature tests for the page's props on the demo hub (a task with a card of each kind, a task with no card, a bad card shown as text), each answer action writing the right TASKS.md lines and deleting the card, the image route refusing paths outside a registered project; the full suite, lint, analyse, typecheck and build pass
   note: card format in the hub's docs/spec.md, Review cards (hub T66). Answers: Pick, Approve, Redo and a choice add `note: Kai <date>: <answer>` (plus Kai's note) and move the task to Up next without `waiting` and `since`; Send writes the note alone; Done ticks; Drop cancels. Spec: docs/spec.md, Review
