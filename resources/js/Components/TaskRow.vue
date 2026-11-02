@@ -333,7 +333,7 @@ function onMenuKey(event: KeyboardEvent) {
     grid-template-columns: 5ch minmax(0, 1fr);
     gap: var(--space-3);
     align-items: start;
-    padding: var(--space-4) var(--space-3);
+    padding: var(--space-4) var(--space-5);
 }
 
 /* Editable: the checkbox, the ID, the task, then its tools. */
@@ -343,7 +343,6 @@ function onMenuKey(event: KeyboardEvent) {
 
 .lead {
     display: flex;
-    justify-content: center;
 }
 
 .tools {

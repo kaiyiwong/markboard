@@ -46,6 +46,7 @@ const OPEN = ['Up next', 'In progress', 'Waiting on'] as const;
 const open = (project: ProjectSummary) => OPEN.reduce((sum, section) => sum + project.counts[section], 0);
 const total = (project: ProjectSummary) => open(project) + project.counts.Done;
 const hasTasks = (project: ProjectSummary) => project.folder_found && project.tasks_file !== 'missing';
+const flagged = (project: ProjectSummary) => !project.folder_found || project.tasks_file === 'errors' || project.due !== null || project.sync_error !== null;
 
 // The page's key element: open tasks across the active projects, then what needs attention first.
 const summary = computed(() => {
@@ -132,7 +133,7 @@ const summary = computed(() => {
                 <ul class="stack gap-2 plain">
                     <li v-for="project in summary.attention" :key="project.id" class="flag">
                         <span class="dot" :class="project.due === 'overdue' ? 'is-danger' : 'is-warning'" aria-hidden="true" />
-                        <Link :href="`/projects/${project.id}`" class="p-body link-quiet">{{ project.name }}</Link>
+                        <Link :href="`/projects/${project.id}`" class="p-title link-quiet">{{ project.name }}</Link>
                         <span class="p-caption">{{ project.due === 'overdue' ? 'a task is overdue' : 'a task is due within 7 days' }}</span>
                     </li>
                 </ul>
@@ -154,31 +155,31 @@ const summary = computed(() => {
                 </component>
                 <ul class="tiles">
                     <li v-for="project in list" :key="project.id" class="panel tile">
-                        <div class="tile-head">
-                            <Link :href="`/projects/${project.id}`" class="p-title link-quiet name">{{ project.name }}</Link>
-                            <ul class="chips">
-                                <li v-if="!project.folder_found" class="chip chip-warning"><span class="p-label">Folder not found</span></li>
-                                <li v-else-if="project.tasks_file === 'errors'" class="chip chip-warning">
-                                    <span class="p-label">Not migrated: {{ project.error_count }} {{ project.error_count === 1 ? 'error' : 'errors' }}</span>
-                                </li>
-                                <li v-if="project.due === 'overdue'" class="chip chip-danger"><span class="p-label">Overdue</span></li>
-                                <li v-else-if="project.due === 'soon'" class="chip chip-warning"><span class="p-label">Due within 7 days</span></li>
-                                <li v-if="project.sync_error" class="chip chip-danger"><span class="p-label">Sync failed</span></li>
-                            </ul>
-                        </div>
+                        <Link :href="`/projects/${project.id}`" class="p-title link-quiet name">{{ project.name }}</Link>
                         <p class="p-caption">
                             {{ project.category }}<template v-if="project.next_milestone"> · Next: {{ project.next_milestone }}</template>
                         </p>
-                        <div v-if="hasTasks(project)" class="stack gap-3 progress-block">
-                            <Progress :done="project.counts.Done" :total="total(project)" />
-                            <p class="p-caption num tally">
-                                <span><strong>{{ open(project) }}</strong> open</span>
-                                <span>{{ project.counts['In progress'] }} in progress</span>
-                                <span>{{ project.counts['Waiting on'] }} waiting</span>
-                                <span>{{ project.counts.Done }} done</span>
-                            </p>
+                        <div class="stack gap-3 progress-block">
+                            <div v-if="flagged(project)" class="chips">
+                                <span v-if="!project.folder_found" class="chip chip-warning"><span class="p-label">Folder not found</span></span>
+                                <span v-else-if="project.tasks_file === 'errors'" class="chip chip-warning">
+                                    <span class="p-label">Not migrated: {{ project.error_count }} {{ project.error_count === 1 ? 'error' : 'errors' }}</span>
+                                </span>
+                                <span v-if="project.due === 'overdue'" class="chip chip-danger"><span class="p-label">Overdue</span></span>
+                                <span v-else-if="project.due === 'soon'" class="chip chip-warning"><span class="p-label">Due within 7 days</span></span>
+                                <span v-if="project.sync_error" class="chip chip-danger"><span class="p-label">Sync failed</span></span>
+                            </div>
+                            <template v-if="hasTasks(project)">
+                                <Progress :done="project.counts.Done" :total="total(project)" />
+                                <p class="p-caption num tally">
+                                    <span><strong>{{ open(project) }}</strong> open</span>
+                                    <span>{{ project.counts['In progress'] }} in progress</span>
+                                    <span>{{ project.counts['Waiting on'] }} waiting</span>
+                                    <span>{{ project.counts.Done }} done</span>
+                                </p>
+                            </template>
+                            <p v-else-if="project.folder_found" class="p-caption">Not migrated: no TASKS.md</p>
                         </div>
-                        <p v-else-if="project.folder_found" class="p-caption progress-block">Not migrated: no TASKS.md</p>
                     </li>
                 </ul>
             </component>
@@ -241,7 +242,7 @@ const summary = computed(() => {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--space-1) var(--space-2);
+    gap: var(--space-1) var(--space-3);
 }
 
 /* A status dot: the color repeats the words beside it, never replaces them. */
@@ -277,15 +278,6 @@ const summary = computed(() => {
     grid-template-rows: auto auto 1fr;
     gap: var(--space-3);
     padding: var(--space-5);
-}
-
-.tile-head {
-    min-block-size: var(--control-h-sm);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2) var(--space-3);
 }
 
 .name::after {

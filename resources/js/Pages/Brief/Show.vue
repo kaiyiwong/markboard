@@ -122,21 +122,21 @@ function follow(event: MouseEvent) {
     }
 }
 
-/* Each section is a surface. The first, usually the day's focus, spans the width; the rest flow in
-   newspaper columns, so a short section never leaves a hole beside a long one. */
+/* Each section is a surface. The first, usually the day's focus, spans the width; the rest sit in
+   columns, and sections side by side share one height, so their edges line up. */
 .sections {
-    columns: 24rem;
-    column-gap: var(--space-4);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    gap: var(--space-4);
 }
 
 .sections > :first-child {
-    column-span: all;
+    grid-column: 1 / -1;
 }
 
 .section {
-    break-inside: avoid;
-    margin-block-end: var(--space-4);
     display: grid;
+    align-content: start;
     gap: var(--space-3);
     padding: var(--space-5) var(--space-5) var(--space-2);
 }
@@ -238,6 +238,10 @@ function follow(event: MouseEvent) {
     display: grid;
     gap: var(--space-3);
     padding: var(--space-4);
+}
+
+.past-nav > :not(.past-list) {
+    padding-inline: var(--space-3);
 }
 
 .past-list {
