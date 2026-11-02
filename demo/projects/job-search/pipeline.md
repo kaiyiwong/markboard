@@ -9,3 +9,4 @@ Every company here is fictional.
 | Contoso Labs | Laravel Developer | applied | follow up with the recruiter | 2026-10-12 |
 | Fabrikam | Lead Developer | offer | compare the offer | 2026-10-08 |
 | Litware | Backend Engineer | rejected | none | |
+| Adventure Works | Platform Engineer | waiting | hear back after the final interview | 2026-10-16 |

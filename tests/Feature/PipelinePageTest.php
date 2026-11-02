@@ -17,7 +17,7 @@ it('shows one board per project with a pipeline.md, with its rows and etag', fun
             ->where('boards.0.file.etag', hash_file('sha256', $this->hub.'/projects/job-search/pipeline.md'))
             ->where('boards.0.file.editable', true)
             ->where('stages', [
-                'open' => ['applied', 'screening', 'interviewing', 'offer'],
+                'open' => ['applied', 'screening', 'interviewing', 'waiting', 'offer'],
                 'closed' => ['accepted', 'rejected', 'withdrawn', 'closed'],
             ]));
 
@@ -27,6 +27,7 @@ it('shows one board per project with a pipeline.md, with its rows and etag', fun
         ['position' => 3, 'company' => 'Contoso Labs', 'role' => 'Laravel Developer', 'stage' => 'applied', 'next_action' => 'follow up with the recruiter', 'date' => '2026-10-12'],
         ['position' => 4, 'company' => 'Fabrikam', 'role' => 'Lead Developer', 'stage' => 'offer', 'next_action' => 'compare the offer', 'date' => '2026-10-08'],
         ['position' => 5, 'company' => 'Litware', 'role' => 'Backend Engineer', 'stage' => 'rejected', 'next_action' => 'none', 'date' => null],
+        ['position' => 6, 'company' => 'Adventure Works', 'role' => 'Platform Engineer', 'stage' => 'waiting', 'next_action' => 'hear back after the final interview', 'date' => '2026-10-16'],
     ]);
 });
 

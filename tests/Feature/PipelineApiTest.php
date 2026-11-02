@@ -31,7 +31,7 @@ describe('200: written', function () {
         $this->withHeaders(ifMatch($this->pipeline))
             ->postJson('/api/v1/projects/job-search/pipeline/rows', ['company' => 'Adatum', 'role' => 'Vue Developer', 'stage' => 'applied', 'next_action' => 'send portfolio'])
             ->assertOk()
-            ->assertJsonPath('data.position', 6)
+            ->assertJsonPath('data.position', 7)
             ->assertJsonPath('data.date', null);
 
         expect(file_get_contents($this->pipeline))->toBe($this->original.'| Adatum | Vue Developer | applied | send portfolio |  |'."\n");
@@ -40,7 +40,7 @@ describe('200: written', function () {
 
 describe('the other status codes', function () {
     it('returns 404 for a row that is not in the table', function () {
-        $this->withHeaders(ifMatch($this->pipeline))->patchJson('/api/v1/projects/job-search/pipeline/rows/6', ['stage' => 'offer'])->assertNotFound();
+        $this->withHeaders(ifMatch($this->pipeline))->patchJson('/api/v1/projects/job-search/pipeline/rows/7', ['stage' => 'offer'])->assertNotFound();
         $this->withHeaders(ifMatch($this->pipeline))->patchJson('/api/v1/projects/job-search/pipeline/rows/0', ['stage' => 'offer'])->assertNotFound();
     });
 

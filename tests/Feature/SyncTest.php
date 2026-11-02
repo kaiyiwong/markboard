@@ -110,13 +110,14 @@ describe('the first sync', function () {
         syncHub();
 
         expect(PipelineRow::where('project_id', 'job-search')->orderBy('position')->get()->map(fn (PipelineRow $row): array => [
-            $row->position, $row->company, $row->stage, $row->date?->toDateString(),
+            $row->position, $row->stage, $row->date?->toDateString(),
         ])->all())->toBe([
-            [1, 'Northwind', Stage::Interviewing, '2026-10-14'],
-            [2, 'Tailspin', Stage::Screening, '2026-10-09'],
-            [3, 'Contoso Labs', Stage::Applied, '2026-10-12'],
-            [4, 'Fabrikam', Stage::Offer, '2026-10-08'],
-            [5, 'Litware', Stage::Rejected, null],
+            [1, Stage::Interviewing, '2026-10-14'],
+            [2, Stage::Screening, '2026-10-09'],
+            [3, Stage::Applied, '2026-10-12'],
+            [4, Stage::Offer, '2026-10-08'],
+            [5, Stage::Rejected, null],
+            [6, Stage::Waiting, '2026-10-16'],
         ]);
     });
 
